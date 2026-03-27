@@ -1,0 +1,1002 @@
+{
+  "gpac.cve-2023-4721": {
+    "instance_id": "gpac.cve-2023-4721",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/mpeg2_ps.c b/src/media_tools/mpeg2_ps.c\nindex 0af7a31..25222cc 100644\n--- a/src/media_tools/mpeg2_ps.c\n+++ b/src/media_tools/mpeg2_ps.c\n@@ -266,9 +266,13 @@ int MPEG12_ParseSeqHdr(unsigned char *pbuffer, u32 buflen, s32 *have_mpeg2, u32\n \tu32 scode, ix;\n \ts32 found = -1;\n \t*have_mpeg2 = 0;\n+\t/* Check if buflen is too small or invalid */\n+\tif (buflen < 6) return -1;\n \tbuflen -= 6;\n \tbitrate_int = 0;\n \tfor (ix = 0; ix < buflen; ix++, pbuffer++) {\n+\t\t/* Ensure we have at least 4 bytes remaining to read */\n+\t\tif (ix + 3 >= buflen) break;\n \t\tscode = ((u32)pbuffer[0] << 24) | (pbuffer[1] << 16) | (pbuffer[2] << 8) |\n \t\t        pbuffer[3];\n \n"
+  },
+  "njs.cve-2022-32414": {
+    "instance_id": "njs.cve-2022-32414",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_vmcode.c b/src/njs_vmcode.c\nindex ec47865..1593e76 100644\n--- a/src/njs_vmcode.c\n+++ b/src/njs_vmcode.c\n@@ -797,6 +797,11 @@ next:\n                 pnext = (njs_vmcode_prop_next_t *) pc;\n                 retval = njs_scope_value(vm, pnext->retval);\n \n+                if (njs_slow_path(value2->data.type != NJS_DATA)) {\n+                    njs_type_error(vm, \"invalid property next value\");\n+                    goto error;\n+                }\n+\n                 next = value2->data.u.next;\n \n                 if (next->index < next->array->length) {\n"
+  },
+  "imagemagick.cve-2022-1115": {
+    "instance_id": "imagemagick.cve-2022-1115",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickCore/quantum-import.c b/MagickCore/quantum-import.c\nindex d08fb1f..427b481 100644\n--- a/MagickCore/quantum-import.c\n+++ b/MagickCore/quantum-import.c\n@@ -897,6 +897,8 @@ static void ImportBGRAQuantum(const Image *image,QuantumInfo *quantum_info,\n         {\n           for (x=0; x < (ssize_t) number_pixels; x++)\n           {\n+            if ((x+1)*8 > number_pixels)\n+              break;\n             p=PushShortPixel(quantum_info->endian,p,&pixel);\n             SetPixelRed(image,ClampToQuantum(QuantumRange*\n               HalfToSinglePrecision(pixel)),q);\n@@ -4229,6 +4231,8 @@ static void ImportRGBAQuantum(const Image *image,QuantumInfo *quantum_info,\n         {\n           for (x=0; x < (ssize_t) number_pixels; x++)\n           {\n+            if ((x+1)*8 > number_pixels)\n+              break;\n             p=PushShortPixel(quantum_info->endian,p,&pixel);\n             SetPixelRed(image,ClampToQuantum(QuantumRange*\n               HalfToSinglePrecision(pixel)),q);\n@@ -4248,6 +4252,8 @@ static void ImportRGBAQuantum(const Image *image,QuantumInfo *quantum_info,\n         }\n       for (x=0; x < (ssize_t) number_pixels; x++)\n       {\n+        if ((x+1)*8 > number_pixels)\n+          break;\n         p=PushShortPixel(quantum_info->endian,p,&pixel);\n         SetPixelRed(image,ScaleShortToQuantum(pixel),q);\n         p=PushShortPixel(quantum_info->endian,p,&pixel);\n"
+  },
+  "libsndfile.cve-2018-19432": {
+    "instance_id": "libsndfile.cve-2018-19432",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/programs/sndfile-deinterleave.c b/programs/sndfile-deinterleave.c\nindex e27593e..165defd 100644\n--- a/programs/sndfile-deinterleave.c\n+++ b/programs/sndfile-deinterleave.c\n@@ -89,6 +89,11 @@ main (int argc, char **argv)\n \t\texit (1) ;\n \t\t} ;\n \n+\tif (sfinfo.channels > MAX_CHANNELS)\n+\t{\tprintf (\"\\nError : Input file '%s' has %d channels, which exceeds the maximum supported %d channels.\\n\", argv [1], sfinfo.channels, MAX_CHANNELS) ;\n+\t\texit (1) ;\n+\t\t} ;\n+\n \tstate.channels = sfinfo.channels ;\n \tsfinfo.channels = 1 ;\n \n"
+  },
+  "faad2.cve-2018-20362": {
+    "instance_id": "faad2.cve-2018-20362",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libfaad/specrec.c b/libfaad/specrec.c\nindex 9797d6e..30d0332 100644\n--- a/libfaad/specrec.c\n+++ b/libfaad/specrec.c\n@@ -845,11 +845,15 @@ static uint8_t allocate_channel_pair(NeAACDecStruct *hDecoder,\n     if (hDecoder->fb_intermed[channel] == NULL)\n     {\n         hDecoder->fb_intermed[channel] = (real_t*)faad_malloc(hDecoder->frameLength*sizeof(real_t));\n+        if (hDecoder->fb_intermed[channel] == NULL)\n+            return 26; // Memory allocation failed\n         memset(hDecoder->fb_intermed[channel], 0, hDecoder->frameLength*sizeof(real_t));\n     }\n     if (hDecoder->fb_intermed[paired_channel] == NULL)\n     {\n         hDecoder->fb_intermed[paired_channel] = (real_t*)faad_malloc(hDecoder->frameLength*sizeof(real_t));\n+        if (hDecoder->fb_intermed[paired_channel] == NULL)\n+            return 26; // Memory allocation failed\n         memset(hDecoder->fb_intermed[paired_channel], 0, hDecoder->frameLength*sizeof(real_t));\n     }\n \n@@ -1118,6 +1122,12 @@ uint8_t reconstruct_channel_pair(NeAACDecStruct *hDecoder, ic_stream *ics1, ic_s\n         hDecoder->element_alloced[hDecoder->fr_ch_ele] = 1;\n     }\n \n+    /* Safety check: ensure both fb_intermed arrays are allocated before proceeding */\n+    if (hDecoder->fb_intermed[cpe->channel] == NULL || hDecoder->fb_intermed[cpe->paired_channel] == NULL)\n+    {\n+        return 26; // Memory allocation failed\n+    }\n+\n     /* dequantisation and scaling */\n     retval = quant_to_spec(hDecoder, ics1, spec_data1, spec_coef1, hDecoder->frameLength);\n     if (retval > 0)\n"
+  },
+  "openjpeg.cve-2016-7445": {
+    "instance_id": "openjpeg.cve-2016-7445",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/bin/jp2/convert.c b/src/bin/jp2/convert.c\nindex c130b3b..04cf95c 100644\n--- a/src/bin/jp2/convert.c\n+++ b/src/bin/jp2/convert.c\n@@ -1481,8 +1481,10 @@ static void read_pnm_header(FILE *reader, struct pnm_header *ph)\n         if( !have_wh)\n         {\n             s = skip_int(s, &ph->width);\n+            if(s == NULL) return;\n \n             s = skip_int(s, &ph->height);\n+            if(s == NULL) return;\n \n             have_wh = 1;\n \n"
+  },
+  "libredwg.cve-2020-6609": {
+    "instance_id": "libredwg.cve-2020-6609",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "upx.cve-2017-15056": {
+    "instance_id": "upx.cve-2017-15056",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "exiv2.cve-2018-19607": {
+    "instance_id": "exiv2.cve-2018-19607",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/easyaccess.cpp b/src/easyaccess.cpp\nindex 1eed30c..35aad15 100644\n--- a/src/easyaccess.cpp\n+++ b/src/easyaccess.cpp\n@@ -175,7 +175,7 @@ namespace Exiv2 {\n                     md = md_st;\n                     break;\n                 }\n-                while (strcmp(sensKeys->keys[idx++], md_st->key().c_str()) != 0 && idx < cnt) {}\n+                while (idx < sensKeys->count && strcmp(sensKeys->keys[idx++], md_st->key().c_str()) != 0) {}\n             }\n             break;\n         }\n"
+  },
+  "libiec61850.cve-2023-27772": {
+    "instance_id": "libiec61850.cve-2023-27772",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "exiv2.cve-2017-14859": {
+    "instance_id": "exiv2.cve-2017-14859",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0614": {
+    "instance_id": "mruby.cve-2022-0614",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 6133cbc..79fbfe3 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -2766,6 +2766,9 @@ RETRY_TRY_BLOCK:\n       int lim = a+b*2+1;\n \n       hash = regs[a];\n+      if (!mrb_hash_p(hash)) {\n+        mrb_raise(mrb, E_TYPE_ERROR, \"expected hash\");\n+      }\n       mrb_assert(mrb_hash_p(hash));\n       for (i=a+1; i<lim; i+=2) {\n         mrb_hash_set(mrb, hash, regs[i], regs[i+1]);\n"
+  },
+  "exiv2.cve-2017-17723": {
+    "instance_id": "exiv2.cve-2017-17723",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-0770": {
+    "instance_id": "gpac.cve-2023-0770",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/scenegraph/vrml_proto.c b/src/scenegraph/vrml_proto.c\nindex df30ed0..d3b39a6 100644\n--- a/src/scenegraph/vrml_proto.c\n+++ b/src/scenegraph/vrml_proto.c\n@@ -1275,13 +1275,22 @@ u32 gf_sg_proto_get_root_tag(GF_Proto *proto)\n GF_EXPORT\n Bool gf_sg_proto_field_is_sftime_offset(GF_Node *node, GF_FieldInfo *field)\n {\n+\tstatic u32 recursion_depth = 0;\n \tu32 i;\n \tGF_Route *r;\n \tGF_ProtoInstance *inst;\n \tGF_FieldInfo inf;\n+\tBool ret = 0;\n+\t\n \tif (node->sgprivate->tag != TAG_ProtoNode) return 0;\n \tif (field->fieldType != GF_SG_VRML_SFTIME) return 0;\n \n+\t/* Prevent infinite recursion by limiting recursion depth */\n+\tif (recursion_depth > 100) {\n+\t\treturn 0;\n+\t}\n+\trecursion_depth++;\n+\n \tinst = (GF_ProtoInstance *) node;\n \t/*check in interface if this is ISed */\n \ti=0;\n@@ -1292,11 +1301,20 @@ Bool gf_sg_proto_field_is_sftime_offset(GF_Node *node, GF_FieldInfo *field)\n \n \t\tgf_node_get_field(r->ToNode, r->ToField.fieldIndex, &inf);\n \t\t/*IS to another proto*/\n-\t\tif (r->ToNode->sgprivate->tag == TAG_ProtoNode) return gf_sg_proto_field_is_sftime_offset(r->ToNode, &inf);\n-\t\t/*IS to a startTime/stopTime field*/\n-\t\tif (!stricmp(inf.name, \"startTime\") || !stricmp(inf.name, \"stopTime\")) return 1;\n+\t\tif (r->ToNode->sgprivate->tag == TAG_ProtoNode) {\n+\t\t\tret = gf_sg_proto_field_is_sftime_offset(r->ToNode, &inf);\n+\t\t\tif (ret) break;\n+\t\t} else {\n+\t\t\t/*IS to a startTime/stopTime field*/\n+\t\t\tif (!stricmp(inf.name, \"startTime\") || !stricmp(inf.name, \"stopTime\")) {\n+\t\t\t\tret = 1;\n+\t\t\t\tbreak;\n+\t\t\t}\n+\t\t}\n \t}\n-\treturn 0;\n+\t\n+\trecursion_depth--;\n+\treturn ret;\n }\n \n GF_EXPORT\n"
+  },
+  "mruby.cve-2022-0570": {
+    "instance_id": "mruby.cve-2022-0570",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 6133cbc..62b89a8 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -692,6 +692,9 @@ mrb_f_send(mrb_state *mrb, mrb_value self)\n     mrb_argnum_error(mrb, 0, 1, -1);\n   }\n   else if (n == 15) {\n+    if (RARRAY_LEN(regs[0]) == 0) {\n+      mrb_raise(mrb, E_ARGUMENT_ERROR, \"no method name given\");\n+    }\n     name = mrb_obj_to_sym(mrb, RARRAY_PTR(regs[0])[0]);\n   }\n   else {\n@@ -708,7 +711,12 @@ mrb_f_send(mrb_state *mrb, mrb_value self)\n   ci->u.target_class = c;\n   /* remove first symbol from arguments */\n   if (n == 15) {     /* variable length arguments */\n-    regs[0] = mrb_ary_subseq(mrb, regs[0], 1, RARRAY_LEN(regs[0]) - 1);\n+    if (RARRAY_LEN(regs[0]) <= 1) {\n+      regs[0] = mrb_ary_new(mrb);\n+    }\n+    else {\n+      regs[0] = mrb_ary_subseq(mrb, regs[0], 1, RARRAY_LEN(regs[0]) - 1);\n+    }\n   }\n   else { /* n > 0 */\n     for (int i=0; i<n; i++) {\n"
+  },
+  "exiv2.cve-2018-17230": {
+    "instance_id": "exiv2.cve-2018-17230",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/tiffimage.cpp b/src/tiffimage.cpp\nindex f20c69e..605f686 100644\n--- a/src/tiffimage.cpp\n+++ b/src/tiffimage.cpp\n@@ -200,7 +200,7 @@ namespace Exiv2 {\n         Exiv2::ExifKey            key(\"Exif.Image.InterColorProfile\");\n         Exiv2::ExifData::iterator pos   = exifData_.findKey(key);\n         if ( pos != exifData_.end()  ) {\n-            iccProfile_.alloc(pos->count());\n+            iccProfile_.alloc(pos->size());\n             pos->copy(iccProfile_.pData_,bo);\n         }\n \n"
+  },
+  "openexr.cve-2020-16589": {
+    "instance_id": "openexr.cve-2020-16589",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "openjpeg.cve-2017-14041": {
+    "instance_id": "openjpeg.cve-2017-14041",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/bin/jp2/convert.c b/src/bin/jp2/convert.c\nindex 5459f7d..e606c9b 100644\n--- a/src/bin/jp2/convert.c\n+++ b/src/bin/jp2/convert.c\n@@ -1185,7 +1185,7 @@ opj_image_t* pgxtoimage(const char *filename, opj_cparameters_t *parameters)\n     }\n \n     fseek(f, 0, SEEK_SET);\n-    if (fscanf(f, \"PG%[ \\t]%c%c%[ \\t+-]%d%[ \\t]%d%[ \\t]%d\", temp, &endian1,\n+    if (fscanf(f, \"PG%31[ \\t]%c%c%31[ \\t+-]%d%31[ \\t]%d%31[ \\t]%d\", temp, &endian1,\n                &endian2, signtmp, &prec, temp, &w, temp, &h) != 9) {\n         fclose(f);\n         fprintf(stderr,\n"
+  },
+  "libredwg.cve-2020-23861": {
+    "instance_id": "libredwg.cve-2020-23861",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/decode_r2007.c b/src/decode_r2007.c\nindex ca1f23d..44ec2a6 100644\n--- a/src/decode_r2007.c\n+++ b/src/decode_r2007.c\n@@ -663,7 +663,17 @@ read_system_page (Bit_Chain *dat, int64_t size_comp, int64_t size_uncomp,\n   if (size_comp < size_uncomp)\n     error = decompress_r2007 (data, size_uncomp, pedata, MIN (pedata_size, size_comp));\n   else\n-    memcpy (data, pedata, size_uncomp);\n+    {\n+      if (size_uncomp > pedata_size)\n+        {\n+          LOG_ERROR (\"Heap overflow prevented: size_uncomp=%ld > pedata_size=%ld\",\n+                     (long)size_uncomp, (long)pedata_size);\n+          free (pedata);\n+          free (data);\n+          return NULL;\n+        }\n+      memcpy (data, pedata, size_uncomp);\n+    }\n   free (pedata);\n \n   if (error >= DWG_ERR_CRITICAL)\n"
+  },
+  "faad2.cve-2018-20197": {
+    "instance_id": "faad2.cve-2018-20197",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..8a235c6 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -485,6 +485,11 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Clamp the loop boundaries to prevent buffer overflow */\n+            if (ml1 >= MAX_M)\n+                ml1 = MAX_M - 1;\n+            if (ml2 > MAX_M)\n+                ml2 = MAX_M;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -949,6 +954,11 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Clamp the loop boundaries to prevent buffer overflow */\n+            if (ml1 >= MAX_M)\n+                ml1 = MAX_M - 1;\n+            if (ml2 > MAX_M)\n+                ml2 = MAX_M;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -1193,6 +1203,11 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Clamp the loop boundaries to prevent buffer overflow */\n+            if (ml1 >= MAX_M)\n+                ml1 = MAX_M - 1;\n+            if (ml2 > MAX_M)\n+                ml2 = MAX_M;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n"
+  },
+  "openjpeg.cve-2021-3575": {
+    "instance_id": "openjpeg.cve-2021-3575",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/bin/common/color.c b/src/bin/common/color.c\nindex 27f15f1..842e647 100644\n--- a/src/bin/common/color.c\n+++ b/src/bin/common/color.c\n@@ -289,94 +289,148 @@ static void sycc420_to_rgb(opj_image_t *img)\n         }\n     }\n \n-    for (i = 0U; i < (loopmaxh & ~(size_t)1U); i += 2U) {\n-        size_t j;\n-\n-        ny = y + maxw;\n-        nr = r + maxw;\n-        ng = g + maxw;\n-        nb = b + maxw;\n-\n-        if (offx > 0U) {\n-            sycc_to_rgb(offset, upb, *y, 0, 0, r, g, b);\n-            ++y;\n-            ++r;\n-            ++g;\n-            ++b;\n-            sycc_to_rgb(offset, upb, *ny, *cb, *cr, nr, ng, nb);\n-            ++ny;\n-            ++nr;\n-            ++ng;\n-            ++nb;\n-        }\n-\n-        for (j = 0; j < (loopmaxw & ~(size_t)1U); j += 2U) {\n-            sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n-            ++y;\n-            ++r;\n-            ++g;\n-            ++b;\n-            sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n-            ++y;\n-            ++r;\n-            ++g;\n-            ++b;\n-\n-            sycc_to_rgb(offset, upb, *ny, *cb, *cr, nr, ng, nb);\n-            ++ny;\n-            ++nr;\n-            ++ng;\n-            ++nb;\n-            sycc_to_rgb(offset, upb, *ny, *cb, *cr, nr, ng, nb);\n-            ++ny;\n-            ++nr;\n-            ++ng;\n-            ++nb;\n-            ++cb;\n-            ++cr;\n-        }\n-        if (j < loopmaxw) {\n-            sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n-            ++y;\n-            ++r;\n-            ++g;\n-            ++b;\n+    {\n+        /* Calculate actual chroma dimensions */\n+        size_t chroma_w = (size_t)img->comps[1].w;\n+        size_t chroma_h = (size_t)img->comps[1].h;\n+        const int *cb_end = cb + chroma_w * chroma_h;\n+        const int *cr_end = cr + chroma_w * chroma_h;\n+\n+        for (i = 0U; i < (loopmaxh & ~(size_t)1U); i += 2U) {\n+            size_t j;\n+\n+            ny = y + maxw;\n+            nr = r + maxw;\n+            ng = g + maxw;\n+            nb = b + maxw;\n+\n+            if (offx > 0U) {\n+                sycc_to_rgb(offset, upb, *y, 0, 0, r, g, b);\n+                ++y;\n+                ++r;\n+                ++g;\n+                ++b;\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *ny, *cb, *cr, nr, ng, nb);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *ny, 0, 0, nr, ng, nb);\n+                }\n+                ++ny;\n+                ++nr;\n+                ++ng;\n+                ++nb;\n+            }\n \n-            sycc_to_rgb(offset, upb, *ny, *cb, *cr, nr, ng, nb);\n-            ++ny;\n-            ++nr;\n-            ++ng;\n-            ++nb;\n-            ++cb;\n-            ++cr;\n+            for (j = 0; j < (loopmaxw & ~(size_t)1U); j += 2U) {\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *y, 0, 0, r, g, b);\n+                }\n+                ++y;\n+                ++r;\n+                ++g;\n+                ++b;\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *y, 0, 0, r, g, b);\n+                }\n+                ++y;\n+                ++r;\n+                ++g;\n+                ++b;\n+\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *ny, *cb, *cr, nr, ng, nb);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *ny, 0, 0, nr, ng, nb);\n+                }\n+                ++ny;\n+                ++nr;\n+                ++ng;\n+                ++nb;\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *ny, *cb, *cr, nr, ng, nb);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *ny, 0, 0, nr, ng, nb);\n+                }\n+                ++ny;\n+                ++nr;\n+                ++ng;\n+                ++nb;\n+                if (cb < cb_end - 1 && cr < cr_end - 1) {\n+                    ++cb;\n+                    ++cr;\n+                }\n+            }\n+            if (j < loopmaxw) {\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *y, 0, 0, r, g, b);\n+                }\n+                ++y;\n+                ++r;\n+                ++g;\n+                ++b;\n+\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *ny, *cb, *cr, nr, ng, nb);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *ny, 0, 0, nr, ng, nb);\n+                }\n+                ++ny;\n+                ++nr;\n+                ++ng;\n+                ++nb;\n+                if (cb < cb_end - 1 && cr < cr_end - 1) {\n+                    ++cb;\n+                    ++cr;\n+                }\n+            }\n+            y += maxw;\n+            r += maxw;\n+            g += maxw;\n+            b += maxw;\n         }\n-        y += maxw;\n-        r += maxw;\n-        g += maxw;\n-        b += maxw;\n-    }\n-    if (i < loopmaxh) {\n-        size_t j;\n-\n-        for (j = 0U; j < (maxw & ~(size_t)1U); j += 2U) {\n-            sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+        if (i < loopmaxh) {\n+            size_t j;\n+\n+            for (j = 0U; j < (maxw & ~(size_t)1U); j += 2U) {\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *y, 0, 0, r, g, b);\n+                }\n \n-            ++y;\n-            ++r;\n-            ++g;\n-            ++b;\n+                ++y;\n+                ++r;\n+                ++g;\n+                ++b;\n \n-            sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *y, 0, 0, r, g, b);\n+                }\n \n-            ++y;\n-            ++r;\n-            ++g;\n-            ++b;\n-            ++cb;\n-            ++cr;\n-        }\n-        if (j < maxw) {\n-            sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+                ++y;\n+                ++r;\n+                ++g;\n+                ++b;\n+                if (cb < cb_end - 1 && cr < cr_end - 1) {\n+                    ++cb;\n+                    ++cr;\n+                }\n+            }\n+            if (j < maxw) {\n+                if (cb < cb_end && cr < cr_end) {\n+                    sycc_to_rgb(offset, upb, *y, *cb, *cr, r, g, b);\n+                } else {\n+                    sycc_to_rgb(offset, upb, *y, 0, 0, r, g, b);\n+                }\n+            }\n         }\n     }\n \n"
+  },
+  "exiv2.cve-2017-14857": {
+    "instance_id": "exiv2.cve-2017-14857",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "jq.cve-2023-50246": {
+    "instance_id": "jq.cve-2023-50246",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/decNumber/decNumber.c b/src/decNumber/decNumber.c\nindex 83293ef..194ccbc 100644\n--- a/src/decNumber/decNumber.c\n+++ b/src/decNumber/decNumber.c\n@@ -441,7 +441,7 @@ uInt decNumberToUInt32(const decNumber *dn, decContext *set) {\n /*  dn is the decNumber to convert                                    */\n /*  string is the string where the result will be laid out            */\n /*                                                                    */\n-/*  string must be at least dn->digits+14 characters long             */\n+/*  string must be at least dn->digits+24 characters long             */\n /*                                                                    */\n /*  No error is possible, and no status can be set.                   */\n /* ------------------------------------------------------------------ */\n@@ -3609,7 +3609,7 @@ decNumber * decNumberZero(decNumber *dn) {\n /*   string is where to lay out the number                            */\n /*   eng    is 1 if Engineering, 0 if Scientific                      */\n /*                                                                    */\n-/* string must be at least dn->digits+14 characters long              */\n+/* string must be at least dn->digits+24 characters long              */\n /* No error is possible.                                              */\n /*                                                                    */\n /* Note that this routine can generate a -0 or 0.000.  These are      */\ndiff --git a/src/jv.c b/src/jv.c\nindex 6ca1e1d..0c5ff27 100644\n--- a/src/jv.c\n+++ b/src/jv.c\n@@ -635,7 +635,7 @@ static const char* jvp_literal_number_literal(jv n) {\n   }\n \n   if (plit->literal_data == NULL) {\n-    int len = jvp_dec_number_ptr(n)->digits + 14;\n+    int len = jvp_dec_number_ptr(n)->digits + 24;\n     plit->literal_data = jv_mem_alloc(len);\n \n     // Preserve the actual precision as we have parsed it\n"
+  },
+  "libredwg.cve-2021-42585": {
+    "instance_id": "libredwg.cve-2021-42585",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "readstat.cve-2018-5698": {
+    "instance_id": "readstat.cve-2018-5698",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/stata/readstat_dta_parse_timestamp.c b/src/stata/readstat_dta_parse_timestamp.c\nindex 9593743..c472da7 100644\n--- a/src/stata/readstat_dta_parse_timestamp.c\n+++ b/src/stata/readstat_dta_parse_timestamp.c\n@@ -317,7 +317,7 @@ _again:\n \n     if (cs < 40|| p != pe) {\n         if (ctx->error_handler) {\n-            snprintf(ctx->error_buf, sizeof(ctx->error_buf), \"Invalid timestamp string (length=%d): %*s\", (int)len, (int)-len, data);\n+            snprintf(ctx->error_buf, sizeof(ctx->error_buf), \"Invalid timestamp string (length=%d): %.*s\", (int)len, (int)len, data);\n             ctx->error_handler(ctx->error_buf, ctx->user_ctx);\n         }\n         retval = READSTAT_ERROR_BAD_TIMESTAMP;\n"
+  },
+  "faad2.cve-2018-20357": {
+    "instance_id": "faad2.cve-2018-20357",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..850b834 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -485,6 +485,10 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Validate and clamp ml1 and ml2 to prevent buffer overflow */\n+            if (ml1 > MAX_M) ml1 = MAX_M;\n+            if (ml2 > MAX_M) ml2 = MAX_M;\n+            if (ml2 < ml1) ml2 = ml1;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -949,6 +953,10 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Validate and clamp ml1 and ml2 to prevent buffer overflow */\n+            if (ml1 > MAX_M) ml1 = MAX_M;\n+            if (ml2 > MAX_M) ml2 = MAX_M;\n+            if (ml2 < ml1) ml2 = ml1;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -1193,6 +1201,10 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Validate and clamp ml1 and ml2 to prevent buffer overflow */\n+            if (ml1 > MAX_M) ml1 = MAX_M;\n+            if (ml2 > MAX_M) ml2 = MAX_M;\n+            if (ml2 < ml1) ml2 = ml1;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -1328,6 +1340,10 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n \n             for (m = ml1; m < ml2; m++)\n             {\n+                /* Additional bounds check to prevent buffer overflow */\n+                if (l >= MAX_L_E || m >= MAX_M)\n+                    continue;\n+\n                 /* apply compensation to gain, noise floor sf's and sinusoid levels */\n #ifndef SBR_LOW_POWER\n                 adj->G_lim_boost[l][m] = sqrt(G_lim[m] * G_boost);\n"
+  },
+  "libredwg.cve-2021-42586": {
+    "instance_id": "libredwg.cve-2021-42586",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/decode_r2007.c b/src/decode_r2007.c\nindex 3b5af4c..b261b9e 100644\n--- a/src/decode_r2007.c\n+++ b/src/decode_r2007.c\n@@ -546,6 +546,11 @@ decompress_r2007 (BITCODE_RC *restrict dst, const unsigned dst_size,\n               LOG_ERROR (\"Decompression error: offset underflow\");\n               return DWG_ERR_INTERNALERROR;\n             }\n+          if (dst + length > dst_end)\n+            {\n+              LOG_ERROR (\"Decompression error: length overflow\");\n+              return DWG_ERR_INTERNALERROR;\n+            }\n           LOG_INSANE (\"copy_bytes (%p, %u, %u)\\n\", dst, length, offset);\n           copy_bytes (dst, length, offset);\n \n@@ -802,6 +807,14 @@ read_data_section (Bit_Chain *sec_dat, Bit_Chain *dat,\n                      (long)section_page->offset, (long)max_decomp_size)\n           return DWG_ERR_VALUEOUTOFBOUNDS;\n         }\n+      if (section_page->offset + section_page->uncomp_size > max_decomp_size)\n+        {\n+          free (decomp);\n+          LOG_ERROR (\"Invalid section_page->offset + uncomp_size %ld > %ld\",\n+                     (long)(section_page->offset + section_page->uncomp_size),\n+                     (long)max_decomp_size)\n+          return DWG_ERR_VALUEOUTOFBOUNDS;\n+        }\n \n       dat->byte = page->offset;\n       // only if compressed. TODO: Isn't there a compressed flag as with 2004+?\n"
+  },
+  "mruby.cve-2022-1427": {
+    "instance_id": "mruby.cve-2022-1427",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 5013c87..74ad94c 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1759,6 +1759,11 @@ RETRY_TRY_BLOCK:\n           goto super_typeerror;\n         }\n       }\n+      if (!target_class) {\n+        mrb_value exc = mrb_exc_new_lit(mrb, E_NOMETHOD_ERROR, \"super called outside of method\");\n+        mrb_exc_set(mrb, exc);\n+        goto L_RAISE;\n+      }\n       recv = regs[0];\n       if (!mrb_obj_is_kind_of(mrb, recv, target_class)) {\n       super_typeerror: ;\n"
+  },
+  "gpac.cve-2023-46001": {
+    "instance_id": "gpac.cve-2023-46001",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "upx.cve-2023-23457": {
+    "instance_id": "upx.cve-2023-23457",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/p_lx_elf.cpp b/src/p_lx_elf.cpp\nindex fa55470..5a731aa 100644\n--- a/src/p_lx_elf.cpp\n+++ b/src/p_lx_elf.cpp\n@@ -5780,7 +5780,7 @@ PackLinuxElf64::invert_pt_dynamic(Elf64_Dyn const *dynp, upx_uint64_t headway)\n         }\n         if (file_size <= dt_offsets[n_off]) {\n             char msg[60]; snprintf(msg, sizeof(msg), \"bad DT_{%#x} = %#x (beyond EOF)\",\n-                dt_names[k], dt_offsets[n_off]);\n+                dt_names[j], dt_offsets[n_off]);\n                 throwCantPack(msg);\n         }\n         n_off += !!dt_offsets[n_off];\n"
+  },
+  "gpac.cve-2023-42298": {
+    "instance_id": "gpac.cve-2023-42298",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/bifs/unquantize.c b/src/bifs/unquantize.c\nindex 008a830..5e12738 100644\n--- a/src/bifs/unquantize.c\n+++ b/src/bifs/unquantize.c\n@@ -233,6 +233,7 @@ Fixed Q_InverseQuantize(Fixed Min, Fixed Max, u32 NbBits, u32 value)\n \n GF_Err Q_DecFloat(GF_BifsDecoder *codec, GF_BitStream *bs, u32 FieldType, SFVec3f BMin, SFVec3f BMax, u32 NbBits, void *field_ptr)\n {\n+\tif (NbBits == 0 || NbBits > 32) return GF_NON_COMPLIANT_BITSTREAM;\n \tswitch (FieldType) {\n \tcase GF_SG_VRML_SFINT32:\n \t\treturn GF_NON_COMPLIANT_BITSTREAM;\n@@ -284,7 +285,7 @@ GF_Err Q_DecCoordOnUnitSphere(GF_BifsDecoder *codec, GF_BitStream *bs, u32 NbBit\n \ts32 value;\n \tFixed tang[4], delta;\n \ts32 dir;\n-\tif (NbBits>32) return GF_NON_COMPLIANT_BITSTREAM;\n+\tif (NbBits == 0 || NbBits > 32) return GF_NON_COMPLIANT_BITSTREAM;\n \tif (NbComp != 2 && NbComp != 3) return GF_BAD_PARAM;\n \n \t//only 2 or 3 comp in the quantized version\n"
+  },
+  "gpac.cve-2023-2840": {
+    "instance_id": "gpac.cve-2023-2840",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/isomedia/movie_fragments.c b/src/isomedia/movie_fragments.c\nindex b742078..1b608ce 100644\n--- a/src/isomedia/movie_fragments.c\n+++ b/src/isomedia/movie_fragments.c\n@@ -2877,7 +2877,13 @@ GF_Err gf_isom_fragment_add_sample_ex(GF_ISOFile *movie, GF_ISOTrackID TrackID,\n \tif (traf->trex->track->Media->handler->handlerType == GF_ISOM_MEDIA_OD) {\n \t\t//this may fail if dependencies are not well done ...\n \t\tMedia_ParseODFrame(traf->trex->track->Media, sample, &od_sample);\n-\t\tsample = od_sample;\n+\t\tif (od_sample) {\n+\t\t\tsample = od_sample;\n+\t\t} else {\n+\t\t\t// If OD frame parsing fails, we cannot proceed with a NULL sample\n+\t\t\tif (od_sample) gf_isom_sample_del(&od_sample);\n+\t\t\treturn GF_BAD_PARAM;\n+\t\t}\n \t}\n \n \tent.size = sample->dataLength;\n"
+  },
+  "mruby.cve-2022-0240": {
+    "instance_id": "mruby.cve-2022-0240",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/class.c b/src/class.c\nindex ec9c648..ac2fccb 100644\n--- a/src/class.c\n+++ b/src/class.c\n@@ -1682,6 +1682,9 @@ mrb_singleton_class_ptr(mrb_state *mrb, mrb_value v)\n     break;\n   }\n   obj = mrb_basic_ptr(v);\n+  if (obj->c == NULL) {\n+    return NULL;\n+  }\n   prepare_singleton_class(mrb, obj);\n   return obj->c;\n }\n"
+  },
+  "imagemagick.cve-2019-13303": {
+    "instance_id": "imagemagick.cve-2019-13303",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickCore/composite.c b/MagickCore/composite.c\nindex 78d6dff..ba23d3c 100644\n--- a/MagickCore/composite.c\n+++ b/MagickCore/composite.c\n@@ -435,7 +435,12 @@ static MagickBooleanType CompositeOverImage(Image *image,\n             if (channel == AlphaPixelChannel)\n               pixel=(MagickRealType) TransparentAlpha;\n             else\n-              pixel=(MagickRealType) q[i];\n+              {\n+                if (i < (ssize_t) GetPixelChannels(source_image))\n+                  pixel=(MagickRealType) source[channel];\n+                else\n+                  pixel=(MagickRealType) q[i];\n+              }\n             q[i]=clamp != MagickFalse ? ClampPixel(pixel) :\n               ClampToQuantum(pixel);\n           }\n@@ -663,7 +668,10 @@ MagickExport MagickBooleanType CompositeImage(Image *image,\n             if (traits == UndefinedPixelTrait)\n               continue;\n             if (source_traits != UndefinedPixelTrait)\n-              SetPixelChannel(image,channel,p[i],q);\n+              {\n+                if (i < (ssize_t) GetPixelChannels(source_image))\n+                  SetPixelChannel(image,channel,p[i],q);\n+              }\n             else if (channel == AlphaPixelChannel)\n               SetPixelChannel(image,channel,OpaqueAlpha,q);\n           }\n"
+  },
+  "yara.cve-2016-10211": {
+    "instance_id": "yara.cve-2016-10211",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "faad2.cve-2021-32278": {
+    "instance_id": "faad2.cve-2021-32278",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "faad2.cve-2021-32272": {
+    "instance_id": "faad2.cve-2021-32272",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/frontend/mp4read.c b/frontend/mp4read.c\nindex 1414684..6d36a09 100644\n--- a/frontend/mp4read.c\n+++ b/frontend/mp4read.c\n@@ -337,6 +337,7 @@ static int stszin(int size)\n {\n     int cnt;\n     uint32_t ofs;\n+    size_t allocation_size;\n \n     // version/flags\n     u32in();\n@@ -344,9 +345,23 @@ static int stszin(int size)\n     u32in();\n     // Number of entries\n     mp4config.frame.ents = u32in();\n-    // fixme: check atom size\n-    mp4config.frame.data = malloc(sizeof(*mp4config.frame.data)\n-                                  * (mp4config.frame.ents + 1));\n+    \n+    // Check for integer overflow in allocation calculation\n+    if (mp4config.frame.ents == UINT32_MAX || \n+        (mp4config.frame.ents + 1) > SIZE_MAX / sizeof(*mp4config.frame.data))\n+    {\n+        return ERR_FAIL;\n+    }\n+    \n+    allocation_size = sizeof(*mp4config.frame.data) * (mp4config.frame.ents + 1);\n+    \n+    // Check if allocation size is sufficient\n+    if (allocation_size < sizeof(*mp4config.frame.data))\n+    {\n+        return ERR_FAIL;\n+    }\n+    \n+    mp4config.frame.data = malloc(allocation_size);\n \n     if (!mp4config.frame.data)\n         return ERR_FAIL;\n"
+  },
+  "gpac.cve-2023-48011": {
+    "instance_id": "gpac.cve-2023-48011",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2022-1201": {
+    "instance_id": "mruby.cve-2022-1201",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 77edbb3..2dd03b9 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1749,6 +1749,11 @@ RETRY_TRY_BLOCK:\n       }\n       else if (target_class->tt == MRB_TT_MODULE) {\n         target_class = mrb_vm_ci_target_class(ci);\n+        if (target_class == NULL) {\n+          mrb_value exc = mrb_exc_new_lit(mrb, E_NOMETHOD_ERROR, \"super called outside of method\");\n+          mrb_exc_set(mrb, exc);\n+          goto L_RAISE;\n+        }\n         if (target_class->tt != MRB_TT_ICLASS) {\n           goto super_typeerror;\n         }\n"
+  },
+  "libdwarf.cve-2022-32200": {
+    "instance_id": "libdwarf.cve-2022-32200",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/lib/libdwarf/dwarf_global.c b/src/lib/libdwarf/dwarf_global.c\nindex 03ee0cd..4d2498f 100644\n--- a/src/lib/libdwarf/dwarf_global.c\n+++ b/src/lib/libdwarf/dwarf_global.c\n@@ -391,6 +391,10 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,\n         pubnames_context->pu_dbg = dbg;\n         pubnames_context->pu_pub_offset = pubnames_section_offset;\n         pubnames_ptr_past_end_cu = pubnames_like_ptr + length;\n+        /* Ensure we don't exceed the actual section bounds */\n+        if (pubnames_ptr_past_end_cu > section_end_ptr) {\n+            pubnames_ptr_past_end_cu = section_end_ptr;\n+        }\n         pubnames_context->pu_pub_entries_end_ptr =\n             pubnames_ptr_past_end_cu;\n \n@@ -612,7 +616,7 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,\n                 &die_offset_in_cu,\n                 pubnames_like_ptr,\n                 pubnames_context->pu_length_size,\n-                pubnames_context->pu_pub_entries_end_ptr,\n+                section_end_ptr,\n                 error);\n             if (mres != DW_DLV_OK) {\n                 if (!pubnames_context_on_list) {\n"
+  },
+  "gpac.cve-2023-41000": {
+    "instance_id": "gpac.cve-2023-41000",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/bifs/memory_decoder.c b/src/bifs/memory_decoder.c\nindex d617d33..f6c6314 100644\n--- a/src/bifs/memory_decoder.c\n+++ b/src/bifs/memory_decoder.c\n@@ -158,8 +158,30 @@ static GF_Err BM_ParseMultipleReplace(GF_BifsDecoder *codec, GF_BitStream *bs, G\n \n \n exit:\n-\tif (e) gf_sg_command_del(com);\n-\telse gf_list_add(com_list, com);\n+\tif (e) {\n+\t\t/* Before deleting the command, check if any SFCommandBuffer fields were created */\n+\t\tu32 j;\n+\t\tfor (j=0; j<gf_list_count(com->command_fields); j++) {\n+\t\t\tGF_CommandField *cmd_field = (GF_CommandField *)gf_list_get(com->command_fields, j);\n+\t\t\tif (cmd_field->fieldType == GF_SG_VRML_SFCOMMANDBUFFER && cmd_field->field_ptr) {\n+\t\t\t\tSFCommandBuffer *cb = (SFCommandBuffer *)cmd_field->field_ptr;\n+\t\t\t\t/* Remove any CommandBufferItem that references this SFCommandBuffer */\n+\t\t\t\tu32 k;\n+\t\t\t\tfor (k=0; k<gf_list_count(codec->command_buffers); k++) {\n+\t\t\t\t\tCommandBufferItem *cbi = (CommandBufferItem *)gf_list_get(codec->command_buffers, k);\n+\t\t\t\t\tif (cbi->cb == cb) {\n+\t\t\t\t\t\tgf_node_unregister(cbi->node, NULL);\n+\t\t\t\t\t\tgf_free(cbi);\n+\t\t\t\t\t\tgf_list_rem(codec->command_buffers, k);\n+\t\t\t\t\t\tk--;\n+\t\t\t\t\t}\n+\t\t\t\t}\n+\t\t\t}\n+\t\t}\n+\t\tgf_sg_command_del(com);\n+\t} else {\n+\t\tgf_list_add(com_list, com);\n+\t}\n \treturn e;\n }\n \n@@ -956,6 +978,13 @@ GF_Err gf_bifs_flush_command_list(GF_BifsDecoder *codec)\n \t\t\tcbi = (CommandBufferItem *)gf_list_get(codec->command_buffers, 0);\n \t\t\tgf_list_rem(codec->command_buffers, 0);\n \n+\t\t\t/* Check if the SFCommandBuffer has been freed */\n+\t\t\tif (!cbi->cb) {\n+\t\t\t\tgf_node_unregister(cbi->node, NULL);\n+\t\t\t\tgf_free(cbi);\n+\t\t\t\tcontinue;\n+\t\t\t}\n+\n \t\t\tcodec->current_graph = gf_node_get_graph(cbi->node);\n \t\t\te = GF_OK;\n \t\t\tif (cbi->cb->bufferSize) {\n"
+  },
+  "njs.cve-2023-27728": {
+    "instance_id": "njs.cve-2023-27728",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_json.c b/src/njs_json.c\nindex 0b7d1cb..1a0c3a2 100644\n--- a/src/njs_json.c\n+++ b/src/njs_json.c\n@@ -1001,6 +1001,11 @@ njs_json_push_stringify_state(njs_vm_t *vm, njs_json_stringify_t *stringify,\n         }\n \n     } else {\n+        if (njs_slow_path(!njs_is_object(value) || njs_object(value) == NULL)) {\n+            njs_type_error(vm, \"Cannot convert object to primitive value\");\n+            return NULL;\n+        }\n+\n         state->keys = njs_value_own_enumerate(vm, value, NJS_ENUM_KEYS,\n                                               stringify->keys_type, 0);\n \n"
+  },
+  "libarchive.cve-2017-14503": {
+    "instance_id": "libarchive.cve-2017-14503",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libarchive/archive_read_support_format_lha.c b/libarchive/archive_read_support_format_lha.c\nindex b8ef4ae..cd806f9 100644\n--- a/libarchive/archive_read_support_format_lha.c\n+++ b/libarchive/archive_read_support_format_lha.c\n@@ -1425,8 +1425,14 @@ lha_read_data_none(struct archive_read *a, const void **buff,\n \t}\n \tif (bytes_avail > lha->entry_bytes_remaining)\n \t\tbytes_avail = (ssize_t)lha->entry_bytes_remaining;\n+\t/* Ensure we don't overflow the buffer */\n+\tif (bytes_avail < 0) {\n+\t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n+\t\t    \"Invalid LHa file data\");\n+\t\treturn (ARCHIVE_FATAL);\n+\t}\n \tlha->entry_crc_calculated =\n-\t    lha_crc16(lha->entry_crc_calculated, *buff, bytes_avail);\n+\t    lha_crc16(lha->entry_crc_calculated, *buff, (size_t)bytes_avail);\n \t*size = bytes_avail;\n \t*offset = lha->entry_offset;\n \tlha->entry_offset += bytes_avail;\n@@ -1698,6 +1704,13 @@ lha_crc16(uint16_t crc, const void *pp, size_t len)\n \t\tchar c[4];\n \t} u = { 0x01020304 };\n \n+\t/* Safety check: if len is corrupted to a very large value,\n+\t * we need to prevent buffer overflow */\n+\tif (len > 64 * 1024) {\n+\t\t/* This is a reasonable upper limit for buffer size */\n+\t\treturn crc;\n+\t}\n+\n \tif (len == 0)\n \t\treturn crc;\n \n"
+  },
+  "gpac.cve-2022-1795": {
+    "instance_id": "gpac.cve-2022-1795",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2018-12247": {
+    "instance_id": "mruby.cve-2018-12247",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-0819": {
+    "instance_id": "gpac.cve-2023-0819",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/mpegts.c b/src/media_tools/mpegts.c\nindex 30fb2bb..a65dfb7 100644\n--- a/src/media_tools/mpegts.c\n+++ b/src/media_tools/mpegts.c\n@@ -940,6 +940,11 @@ static void gf_m2ts_process_tdt_tot(GF_M2TS_Demuxer *ts, GF_M2TS_SECTION_ES *tdt\n \tif ((table_id==GF_M2TS_TABLE_ID_TDT) && (data_size != 5)) {\n \t\tGF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (\"[MPEG-2 TS] Corrupted TDT size\\n\", table_name));\n \t}\n+\t/* Check if we have enough data for TDT/TOT processing (at least 5 bytes) */\n+\tif (data_size < 5) {\n+\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_CONTAINER, (\"[MPEG-2 TS] %s table too small: %d bytes, need at least 5\\n\", table_name, data_size));\n+\t\treturn;\n+\t}\n \tGF_SAFEALLOC(time_table, GF_M2TS_TDT_TOT);\n \tif (!time_table) {\n \t\tGF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (\"[MPEG-2 TS] Fail to alloc DVB time table\\n\"));\n"
+  },
+  "yara.cve-2017-5924": {
+    "instance_id": "yara.cve-2017-5924",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "imagemagick.cve-2021-3962": {
+    "instance_id": "imagemagick.cve-2021-3962",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/dcm.c b/coders/dcm.c\nindex edc09e9..82957c4 100644\n--- a/coders/dcm.c\n+++ b/coders/dcm.c\n@@ -3036,11 +3036,13 @@ static inline void RelinquishDCMMemory(DCMInfo *info,DCMMap *map,\n     map->green=(int *) RelinquishMagickMemory(map->green);\n   if (map->red != (int *) NULL)\n     map->red=(int *) RelinquishMagickMemory(map->red);\n-  if (stream_info->offsets != (ssize_t *) NULL)\n-    stream_info->offsets=(ssize_t *) RelinquishMagickMemory(\n-      stream_info->offsets);\n   if (stream_info != (DCMStreamInfo *) NULL)\n-    stream_info=(DCMStreamInfo *) RelinquishMagickMemory(stream_info);\n+    {\n+      if (stream_info->offsets != (ssize_t *) NULL)\n+        stream_info->offsets=(ssize_t *) RelinquishMagickMemory(\n+          stream_info->offsets);\n+      stream_info=(DCMStreamInfo *) RelinquishMagickMemory(stream_info);\n+    }\n   if (stack != (LinkedListInfo *) NULL)\n     stack=DestroyLinkedList(stack,RelinquishDCMInfo);\n   if (data != (unsigned char *) NULL)\n@@ -3996,7 +3998,6 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n           (void) RelinquishUniqueFileResource(filename);\n         }\n         read_info=DestroyImageInfo(read_info);\n-        RelinquishDCMMemory(&info,&map,stream_info,stack,data);\n         image=DestroyImageList(image);\n         if ((status == MagickFalse) && (exception->severity < ErrorException))\n           ThrowDCMException(CorruptImageError,\"CorruptImageError\")\n"
+  },
+  "gpac.cve-2023-5586": {
+    "instance_id": "gpac.cve-2023-5586",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/filters/reframe_rawpcm.c b/src/filters/reframe_rawpcm.c\nindex 37decc0..df316ff 100644\n--- a/src/filters/reframe_rawpcm.c\n+++ b/src/filters/reframe_rawpcm.c\n@@ -233,6 +233,12 @@ GF_Err pcmreframe_process(GF_Filter *filter)\n \tif (ctx->done) return GF_EOS;\n \n \tif (!ctx->is_playing && ctx->opid) return GF_OK;\n+\t\n+\t/* If opid is NULL, we cannot process packets */\n+\tif (!ctx->opid) {\n+\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_MEDIA, (\"[PCMReframe] Cannot process without output PID\\n\"));\n+\t\treturn GF_BAD_PARAM;\n+\t}\n \n \tpck = gf_filter_pid_get_packet(ctx->ipid);\n \tif (!pck) {\n@@ -396,6 +402,10 @@ GF_Err pcmreframe_process(GF_Filter *filter)\n \n \twhile (pck_size) {\n \t\tif (!ctx->out_pck) {\n+\t\t\tif (!ctx->opid) {\n+\t\t\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_MEDIA, (\"[PCMReframe] Attempt to allocate packet with NULL output PID\\n\"));\n+\t\t\t\treturn GF_BAD_PARAM;\n+\t\t\t}\n \t\t\tctx->out_pck = gf_filter_pck_new_alloc(ctx->opid, ctx->frame_size, &ctx->out_data);\n \t\t\tif (!ctx->out_pck) return GF_OUT_OF_MEM;\n \n"
+  },
+  "njs.cve-2022-29780": {
+    "instance_id": "njs.cve-2022-29780",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_array.c b/src/njs_array.c\nindex 81a7c15..0b8c7b9 100644\n--- a/src/njs_array.c\n+++ b/src/njs_array.c\n@@ -2696,7 +2696,7 @@ slow_path:\n         goto exception;\n     }\n \n-    if (njs_fast_path(fast_path)) {\n+    if (njs_fast_path(fast_path && njs_is_fast_array(this))) {\n         array = njs_array(this);\n         start = array->start;\n \n"
+  },
+  "gpac.cve-2023-46929": {
+    "instance_id": "gpac.cve-2023-46929",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/av_parsers.c b/src/media_tools/av_parsers.c\nindex 43c3200..02d393d 100644\n--- a/src/media_tools/av_parsers.c\n+++ b/src/media_tools/av_parsers.c\n@@ -6865,6 +6865,8 @@ GF_Err gf_avc_change_vui(GF_AVCConfig *avcc, GF_VUIInfo *vui_info)\n \tGF_AVCConfigSlot *slc;\n \torig = NULL;\n \n+\tif (!avcc) return GF_BAD_PARAM;\n+\n \tmemset(&avc, 0, sizeof(AVCState));\n \tavc.sps_active_idx = -1;\n \n@@ -6939,6 +6941,7 @@ GF_EXPORT\n GF_Err gf_avc_change_color(GF_AVCConfig *avcc, s32 fullrange, s32 vidformat, s32 colorprim, s32 transfer, s32 colmatrix)\n {\n \tGF_VUIInfo vuii;\n+\tif (!avcc) return GF_BAD_PARAM;\n \tmemset(&vuii, 0, sizeof(GF_VUIInfo));\n \tvuii.ar_num = -1;\n \tvuii.ar_den = -1;\ndiff --git a/src/media_tools/isom_tools.c b/src/media_tools/isom_tools.c\nindex 21f8905..d671c2f 100644\n--- a/src/media_tools/isom_tools.c\n+++ b/src/media_tools/isom_tools.c\n@@ -195,10 +195,12 @@ GF_Err gf_media_change_color(GF_ISOFile *file, u32 track, s32 fullrange, s32 vid\n \t\t\t|| (stype==GF_ISOM_SUBTYPE_AVC4_H264)\n \t) {\n \t\tGF_AVCConfig *avcc = gf_isom_avc_config_get(file, track, 1);\n-\t\tgf_avc_change_color(avcc, fullrange, vidformat, colorprim, transfer, colmatrix);\n-\t\te = gf_isom_avc_config_update(file, track, 1, avcc);\n-\t\tgf_odf_avc_cfg_del(avcc);\n-\t\tif (e) return e;\n+\t\tif (avcc) {\n+\t\t\tgf_avc_change_color(avcc, fullrange, vidformat, colorprim, transfer, colmatrix);\n+\t\t\te = gf_isom_avc_config_update(file, track, 1, avcc);\n+\t\t\tgf_odf_avc_cfg_del(avcc);\n+\t\t\tif (e) return e;\n+\t\t}\n \t\t//remove any colr box\n \t\treturn gf_isom_set_visual_color_info(file, track, 1, 0, 0, 0, 0, 0, NULL, 0);\n \t}\n"
+  },
+  "imagemagick.cve-2018-5246": {
+    "instance_id": "imagemagick.cve-2018-5246",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/pattern.c b/coders/pattern.c\nindex bb22c16..a5893c7 100644\n--- a/coders/pattern.c\n+++ b/coders/pattern.c\n@@ -977,7 +977,10 @@ static Image *ReadPATTERNImage(const ImageInfo *image_info,\n         break;\n       }\n   if (blob == (const void *) NULL)\n-    ThrowReaderException(OptionError,\"UnrecognizedImageFormat\");\n+    {\n+      blob_info=DestroyImageInfo(blob_info);\n+      ThrowReaderException(OptionError,\"UnrecognizedImageFormat\");\n+    }\n   image=BlobToImage(blob_info,blob,extent,exception);\n   if (image_info->size != (char *) NULL)\n     {\n"
+  },
+  "openjpeg.cve-2016-10507": {
+    "instance_id": "openjpeg.cve-2016-10507",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/bin/jp2/convertbmp.c b/src/bin/jp2/convertbmp.c\nindex d264823..7b41daf 100644\n--- a/src/bin/jp2/convertbmp.c\n+++ b/src/bin/jp2/convertbmp.c\n@@ -675,10 +675,25 @@ opj_image_t* bmptoimage(const char *filename, opj_cparameters_t *parameters)\n \t\t}\n \t}\n \t\n+\t/* Check for integer overflow in stride calculation */\n+\tif (Info_h.biWidth > (UINT32_MAX - 31U) / Info_h.biBitCount) {\n+\t\tfclose(IN);\n+\t\treturn NULL;\n+\t}\n \tstride = ((Info_h.biWidth * Info_h.biBitCount + 31U) / 32U) * 4U; /* rows are aligned on 32bits */\n \tif (Info_h.biBitCount == 4 && Info_h.biCompression == 2) { /* RLE 4 gets decoded as 8 bits data for now... */\n+\t\t/* Check for integer overflow in RLE4 stride calculation */\n+\t\tif (Info_h.biWidth > (UINT32_MAX - 31U) / 8U) {\n+\t\t\tfclose(IN);\n+\t\t\treturn NULL;\n+\t\t}\n \t\tstride = ((Info_h.biWidth * 8U + 31U) / 32U) * 4U;\n \t}\n+\t/* Check for integer overflow in allocation size */\n+\tif (Info_h.biHeight > 0 && stride > SIZE_MAX / Info_h.biHeight / sizeof(OPJ_UINT8)) {\n+\t\tfclose(IN);\n+\t\treturn NULL;\n+\t}\n \tpData = (OPJ_UINT8 *) calloc(1, stride * Info_h.biHeight * sizeof(OPJ_UINT8));\n \tif (pData == NULL) {\n \t\tfclose(IN);\n"
+  },
+  "imagemagick.cve-2019-13305": {
+    "instance_id": "imagemagick.cve-2019-13305",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/pnm.c b/coders/pnm.c\nindex a54bc60..c3a72eb 100644\n--- a/coders/pnm.c\n+++ b/coders/pnm.c\n@@ -1828,13 +1828,15 @@ static MagickBooleanType WritePNMImage(const ImageInfo *image_info,Image *image,\n             q+=extent;\n             if ((q-pixels+extent+2) >= sizeof(pixels))\n               {\n-                *q++='\\n';\n+                if (q < pixels+sizeof(pixels)-1)\n+                  *q++='\\n';\n                 (void) WriteBlob(image,q-pixels,pixels);\n                 q=pixels;\n               }\n             p+=GetPixelChannels(image);\n           }\n-          *q++='\\n';\n+          if (q < pixels+sizeof(pixels)-1)\n+            *q++='\\n';\n           (void) WriteBlob(image,q-pixels,pixels);\n           q=pixels;\n           if (image->previous == (Image *) NULL)\n@@ -1847,7 +1849,8 @@ static MagickBooleanType WritePNMImage(const ImageInfo *image_info,Image *image,\n         }\n         if (q != pixels)\n           {\n-            *q++='\\n';\n+            if (q < pixels+sizeof(pixels)-1)\n+              *q++='\\n';\n             (void) WriteBlob(image,q-pixels,pixels);\n           }\n         break;\n@@ -1903,13 +1906,15 @@ static MagickBooleanType WritePNMImage(const ImageInfo *image_info,Image *image,\n             q+=extent;\n             if ((q-pixels+extent+2) >= sizeof(pixels))\n               {\n-                *q++='\\n';\n+                if (q < pixels+sizeof(pixels)-1)\n+                  *q++='\\n';\n                 (void) WriteBlob(image,q-pixels,pixels);\n                 q=pixels;\n               }\n             p+=GetPixelChannels(image);\n           }\n-          *q++='\\n';\n+          if (q < pixels+sizeof(pixels)-1)\n+            *q++='\\n';\n           (void) WriteBlob(image,q-pixels,pixels);\n           q=pixels;\n           if (image->previous == (Image *) NULL)\n@@ -1922,7 +1927,8 @@ static MagickBooleanType WritePNMImage(const ImageInfo *image_info,Image *image,\n         }\n         if (q != pixels)\n           {\n-            *q++='\\n';\n+            if (q < pixels+sizeof(pixels)-1)\n+              *q++='\\n';\n             (void) WriteBlob(image,q-pixels,pixels);\n           }\n         break;\n"
+  },
+  "gpac.cve-2023-5998": {
+    "instance_id": "gpac.cve-2023-5998",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/filters/reframe_mpgvid.c b/src/filters/reframe_mpgvid.c\nindex 8e092f9..5a66b47 100644\n--- a/src/filters/reframe_mpgvid.c\n+++ b/src/filters/reframe_mpgvid.c\n@@ -1080,7 +1080,12 @@ GF_Err mpgviddmx_process(GF_Filter *filter)\n \t\t//we skipped bytes already in store + end of start code present in packet, so the size of the first object\n \t\t//needs adjustement\n \t\tif (bytes_from_store) {\n-\t\t\tsize += bytes_from_store + hdr_offset;\n+\t\t\t// Ensure we don't exceed the remaining buffer size\n+\t\t\tif (size + bytes_from_store + hdr_offset > (u64)remain) {\n+\t\t\t\tsize = (remain >= (s32)bytes_from_store) ? remain - bytes_from_store : 0;\n+\t\t\t} else {\n+\t\t\t\tsize += bytes_from_store + hdr_offset;\n+\t\t\t}\n \t\t}\n \n \t\tif ((e == GF_EOS) && !ctx->input_is_au_end) {\n@@ -1163,9 +1168,17 @@ GF_Err mpgviddmx_process(GF_Filter *filter)\n \t\t\tif (byte_offset != GF_FILTER_NO_BO) {\n \t\t\t\tgf_filter_pck_set_byte_offset(dst_pck, byte_offset - bytes_from_store);\n \t\t\t}\n+\t\t\t// Additional bounds check to prevent reading beyond the available data\n+\t\t\tif (size > (u64)remain) {\n+\t\t\t\tsize = remain;\n+\t\t\t}\n \t\t\tmemcpy(pck_data + bytes_from_store, start, (size_t) size);\n \t\t} else {\n \t\t\t//bytes only come the data packet\n+\t\t\t// Additional bounds check to prevent reading beyond the available data\n+\t\t\tif (size > (u64)remain) {\n+\t\t\t\tsize = remain;\n+\t\t\t}\n \t\t\tmemcpy(pck_data, start, (size_t) size);\n \t\t\tif (byte_offset != GF_FILTER_NO_BO) {\n \t\t\t\tgf_filter_pck_set_byte_offset(dst_pck, byte_offset + start - (u8 *) data);\n"
+  },
+  "imagemagick.cve-2019-13298": {
+    "instance_id": "imagemagick.cve-2019-13298",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickCore/enhance.c b/MagickCore/enhance.c\nindex ed32027..3534689 100644\n--- a/MagickCore/enhance.c\n+++ b/MagickCore/enhance.c\n@@ -1973,7 +1973,7 @@ MagickExport Image *EnhanceImage(const Image *image,ExceptionInfo *exception)\n           pixel.black=((aggregate.black+total_weight/2.0)/total_weight);\n           pixel.alpha=((aggregate.alpha+total_weight/2.0)/total_weight);\n         }\n-      SetPixelViaPixelInfo(image,&pixel,q);\n+      SetPixelViaPixelInfo(enhance_image,&pixel,q);\n       p+=GetPixelChannels(image);\n       q+=GetPixelChannels(enhance_image);\n     }\n"
+  },
+  "njs.cve-2022-38890": {
+    "instance_id": "njs.cve-2022-38890",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_string.c b/src/njs_string.c\nindex 83cede5..25a5968 100644\n--- a/src/njs_string.c\n+++ b/src/njs_string.c\n@@ -2530,6 +2530,7 @@ njs_string_offset(const u_char *start, const u_char *end, size_t index)\n {\n     uint32_t    *map;\n     njs_uint_t  skip;\n+    size_t      offset;\n \n     if (index >= NJS_STRING_MAP_STRIDE) {\n         map = njs_string_map_start(end);\n@@ -2538,7 +2539,14 @@ njs_string_offset(const u_char *start, const u_char *end, size_t index)\n             njs_string_offset_map_init(start, end - start);\n         }\n \n-        start += map[index / NJS_STRING_MAP_STRIDE - 1];\n+        offset = map[index / NJS_STRING_MAP_STRIDE - 1];\n+        \n+        /* Ensure the offset doesn't exceed the string buffer size. */\n+        if (offset > (size_t)(end - start)) {\n+            return end;\n+        }\n+\n+        start += offset;\n     }\n \n     for (skip = index % NJS_STRING_MAP_STRIDE; skip != 0; skip--) {\ndiff --git a/src/njs_utf8.h b/src/njs_utf8.h\nindex 26c23db..5243282 100644\n--- a/src/njs_utf8.h\n+++ b/src/njs_utf8.h\n@@ -49,11 +49,19 @@ njs_utf8_next(const u_char *p, const u_char *end)\n {\n     u_char  c;\n \n+    if (p >= end) {\n+        return end;\n+    }\n+\n     c = *p++;\n \n     if ((c & 0x80) != 0) {\n \n         do {\n+            if (p >= end) {\n+                return end;\n+            }\n+\n             c = *p;\n \n             if ((c & 0xC0) != 0x80) {\n"
+  },
+  "libredwg.cve-2020-21819": {
+    "instance_id": "libredwg.cve-2020-21819",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/programs/escape.c b/programs/escape.c\nindex 8a90741..59c9a3a 100644\n--- a/programs/escape.c\n+++ b/programs/escape.c\n@@ -33,38 +33,44 @@ htmlescape (const char *restrict src, const int cp)\n     return NULL;\n   len = strlen (src) + 10;\n   d = malloc (len);\n+  if (!d)\n+    return NULL;\n   s = (unsigned char *)src;\n   dest = d;\n-  while (*s++)\n+  *d = '\\0'; // Ensure initial null termination\n+  while (*s)\n     {\n       const int off = d - dest;\n       if (off >= len - 8)\n         {\n           len += 10;\n           dest = realloc (dest, len);\n+          if (!dest)\n+            return NULL;\n           d = dest + off;\n         }\n       switch (*s)\n         {\n-        case '\"': strcat (d, \"&quot;\"); d += 6; break;\n-        case '\\'': strcat (d, \"&#39;\"); d += 5; break;\n-        case '`': strcat (d, \"&#96;\"); d += 5; break;\n-        case '&': strcat (d, \"&amp;\"); d += 5; break;\n-        case '<': strcat (d, \"&lt;\"); d += 4; break;\n-        case '>': strcat (d, \"&gt;\"); d += 4; break;\n-        case '{': strcat (d, \"&#123;\"); d += 6; break;\n-        case '}': strcat (d, \"&#125;\"); d += 6; break;\n+        case '\"': memcpy (d, \"&quot;\", 6); d += 6; break;\n+        case '\\'': memcpy (d, \"&#39;\", 5); d += 5; break;\n+        case '`': memcpy (d, \"&#96;\", 5); d += 5; break;\n+        case '&': memcpy (d, \"&amp;\", 5); d += 5; break;\n+        case '<': memcpy (d, \"&lt;\", 4); d += 4; break;\n+        case '>': memcpy (d, \"&gt;\", 4); d += 4; break;\n+        case '{': memcpy (d, \"&#123;\", 6); d += 6; break;\n+        case '}': memcpy (d, \"&#125;\", 6); d += 6; break;\n         default:\n           if (*s >= 127) // maybe encodings, no utf8 (see htmlwescape)\n             {\n-              sprintf (d, \"&#x%X;\", *s); // 4 + 4\n-              d += strlen (d);\n+              int written = sprintf (d, \"&#x%X;\", *s); // 4 + 4\n+              d += written;\n             }\n           else if (*s >= 20)\n             *d++ = *s;\n         }\n+      *d = '\\0'; // Ensure null termination after each write\n+      s++;\n     }\n-  *d = 0;\n   return dest;\n }\n \n"
+  },
+  "gpac.cve-2021-32440": {
+    "instance_id": "gpac.cve-2021-32440",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/isomedia/media_odf.c b/src/isomedia/media_odf.c\nindex 33c41a3..78c2699 100644\n--- a/src/isomedia/media_odf.c\n+++ b/src/isomedia/media_odf.c\n@@ -132,7 +132,7 @@ GF_Err Media_RewriteODFrame(GF_MediaBox *mdia, GF_ISOSample *sample)\n \t\t\t\tj=0;\n \t\t\t\twhile ((ref = (GF_ES_ID_Ref*)gf_list_enum(isom_od->ES_ID_RefDescriptors, &j))) {\n \t\t\t\t\t//if the ref index is not valid, skip this desc...\n-\t\t\t\t\tif (!mpod->trackIDs || gf_isom_get_track_from_id(mdia->mediaTrack->moov, mpod->trackIDs[ref->trackRef - 1]) == NULL) continue;\n+\t\t\t\t\tif (!mpod->trackIDs || (ref->trackRef == 0) || (ref->trackRef > mpod->trackIDCount) || gf_isom_get_track_from_id(mdia->mediaTrack->moov, mpod->trackIDs[ref->trackRef - 1]) == NULL) continue;\n \t\t\t\t\t//OK, get the esd\n \t\t\t\t\te = GetESDForTime(mdia->mediaTrack->moov, mpod->trackIDs[ref->trackRef - 1], sample->DTS, &esd);\n \t\t\t\t\tif (!e) e = gf_odf_desc_add_desc((GF_Descriptor *) od, (GF_Descriptor *) esd);\n@@ -161,7 +161,7 @@ GF_Err Media_RewriteODFrame(GF_MediaBox *mdia, GF_ISOSample *sample)\n \t\t\ti=0;\n \t\t\twhile ((ref = (GF_ES_ID_Ref*)gf_list_enum(esdU->ESDescriptors, &i))) {\n \t\t\t\t//if the ref index is not valid, skip this desc...\n-\t\t\t\tif (gf_isom_get_track_from_id(mdia->mediaTrack->moov, mpod->trackIDs[ref->trackRef - 1]) == NULL) continue;\n+\t\t\t\tif ((ref->trackRef == 0) || (ref->trackRef > mpod->trackIDCount) || gf_isom_get_track_from_id(mdia->mediaTrack->moov, mpod->trackIDs[ref->trackRef - 1]) == NULL) continue;\n \t\t\t\t//OK, get the esd\n \t\t\t\te = GetESDForTime(mdia->mediaTrack->moov, mpod->trackIDs[ref->trackRef - 1], sample->DTS, &esd);\n \t\t\t\tif (e) goto err_exit;\n@@ -188,7 +188,7 @@ GF_Err Media_RewriteODFrame(GF_MediaBox *mdia, GF_ISOSample *sample)\n \t\t\t//get the ES_ID in the mpod indicated in the ES_ID[]\n \t\t\tfor (i = 0; i < esdR->NbESDs; i++) {\n \t\t\t\t//if the ref index is not valid, remove this desc...\n-\t\t\t\tif (gf_isom_get_track_from_id(mdia->mediaTrack->moov, mpod->trackIDs[esdR->ES_ID[i] - 1]) == NULL) {\n+\t\t\t\tif ((esdR->ES_ID[i] == 0) || (esdR->ES_ID[i] > mpod->trackIDCount) || gf_isom_get_track_from_id(mdia->mediaTrack->moov, mpod->trackIDs[esdR->ES_ID[i] - 1]) == NULL) {\n \t\t\t\t\tskipped ++;\n \t\t\t\t} else {\n \t\t\t\t\t//the command in the file has the ref index of the trackID in the mpod\n"
+  },
+  "gpac.cve-2023-0841": {
+    "instance_id": "gpac.cve-2023-0841",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/filters/reframe_mp3.c b/src/filters/reframe_mp3.c\nindex 096e0ce..218bfef 100644\n--- a/src/filters/reframe_mp3.c\n+++ b/src/filters/reframe_mp3.c\n@@ -668,6 +668,11 @@ GF_Err mp3_dmx_process(GF_Filter *filter)\n \t\t}\n \n \t\tif (!ctx->in_seek) {\n+\t\t\t// Check if the frame size exceeds the available buffer after the header\n+\t\t\tif (size > remain - bytes_skipped) {\n+\t\t\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_MEDIA, (\"[MP3Dmx] truncated frame of size %u (remains %u after header)\\n\", size, remain - bytes_skipped));\n+\t\t\t\tbreak;\n+\t\t\t}\n \t\t\tif (size > remain) {\n \t\t\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_MEDIA, (\"[MP3Dmx] truncated frame of size %u (remains %u)\\n\", size, remain));\n \t\t\t\tbreak;\n"
+  },
+  "matio.cve-2019-20017": {
+    "instance_id": "matio.cve-2019-20017",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2022-2454": {
+    "instance_id": "gpac.cve-2022-2454",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/laser/lsr_dec.c b/src/laser/lsr_dec.c\nindex 99d16aa..4055797 100644\n--- a/src/laser/lsr_dec.c\n+++ b/src/laser/lsr_dec.c\n@@ -838,6 +838,10 @@ static void lsr_read_id(GF_LASeRCodec *lsr, GF_Node *n)\n \n static Fixed lsr_translate_coords(GF_LASeRCodec *lsr, u32 val, u32 nb_bits)\n {\n+\t/* Prevent shift with nb_bits=0 which causes undefined behavior */\n+\tif (nb_bits == 0) {\n+\t\treturn 0;\n+\t}\n #ifdef GPAC_FIXED_POINT\n \tif (val >> (nb_bits-1) ) {\n \t\ts32 neg = (s32) val - (1<<nb_bits);\n"
+  },
+  "gpac.cve-2023-4758": {
+    "instance_id": "gpac.cve-2023-4758",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2018-14337": {
+    "instance_id": "mruby.cve-2018-14337",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/mrbgems/mruby-sprintf/src/sprintf.c b/mrbgems/mruby-sprintf/src/sprintf.c\nindex 7eea1a1..94b16d0 100644\n--- a/mrbgems/mruby-sprintf/src/sprintf.c\n+++ b/mrbgems/mruby-sprintf/src/sprintf.c\n@@ -121,8 +121,10 @@ mrb_fix2binstr(mrb_state *mrb, mrb_value x, int base)\n #define CHECK(l) do {\\\n /*  int cr = ENC_CODERANGE(result);*/\\\n   while ((l) >= bsiz - blen) {\\\n+    if (bsiz > MRB_INT_MAX / 2) {\\\n+      mrb_raise(mrb, E_ARGUMENT_ERROR, \"too big specifier\"); \\\n+    }\\\n     bsiz*=2;\\\n-    if (bsiz < 0) mrb_raise(mrb, E_ARGUMENT_ERROR, \"too big specifier\"); \\\n   }\\\n   mrb_str_resize(mrb, result, bsiz);\\\n /*  ENC_CODERANGE_SET(result, cr);*/\\\n"
+  },
+  "libredwg.cve-2022-45332": {
+    "instance_id": "libredwg.cve-2022-45332",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0717": {
+    "instance_id": "mruby.cve-2022-0717",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/array.c b/src/array.c\nindex 07ceefb..ab6b83b 100644\n--- a/src/array.c\n+++ b/src/array.c\n@@ -499,6 +499,9 @@ mrb_ary_reverse(mrb_state *mrb, mrb_value self)\n MRB_API void\n mrb_ary_push(mrb_state *mrb, mrb_value ary, mrb_value elem)\n {\n+  if (!mrb_array_p(ary)) {\n+    mrb_raise(mrb, E_TYPE_ERROR, \"expected array\");\n+  }\n   struct RArray *a = mrb_ary_ptr(ary);\n   mrb_int len = ARY_LEN(a);\n \ndiff --git a/src/vm.c b/src/vm.c\nindex aa55695..41c092c 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -2628,7 +2628,9 @@ RETRY_TRY_BLOCK:\n     }\n \n     CASE(OP_ARYPUSH, BB) {\n-      mrb_assert(mrb_array_p(regs[a]));\n+      if (!mrb_array_p(regs[a])) {\n+        mrb_raise(mrb, E_TYPE_ERROR, \"expected array\");\n+      }\n       for (mrb_int i=0; i<b; i++) {\n         mrb_ary_push(mrb, regs[a], regs[a+i+1]);\n       }\n"
+  },
+  "qpdf.cve-2021-36978": {
+    "instance_id": "qpdf.cve-2021-36978",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2021-32438": {
+    "instance_id": "gpac.cve-2021-32438",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/isom_tools.c b/src/media_tools/isom_tools.c\nindex b32c204..c4d62b6 100644\n--- a/src/media_tools/isom_tools.c\n+++ b/src/media_tools/isom_tools.c\n@@ -1270,7 +1270,9 @@ GF_ESD *gf_media_map_esd(GF_ISOFile *mp4, u32 track, u32 stsd_idx)\n \t\tesd = gf_isom_get_esd(mp4, track, 1);\n \t\tif (!esd) return NULL;\n \n-\t\tesd->decoderConfig->objectTypeIndication = GF_CODECID_OPUS;\n+\t\tif (esd->decoderConfig) {\n+\t\t\tesd->decoderConfig->objectTypeIndication = GF_CODECID_OPUS;\n+\t\t}\n \t\treturn esd;\n \t}\n \ndiff --git a/src/media_tools/media_export.c b/src/media_tools/media_export.c\nindex b89936f..968818d 100644\n--- a/src/media_tools/media_export.c\n+++ b/src/media_tools/media_export.c\n@@ -1108,7 +1108,7 @@ static GF_Err gf_media_export_filters(GF_MediaExporter *dumper)\n \t\t}\n \t\tesd = gf_media_map_esd(dumper->file, track_num, 0);\n \t\tsample_count = gf_isom_get_sample_count(dumper->file, dumper->trackID);\n-\t\tif (esd) {\n+\t\tif (esd && esd->decoderConfig) {\n \t\t\tif (esd->decoderConfig->objectTypeIndication<GF_CODECID_LAST_MPEG4_MAPPING) {\n \t\t\t\tcodec_id = gf_codecid_from_oti(esd->decoderConfig->streamType, esd->decoderConfig->objectTypeIndication);\n #ifndef GPAC_DISABLE_AV_PARSERS\n"
+  },
+  "faad2.cve-2018-20361": {
+    "instance_id": "faad2.cve-2018-20361",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..9393853 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -485,6 +485,12 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Check for invalid frequency band limits to prevent buffer overflow */\n+            if (ml1 >= MAX_M || ml2 > MAX_M || ml1 >= ml2)\n+            {\n+                /* Skip this limiter band if the indices are out of bounds */\n+                continue;\n+            }\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -949,6 +955,12 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Check for invalid frequency band limits to prevent buffer overflow */\n+            if (ml1 >= MAX_M || ml2 > MAX_M || ml1 >= ml2)\n+            {\n+                /* Skip this limiter band if the indices are out of bounds */\n+                continue;\n+            }\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -1193,6 +1205,12 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Check for invalid frequency band limits to prevent buffer overflow */\n+            if (ml1 >= MAX_M || ml2 > MAX_M || ml1 >= ml2)\n+            {\n+                /* Skip this limiter band if the indices are out of bounds */\n+                continue;\n+            }\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n"
+  },
+  "faad2.cve-2018-20196": {
+    "instance_id": "faad2.cve-2018-20196",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-3012": {
+    "instance_id": "gpac.cve-2023-3012",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/utils/xml_parser.c b/src/utils/xml_parser.c\nindex 49df338..102f0a9 100644\n--- a/src/utils/xml_parser.c\n+++ b/src/utils/xml_parser.c\n@@ -968,7 +968,10 @@ exit:\n static GF_Err xml_sax_append_string(GF_SAXParser *parser, char *string)\n {\n \tu32 size = parser->line_size;\n-\tu32 nl_size = (u32) strlen(string);\n+\tu32 nl_size;\n+\t\n+\tif (!string) return GF_OK;\n+\tnl_size = (u32) strlen(string);\n \n \tif (!nl_size) return GF_OK;\n \n@@ -1082,10 +1085,12 @@ static GF_Err gf_xml_sax_parse_intern(GF_SAXParser *parser, char *current)\n \t\t}\n \t\t/*append entity*/\n \t\tline_num = parser->line;\n-\t\txml_sax_append_string(parser, ent->value);\n-\t\tGF_Err e = xml_sax_parse(parser, GF_TRUE);\n-\t\tparser->line = line_num;\n-\t\tif (e) return e;\n+\t\tif (ent->value) {\n+\t\t\txml_sax_append_string(parser, ent->value);\n+\t\t\tGF_Err e = xml_sax_parse(parser, GF_TRUE);\n+\t\t\tparser->line = line_num;\n+\t\t\tif (e) return e;\n+\t\t}\n \n \t}\n \txml_sax_append_string(parser, current);\n"
+  },
+  "exiv2.cve-2017-17669": {
+    "instance_id": "exiv2.cve-2017-17669",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "exiv2.cve-2018-17229": {
+    "instance_id": "exiv2.cve-2018-17229",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/tiffimage.cpp b/src/tiffimage.cpp\nindex f20c69e..605f686 100644\n--- a/src/tiffimage.cpp\n+++ b/src/tiffimage.cpp\n@@ -200,7 +200,7 @@ namespace Exiv2 {\n         Exiv2::ExifKey            key(\"Exif.Image.InterColorProfile\");\n         Exiv2::ExifData::iterator pos   = exifData_.findKey(key);\n         if ( pos != exifData_.end()  ) {\n-            iccProfile_.alloc(pos->count());\n+            iccProfile_.alloc(pos->size());\n             pos->copy(iccProfile_.pData_,bo);\n         }\n \n"
+  },
+  "imagemagick.cve-2019-13296": {
+    "instance_id": "imagemagick.cve-2019-13296",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0326": {
+    "instance_id": "mruby.cve-2022-0326",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/variable.c b/src/variable.c\nindex 53b760d..92903a3 100644\n--- a/src/variable.c\n+++ b/src/variable.c\n@@ -229,8 +229,10 @@ iv_copy(mrb_state *mrb, iv_tbl *t)\n static void\n iv_free(mrb_state *mrb, iv_tbl *t)\n {\n-  mrb_free(mrb, t->ptr);\n-  mrb_free(mrb, t);\n+  if (t && (uintptr_t)t > 0x1000) {\n+    mrb_free(mrb, t->ptr);\n+    mrb_free(mrb, t);\n+  }\n }\n \n static int\n@@ -274,7 +276,7 @@ mrb_gc_mark_iv_size(mrb_state *mrb, struct RObject *obj)\n void\n mrb_gc_free_iv(mrb_state *mrb, struct RObject *obj)\n {\n-  if (obj->iv) {\n+  if (obj->iv && (uintptr_t)obj->iv > 0x1000) {\n     iv_free(mrb, obj->iv);\n   }\n }\n"
+  },
+  "matio.cve-2019-20018": {
+    "instance_id": "matio.cve-2019-20018",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/mat5.c b/src/mat5.c\nindex abdb351..99247c3 100644\n--- a/src/mat5.c\n+++ b/src/mat5.c\n@@ -983,6 +983,15 @@ ReadNextCell( mat_t *mat, matvar_t *matvar )\n                     cells[i]->rank = uncomp_buf[1];\n                     nbytes -= cells[i]->rank;\n                     cells[i]->rank /= 4;\n+                    /* Validate that the rank doesn't exceed stack buffer capacity */\n+                    if ( cells[i]->rank > 14 ) {\n+                        Mat_Critical(\"Rank %d exceeds maximum allowed value of 14\", cells[i]->rank);\n+                        if ( do_clean )\n+                            free(dims);\n+                        Mat_VarFree(cells[i]);\n+                        cells[i] = NULL;\n+                        break;\n+                    }\n                     cells[i]->dims = (size_t*)malloc(cells[i]->rank*sizeof(*cells[i]->dims));\n                     if ( mat->byteswap ) {\n                         for ( j = 0; j < cells[i]->rank; j++ )\n@@ -1359,6 +1368,15 @@ ReadNextStructField( mat_t *mat, matvar_t *matvar )\n                     fields[i]->rank = uncomp_buf[1];\n                     nbytes -= fields[i]->rank;\n                     fields[i]->rank /= 4;\n+                    /* Validate that the rank doesn't exceed stack buffer capacity */\n+                    if ( fields[i]->rank > 14 ) {\n+                        Mat_Critical(\"Rank %d exceeds maximum allowed value of 14\", fields[i]->rank);\n+                        if ( do_clean )\n+                            free(dims);\n+                        Mat_VarFree(fields[i]);\n+                        fields[i] = NULL;\n+                        break;\n+                    }\n                     fields[i]->dims = (size_t*)malloc(fields[i]->rank*\n                                              sizeof(*fields[i]->dims));\n                     if ( mat->byteswap ) {\n"
+  },
+  "gpac.cve-2024-50664": {
+    "instance_id": "gpac.cve-2024-50664",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/isomedia/sample_descs.c b/src/isomedia/sample_descs.c\nindex 8c18075..4948187 100644\n--- a/src/isomedia/sample_descs.c\n+++ b/src/isomedia/sample_descs.c\n@@ -1794,9 +1794,13 @@ GF_Err gf_isom_new_mpha_description(GF_ISOFile *movie, u32 trackNumber, const ch\n \t\tmpa->cfg_mha->mha_config_size = dsi[3];\n \t\tmpa->cfg_mha->mha_config_size <<= 8;\n \t\tmpa->cfg_mha->mha_config_size |= dsi[4];\n+\t\t/* Validate that mha_config_size does not exceed available data */\n+\t\tif (mpa->cfg_mha->mha_config_size > dsi_size - 5) {\n+\t\t\tmpa->cfg_mha->mha_config_size = dsi_size - 5;\n+\t\t}\n \t\tmpa->cfg_mha->mha_config = gf_malloc(sizeof(u8) * mpa->cfg_mha->mha_config_size);\n \t\tif (!mpa->cfg_mha->mha_config) return GF_OUT_OF_MEM;\n-\t\tmemcpy(mpa->cfg_mha->mha_config, dsi+5, dsi_size-5);\n+\t\tmemcpy(mpa->cfg_mha->mha_config, dsi+5, mpa->cfg_mha->mha_config_size);\n \t}\n \treturn GF_OK;\n }\n"
+  },
+  "yara.cve-2023-40857": {
+    "instance_id": "yara.cve-2023-40857",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libyara/exec.c b/libyara/exec.c\nindex c4eeb7e..c88aba3 100644\n--- a/libyara/exec.c\n+++ b/libyara/exec.c\n@@ -1423,7 +1423,14 @@ int yr_execute_code(YR_SCAN_CONTEXT* context)\n \n     case OP_FOUND:\n       pop(r1);\n-      r2.i = context->matches[r1.s->idx].tail != NULL ? 1 : 0;\n+      if (r1.s->idx >= context->rules->num_strings)\n+      {\n+        r2.i = YR_UNDEFINED;\n+      }\n+      else\n+      {\n+        r2.i = context->matches[r1.s->idx].tail != NULL ? 1 : 0;\n+      }\n       YR_DEBUG_FPRINTF(\n           2,\n           stderr,\n"
+  },
+  "imagemagick.cve-2017-11539": {
+    "instance_id": "imagemagick.cve-2017-11539",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/png.c b/coders/png.c\nindex c15a4db..f4d03f4 100644\n--- a/coders/png.c\n+++ b/coders/png.c\n@@ -2300,6 +2300,9 @@ static Image *ReadOnePNGImage(MngInfo *mng_info,\n       if (pixel_info != (MemoryInfo *) NULL)\n         pixel_info=RelinquishVirtualMemory(pixel_info);\n \n+      if (quantum_info != (QuantumInfo *) NULL)\n+        quantum_info=DestroyQuantumInfo(quantum_info);\n+\n       if (logging != MagickFalse)\n         (void) LogMagickEvent(CoderEvent,GetMagickModule(),\n           \"  exit ReadOnePNGImage() with error.\");\n"
+  },
+  "upx.cve-2020-27787": {
+    "instance_id": "upx.cve-2020-27787",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "imagemagick.cve-2019-13302": {
+    "instance_id": "imagemagick.cve-2019-13302",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickCore/fourier.c b/MagickCore/fourier.c\nindex 24b3824..3bee235 100644\n--- a/MagickCore/fourier.c\n+++ b/MagickCore/fourier.c\n@@ -258,6 +258,17 @@ MagickExport Image *ComplexImages(const Image *images,const ComplexOperator op,\n         status=MagickFalse;\n         continue;\n       }\n+    if ((GetPixelChannels(Ar_image) != GetPixelChannels(Cr_image)) ||\n+        (GetPixelChannels(Ai_image) != GetPixelChannels(Cr_image)) ||\n+        (GetPixelChannels(Br_image) != GetPixelChannels(Cr_image)) ||\n+        (GetPixelChannels(Bi_image) != GetPixelChannels(Cr_image)) ||\n+        (GetPixelChannels(Ci_image) != GetPixelChannels(Cr_image)))\n+      {\n+        (void) ThrowMagickException(exception,GetMagickModule(),ImageError,\n+          \"ChannelCountMismatch\",\"`%s'\",Cr_image->filename);\n+        status=MagickFalse;\n+        continue;\n+      }\n     for (x=0; x < (ssize_t) Cr_image->columns; x++)\n     {\n       register ssize_t\n"
+  },
+  "gpac.cve-2023-4679": {
+    "instance_id": "gpac.cve-2023-4679",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2022-1934": {
+    "instance_id": "mruby.cve-2022-1934",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex b04c9d7..74c411e 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1163,9 +1163,14 @@ static mrb_value\n hash_new_from_values(mrb_state *mrb, mrb_int argc, mrb_value *regs)\n {\n   mrb_value hash = mrb_hash_new_capa(mrb, argc);\n+  ptrdiff_t voff = regs - mrb->c->stbase;\n+  \n   while (argc--) {\n     mrb_hash_set(mrb, hash, regs[0], regs[1]);\n+    /* After mrb_hash_set, the stack might have been reallocated */\n+    regs = mrb->c->stbase + voff;\n     regs += 2;\n+    voff += 2;\n   }\n   return hash;\n }\n"
+  },
+  "openjpeg.cve-2024-56827": {
+    "instance_id": "openjpeg.cve-2024-56827",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/lib/openjp2/j2k.c b/src/lib/openjp2/j2k.c\nindex 7dc389f..3231e5e 100644\n--- a/src/lib/openjp2/j2k.c\n+++ b/src/lib/openjp2/j2k.c\n@@ -8457,7 +8457,10 @@ static OPJ_BOOL opj_j2k_add_tlmarker(OPJ_UINT32 tileno,\n         OPJ_UINT32 l_current_tile_part = cstr_index->tile_index[tileno].current_tpsno;\n \n         if (cstr_index->tile_index[tileno].tp_index) {\n-            cstr_index->tile_index[tileno].tp_index[l_current_tile_part].start_pos = pos;\n+            /* Check if current_tpsno is within the allocated bounds */\n+            if (l_current_tile_part < cstr_index->tile_index[tileno].current_nb_tps) {\n+                cstr_index->tile_index[tileno].tp_index[l_current_tile_part].start_pos = pos;\n+            }\n         }\n \n     }\n"
+  },
+  "gpac.cve-2022-3178": {
+    "instance_id": "gpac.cve-2022-3178",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/isomedia/box_code_base.c b/src/isomedia/box_code_base.c\nindex 3cf6b3b..4a3a9a8 100644\n--- a/src/isomedia/box_code_base.c\n+++ b/src/isomedia/box_code_base.c\n@@ -12886,11 +12886,12 @@ GF_Err xtra_box_read(GF_Box *s, GF_BitStream *bs)\n \t\t\tprop_type = gf_bs_read_u16(bs);\n \t\t\tprop_size -= 6;\n \t\t\tISOM_DECREASE_SIZE_NO_ERR(ptr, prop_size)\n-\t\t\t//add 2 extra bytes for UTF16 case string dump\n-\t\t\tdata2 = gf_malloc(sizeof(char) * (prop_size+2));\n+\t\t\t//add 3 extra bytes for UTF16 case string dump to ensure proper null termination\n+\t\t\tdata2 = gf_malloc(sizeof(char) * (prop_size+3));\n \t\t\tgf_bs_read_data(bs, data2, prop_size);\n \t\t\tdata2[prop_size] = 0;\n \t\t\tdata2[prop_size+1] = 0;\n+\t\t\tdata2[prop_size+2] = 0;\n \t\t\ttag_size-=prop_size;\n \t\t} else {\n \t\t\tprop_size = 0;\ndiff --git a/src/isomedia/box_dump.c b/src/isomedia/box_dump.c\nindex b1f1f10..f5eafad 100644\n--- a/src/isomedia/box_dump.c\n+++ b/src/isomedia/box_dump.c\n@@ -6468,15 +6468,20 @@ GF_Err xtra_box_dump(GF_Box *a, FILE * trace)\n \t\tgf_fprintf(trace, \"<WMATag name=\\\"%s\\\" version=\\\"%d\\\" type=\\\"%d\\\"\", tag->name, tag->flags, tag->prop_type);\n \t\tif (!tag->prop_type) {\n \t\t\tu16 *src_str = (u16 *) tag->prop_value;\n-\t\t\tu32 len = UTF8_MAX_BYTES_PER_CHAR * gf_utf8_wcslen(src_str);\n-\t\t\tchar *utf8str = (char *)gf_malloc(len + 1);\n-\t\t\tu32 res_len = gf_utf8_wcstombs(utf8str, len, (const unsigned short **) &src_str);\n-\t\t\tif (res_len != GF_UTF8_FAIL) {\n-\t\t\t\tutf8str[res_len] = 0;\n-\n-\t\t\t\tgf_fprintf(trace, \" value=\\\"%s\\\">\\n\", utf8str);\n+\t\t\t// Ensure we don't read beyond the allocated buffer\n+\t\t\tif (tag->prop_value && tag->prop_size >= 2) {\n+\t\t\t\tu32 len = UTF8_MAX_BYTES_PER_CHAR * gf_utf8_wcslen(src_str);\n+\t\t\t\tchar *utf8str = (char *)gf_malloc(len + 1);\n+\t\t\t\tu32 res_len = gf_utf8_wcstombs(utf8str, len, (const unsigned short **) &src_str);\n+\t\t\t\tif (res_len != GF_UTF8_FAIL) {\n+\t\t\t\t\tutf8str[res_len] = 0;\n+\n+\t\t\t\t\tgf_fprintf(trace, \" value=\\\"%s\\\">\\n\", utf8str);\n+\t\t\t\t}\n+\t\t\t\tgf_free(utf8str);\n+\t\t\t} else {\n+\t\t\t\tgf_fprintf(trace, \" value=\\\"\\\">\\n\");\n \t\t\t}\n-\t\t\tgf_free(utf8str);\n \t\t} else {\n \t\t\tgf_fprintf(trace, \" value=\\\"\");\n \t\t\tdump_data_hex(trace, tag->prop_value, tag->prop_size);\n"
+  },
+  "gpac.cve-2021-40575": {
+    "instance_id": "gpac.cve-2021-40575",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/filters/reframe_mpgvid.c b/src/filters/reframe_mpgvid.c\nindex 328db28..f6846c4 100644\n--- a/src/filters/reframe_mpgvid.c\n+++ b/src/filters/reframe_mpgvid.c\n@@ -640,8 +640,12 @@ GF_Err mpgviddmx_process(GF_Filter *filter)\n \n \t\t//not enough bytes to parse start code\n \t\tif (remain<5) {\n-\t\t\tmemcpy(ctx->hdr_store, start, remain);\n-\t\t\tctx->bytes_in_header = remain;\n+\t\t\tif (remain > 0) {\n+\t\t\t\tmemcpy(ctx->hdr_store, start, remain);\n+\t\t\t\tctx->bytes_in_header = remain;\n+\t\t\t} else {\n+\t\t\t\tctx->bytes_in_header = 0;\n+\t\t\t}\n \t\t\tbreak;\n \t\t}\n \t\tcurrent = -1;\n"
+  },
+  "gpac.cve-2022-2453": {
+    "instance_id": "gpac.cve-2022-2453",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libxls.cve-2023-38855": {
+    "instance_id": "libxls.cve-2023-38855",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/xls.c b/src/xls.c\nindex fcbcacc..0b2117b 100644\n--- a/src/xls.c\n+++ b/src/xls.c\n@@ -1006,16 +1006,25 @@ xls_error_t xls_parseWorkBook(xlsWorkBook* pWB)\n \t\tcase XLS_RECORD_STYLE:\n \t\t\tif(xls_debug) {\n \t\t\t\tstruct { unsigned short idx; unsigned char ident; unsigned char lvl; } *styl;\n-\t\t\t\tstyl = (void *)buf;\n-\n-\t\t\t\tprintf(\"    idx: 0x%x\\n\", styl->idx & 0x07FF);\n-\t\t\t\tif(styl->idx & 0x8000) {\n-\t\t\t\t\tprintf(\"  ident: 0x%x\\n\", styl->ident);\n-\t\t\t\t\tprintf(\"  level: 0x%x\\n\", styl->lvl);\n+\t\t\t\t\n+\t\t\t\tif (bof1.size < 4) {\n+\t\t\t\t\tprintf(\"    STYLE record too small: size=%d, expected at least 4\\n\", bof1.size);\n \t\t\t\t} else {\n-\t\t\t\t\tchar *s = get_string((char *)&buf[2], bof1.size - 2, 1, pWB);\n-\t\t\t\t\tprintf(\"  name=%s\\n\", s);\n-                    free(s);\n+\t\t\t\t\tstyl = (void *)buf;\n+\n+\t\t\t\t\tprintf(\"    idx: 0x%x\\n\", styl->idx & 0x07FF);\n+\t\t\t\t\tif(styl->idx & 0x8000) {\n+\t\t\t\t\t\tprintf(\"  ident: 0x%x\\n\", styl->ident);\n+\t\t\t\t\t\tprintf(\"  level: 0x%x\\n\", styl->lvl);\n+\t\t\t\t\t} else {\n+\t\t\t\t\t\tif (bof1.size >= 2) {\n+\t\t\t\t\t\t\tchar *s = get_string((char *)&buf[2], bof1.size - 2, 1, pWB);\n+\t\t\t\t\t\t\tprintf(\"  name=%s\\n\", s);\n+\t\t\t\t\t\t\tfree(s);\n+\t\t\t\t\t\t} else {\n+\t\t\t\t\t\t\tprintf(\"  name=(insufficient data)\\n\");\n+\t\t\t\t\t\t}\n+\t\t\t\t\t}\n \t\t\t\t}\n \t\t\t}\n \t\t\tbreak;\ndiff --git a/src/xlstool.c b/src/xlstool.c\nindex 14df59a..57c6c71 100644\n--- a/src/xlstool.c\n+++ b/src/xlstool.c\n@@ -263,7 +263,11 @@ static char *unicode_decode_wcstombs(const char *s, size_t len, xls_locale_t loc\n \n     for(i=0; i<len/2; i++)\n     {\n-        w[i] = (BYTE)s[2*i] + ((BYTE)s[2*i+1] << 8);\n+        if (2*i+1 < len) {\n+            w[i] = (BYTE)s[2*i] + ((BYTE)s[2*i+1] << 8);\n+        } else {\n+            w[i] = 0;\n+        }\n     }\n     w[len/2] = '\\0';\n \n@@ -292,6 +296,11 @@ static char *transcode_latin1_to_utf8(const char *str, DWORD len)\n \tchar *ret = NULL;\n     DWORD i;\n \t\n+    // Sanity check for suspiciously large length values\n+    if (len > 1000000) {\n+        return NULL;\n+    }\n+    \n     for(i=0; i<len; ++i) {\n         if(str[i] & (BYTE)0x80) {\n             ++utf8_chars;\n@@ -299,6 +308,10 @@ static char *transcode_latin1_to_utf8(const char *str, DWORD len)\n     }\n \t\n     char *out = ret = malloc(len+utf8_chars+1);\n+    if (ret == NULL) {\n+        return NULL;\n+    }\n+    \n     // UTF-8 encoding inline\n     for(i=0; i<len; ++i) {\n         BYTE c = str[i];\n"
+  },
+  "php.cve-2018-12882": {
+    "instance_id": "php.cve-2018-12882",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/ext/exif/exif.c b/ext/exif/exif.c\nindex 8c54e19..cc92118 100644\n--- a/ext/exif/exif.c\n+++ b/ext/exif/exif.c\n@@ -4325,6 +4325,7 @@ static int exif_read_from_impl(image_info_type *ImageInfo, php_stream *stream, i\n \t\t\tif ((st.st_mode & S_IFMT) != S_IFREG) {\n \t\t\t\texif_error_docref(NULL EXIFERR_CC, ImageInfo, E_WARNING, \"Not a file\");\n \t\t\t\tphp_stream_close(ImageInfo->infile);\n+\t\t\t\tImageInfo->infile = NULL;\n \t\t\t\treturn FALSE;\n \t\t\t}\n \n@@ -4408,7 +4409,10 @@ static int exif_read_from_file(image_info_type *ImageInfo, char *FileName, int r\n \n \tret = exif_read_from_stream(ImageInfo, stream, read_thumbnail, read_all);\n \n-\tphp_stream_close(stream);\n+\t/* Only close the stream if it hasn't been closed already by exif_read_from_impl */\n+\tif (ImageInfo->infile != NULL) {\n+\t\tphp_stream_close(stream);\n+\t}\n \n \treturn ret;\n }\n"
+  },
+  "yaml-cpp.cve-2018-20574": {
+    "instance_id": "yaml-cpp.cve-2018-20574",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/singledocparser.cpp b/src/singledocparser.cpp\nindex a27c1c3..5c65d00 100644\n--- a/src/singledocparser.cpp\n+++ b/src/singledocparser.cpp\n@@ -273,13 +273,23 @@ void SingleDocParser::HandleBlockMap(EventHandler& eventHandler) {\n }\n \n void SingleDocParser::HandleFlowMap(EventHandler& eventHandler) {\n+  // Check recursion depth to prevent stack overflow\n+  static int recursion_depth = 0;\n+  recursion_depth++;\n+  if (recursion_depth > 200) {\n+    recursion_depth--;\n+    throw ParserException(m_scanner.mark(), \"Recursion depth exceeded\");\n+  }\n+\n   // eat start token\n   m_scanner.pop();\n   m_pCollectionStack->PushCollectionType(CollectionType::FlowMap);\n \n   while (1) {\n-    if (m_scanner.empty())\n+    if (m_scanner.empty()) {\n+      recursion_depth--;\n       throw ParserException(m_scanner.mark(), ErrorMsg::END_OF_MAP_FLOW);\n+    }\n \n     Token& token = m_scanner.peek();\n     const Mark mark = token.mark;\n@@ -305,19 +315,24 @@ void SingleDocParser::HandleFlowMap(EventHandler& eventHandler) {\n       eventHandler.OnNull(mark, NullAnchor);\n     }\n \n-    if (m_scanner.empty())\n+    if (m_scanner.empty()) {\n+      recursion_depth--;\n       throw ParserException(m_scanner.mark(), ErrorMsg::END_OF_MAP_FLOW);\n+    }\n \n     // now eat the separator (or could be a map end, which we ignore - but if\n     // it's neither, then it's a bad node)\n     Token& nextToken = m_scanner.peek();\n     if (nextToken.type == Token::FLOW_ENTRY)\n       m_scanner.pop();\n-    else if (nextToken.type != Token::FLOW_MAP_END)\n+    else if (nextToken.type != Token::FLOW_MAP_END) {\n+      recursion_depth--;\n       throw ParserException(nextToken.mark, ErrorMsg::END_OF_MAP_FLOW);\n+    }\n   }\n \n   m_pCollectionStack->PopCollectionType(CollectionType::FlowMap);\n+  recursion_depth--;\n }\n \n // . Single \"key: value\" pair in a flow sequence\n"
+  },
+  "mruby.cve-2018-10199": {
+    "instance_id": "mruby.cve-2018-10199",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/mrbgems/mruby-io/src/io.c b/mrbgems/mruby-io/src/io.c\nindex 58bcdd1..6ace9e1 100644\n--- a/mrbgems/mruby-io/src/io.c\n+++ b/mrbgems/mruby-io/src/io.c\n@@ -561,13 +561,13 @@ mrb_io_initialize_copy(mrb_state *mrb, mrb_value copy)\n   mrb_bool failed = TRUE;\n \n   mrb_get_args(mrb, \"o\", &orig);\n+  fptr_orig = io_get_open_fptr(mrb, orig);\n   fptr_copy = (struct mrb_io *)DATA_PTR(copy);\n   if (fptr_copy != NULL) {\n     fptr_finalize(mrb, fptr_copy, FALSE);\n     mrb_free(mrb, fptr_copy);\n   }\n   fptr_copy = (struct mrb_io *)mrb_io_alloc(mrb);\n-  fptr_orig = io_get_open_fptr(mrb, orig);\n \n   DATA_TYPE(copy) = &mrb_io_type;\n   DATA_PTR(copy) = fptr_copy;\n"
+  },
+  "njs.cve-2019-13617": {
+    "instance_id": "njs.cve-2019-13617",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-0358": {
+    "instance_id": "gpac.cve-2023-0358",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/odf/descriptors.c b/src/odf/descriptors.c\nindex 0d42ff2..4772a39 100644\n--- a/src/odf/descriptors.c\n+++ b/src/odf/descriptors.c\n@@ -1397,7 +1397,7 @@ GF_VVCConfig *gf_odf_vvc_cfg_read_bs(GF_BitStream *bs)\n \t\tdefault:\n \t\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_CODING, (\"[VVC] Invalid NALU type in vvcC - ignoring\\n\", ar->nalus));\n \t\t\tgf_free(ar);\n-\t\t\tbreak;\n+\t\t\tcontinue;\n \t\t}\n \n \t\tif ((ar->type != GF_VVC_NALU_DEC_PARAM) && (ar->type != GF_VVC_NALU_OPI))\n"
+  },
+  "mruby.cve-2022-1276": {
+    "instance_id": "mruby.cve-2022-1276",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/class.c b/src/class.c\nindex 37fc4e6..45b8fe4 100644\n--- a/src/class.c\n+++ b/src/class.c\n@@ -988,7 +988,7 @@ mrb_get_args(mrb_state *mrb, const char *format, ...)\n           ci->stack[1] = mrb_ary_new_from_values(mrb, argc+1, &ci->stack[1]);\n           argc = ci->n = 15;\n         }\n-        else {\n+        else if (argc == 15) {\n           /* push kdict to packed arguments */\n           mrb_ary_push(mrb, ci->stack[1], kdict);\n         }\n@@ -1005,6 +1005,9 @@ mrb_get_args(mrb_state *mrb, const char *format, ...)\n \n   argv_on_stack = argc < 15;\n   if (!argv_on_stack) {\n+    if (!mrb_array_p(*argv)) {\n+      mrb_raise(mrb, E_ARGUMENT_ERROR, \"packed arguments should be an array\");\n+    }\n     struct RArray *a = mrb_ary_ptr(*argv);\n     argv = ARY_PTR(a);\n     argc = ARY_LEN(a);\n"
+  },
+  "imagemagick.cve-2019-13297": {
+    "instance_id": "imagemagick.cve-2019-13297",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickCore/threshold.c b/MagickCore/threshold.c\nindex f9412bb..64e0359 100644\n--- a/MagickCore/threshold.c\n+++ b/MagickCore/threshold.c\n@@ -214,6 +214,8 @@ MagickExport Image *AdaptiveThresholdImage(const Image *image,\n     return((Image *) NULL);\n   if (width == 0)\n     return(threshold_image);\n+  if (height == 0)\n+    return(threshold_image);\n   status=SetImageStorageClass(threshold_image,DirectClass,exception);\n   if (status == MagickFalse)\n     {\n"
+  },
+  "imagemagick.cve-2019-13299": {
+    "instance_id": "imagemagick.cve-2019-13299",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickCore/statistic.c b/MagickCore/statistic.c\nindex 50d56fc..8de912d 100644\n--- a/MagickCore/statistic.c\n+++ b/MagickCore/statistic.c\n@@ -573,9 +573,9 @@ MagickExport Image *EvaluateImages(const Image *images,\n                 image_view=DestroyCacheView(image_view);\n                 break;\n               }\n-            for (i=0; i < (ssize_t) GetPixelChannels(image); i++)\n+            for (i=0; i < (ssize_t) GetPixelChannels(next); i++)\n             {\n-              PixelChannel channel = GetPixelChannelChannel(image,i);\n+              PixelChannel channel = GetPixelChannelChannel(next,i);\n               PixelTrait evaluate_traits=GetPixelChannelTraits(image,channel);\n               PixelTrait traits = GetPixelChannelTraits(next,channel);\n               if ((traits == UndefinedPixelTrait) ||\n@@ -584,7 +584,7 @@ MagickExport Image *EvaluateImages(const Image *images,\n               if ((traits & UpdatePixelTrait) == 0)\n                 continue;\n               evaluate_pixel[j].channel[i]=ApplyEvaluateOperator(\n-                random_info[id],GetPixelChannel(image,channel,p),op,\n+                random_info[id],GetPixelChannel(next,channel,p),op,\n                 evaluate_pixel[j].channel[i]);\n             }\n             image_view=DestroyCacheView(image_view);\n@@ -679,7 +679,7 @@ MagickExport Image *EvaluateImages(const Image *images,\n \n             for (i=0; i < (ssize_t) GetPixelChannels(next); i++)\n             {\n-              PixelChannel channel = GetPixelChannelChannel(image,i);\n+              PixelChannel channel = GetPixelChannelChannel(next,i);\n               PixelTrait traits = GetPixelChannelTraits(next,channel);\n               PixelTrait evaluate_traits=GetPixelChannelTraits(image,channel);\n               if ((traits == UndefinedPixelTrait) ||\n@@ -688,7 +688,7 @@ MagickExport Image *EvaluateImages(const Image *images,\n               if ((traits & UpdatePixelTrait) == 0)\n                 continue;\n               evaluate_pixel[x].channel[i]=ApplyEvaluateOperator(\n-                random_info[id],GetPixelChannel(image,channel,p),j == 0 ?\n+                random_info[id],GetPixelChannel(next,channel,p),j == 0 ?\n                 AddEvaluateOperator : op,evaluate_pixel[x].channel[i]);\n             }\n             p+=GetPixelChannels(next);\n"
+  },
+  "gpac.cve-2023-48014": {
+    "instance_id": "gpac.cve-2023-48014",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/av_parsers.c b/src/media_tools/av_parsers.c\nindex 8a37040..1877fed 100644\n--- a/src/media_tools/av_parsers.c\n+++ b/src/media_tools/av_parsers.c\n@@ -7690,7 +7690,7 @@ static Bool hevc_parse_vps_extension(HEVC_VPS *vps, GF_BitStream *bs)\n {\n \tu8 splitting_flag, vps_nuh_layer_id_present_flag, view_id_len;\n \tu32 i, j, num_scalability_types, num_add_olss, num_add_layer_set, num_indepentdent_layers, nb_bits, default_output_layer_idc = 0;\n-\tu8 dimension_id_len[16], dim_bit_offset[16];\n+\tu8 dimension_id_len[16], dim_bit_offset[17];\n \tu8 /*avc_base_layer_flag, */NumLayerSets, /*default_one_target_output_layer_flag, */rep_format_idx_present_flag, ols_ids_to_ls_idx;\n \tu8 layer_set_idx_for_ols_minus1[MAX_LHVC_LAYERS];\n \tu8 nb_output_layers_in_output_layer_set[MAX_LHVC_LAYERS + 1];\n"
+  },
+  "imagemagick.cve-2017-18022": {
+    "instance_id": "imagemagick.cve-2017-18022",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickWand/montage.c b/MagickWand/montage.c\nindex ae11eb5..8868d21 100644\n--- a/MagickWand/montage.c\n+++ b/MagickWand/montage.c\n@@ -276,6 +276,8 @@ WandExport MagickBooleanType MontageImageCommand(ImageInfo *image_info,\n { \\\n   (void) ThrowMagickException(exception,GetMagickModule(),asperity,tag,\"`%s'\", \\\n     option); \\\n+  if (montage_info != (MontageInfo *) NULL) \\\n+    montage_info=DestroyMontageInfo(montage_info); \\\n   DestroyMontage(); \\\n   return(MagickFalse); \\\n }\n@@ -283,6 +285,8 @@ WandExport MagickBooleanType MontageImageCommand(ImageInfo *image_info,\n { \\\n   (void) ThrowMagickException(exception,GetMagickModule(),OptionError, \\\n     \"InvalidArgument\",\"'%s': %s\",option,argument); \\\n+  if (montage_info != (MontageInfo *) NULL) \\\n+    montage_info=DestroyMontageInfo(montage_info); \\\n   DestroyMontage(); \\\n   return(MagickFalse); \\\n }\n"
+  },
+  "mruby.cve-2018-11743": {
+    "instance_id": "mruby.cve-2018-11743",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libredwg.cve-2020-21818": {
+    "instance_id": "libredwg.cve-2020-21818",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/programs/escape.c b/programs/escape.c\nindex 1daff81..ebb2159 100644\n--- a/programs/escape.c\n+++ b/programs/escape.c\n@@ -41,14 +41,14 @@ htmlescape (const char *restrict src, const int cp)\n         }\n       switch (*s)\n         {\n-        case '\"': strcat (d, \"&quot;\"); d += 6; break;\n-        case '\\'': strcat (d, \"&#39;\"); d += 5; break;\n-        case '`': strcat (d, \"&#96;\"); d += 5; break;\n-        case '&': strcat (d, \"&amp;\"); d += 5; break;\n-        case '<': strcat (d, \"&lt;\"); d += 4; break;\n-        case '>': strcat (d, \"&gt;\"); d += 4; break;\n-        case '{': strcat (d, \"&#123;\"); d += 6; break;\n-        case '}': strcat (d, \"&#125;\"); d += 6; break;\n+        case '\"': memcpy (d, \"&quot;\", 6); d += 6; break;\n+        case '\\'': memcpy (d, \"&#39;\", 5); d += 5; break;\n+        case '`': memcpy (d, \"&#96;\", 5); d += 5; break;\n+        case '&': memcpy (d, \"&amp;\", 5); d += 5; break;\n+        case '<': memcpy (d, \"&lt;\", 4); d += 4; break;\n+        case '>': memcpy (d, \"&gt;\", 4); d += 4; break;\n+        case '{': memcpy (d, \"&#123;\", 6); d += 6; break;\n+        case '}': memcpy (d, \"&#125;\", 6); d += 6; break;\n         default:\n           if (*s >= 127) // maybe encodings, no utf8 (see htmlwescape)\n             {\n"
+  },
+  "libredwg.cve-2020-21814": {
+    "instance_id": "libredwg.cve-2020-21814",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/programs/escape.c b/programs/escape.c\nindex 8a90741..e87fe3b 100644\n--- a/programs/escape.c\n+++ b/programs/escape.c\n@@ -83,7 +83,7 @@ htmlwescape (BITCODE_TU wstr)\n   len += 16;\n   d = dest = malloc (len);\n \n-  while (*wstr++)\n+  while (*wstr)\n     {\n       const int off = d - dest;\n       if (off >= len - 8)\n@@ -94,23 +94,24 @@ htmlwescape (BITCODE_TU wstr)\n         }\n       switch (*wstr)\n         {\n-        case 34: strcat (d, \"&quot;\"); d += 6; break;\n-        case 39: strcat (d, \"&#39;\"); d += 5; break;\n-        case 38: strcat (d, \"&amp;\"); d += 5; break;\n-        case 60: strcat (d, \"&lt;\"); d += 4; break;\n-        case 62: strcat (d, \"&gt;\"); d += 4; break;\n-        case 96: strcat (d, \"&#96;\"); d += 5; break;\n-        case 123: strcat (d, \"&#123;\"); d += 6; break;\n-        case 125: strcat (d, \"&#125;\"); d += 6; break;\n+        case 34: memcpy (d, \"&quot;\", 6); d += 6; break;\n+        case 39: memcpy (d, \"&#39;\", 5); d += 5; break;\n+        case 38: memcpy (d, \"&amp;\", 5); d += 5; break;\n+        case 60: memcpy (d, \"&lt;\", 4); d += 4; break;\n+        case 62: memcpy (d, \"&gt;\", 4); d += 4; break;\n+        case 96: memcpy (d, \"&#96;\", 5); d += 5; break;\n+        case 123: memcpy (d, \"&#123;\", 6); d += 6; break;\n+        case 125: memcpy (d, \"&#125;\", 6); d += 6; break;\n         default:\n           if (*wstr >= 127) // utf8 encodings\n             {\n-              sprintf (d, \"&#x%X;\", *wstr);\n-              d += strlen (d);\n+              int n = sprintf (d, \"&#x%X;\", *wstr);\n+              d += n;\n             }\n           else if (*wstr >= 20)\n             *d++ = *wstr;\n         }\n+      wstr++;\n     }\n   *d = 0;\n   return dest;\n"
+  },
+  "imagemagick.cve-2019-13301": {
+    "instance_id": "imagemagick.cve-2019-13301",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-4754": {
+    "instance_id": "gpac.cve-2023-4754",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/scene_manager/swf_parse.c b/src/scene_manager/swf_parse.c\nindex f4b974a..a01609f 100644\n--- a/src/scene_manager/swf_parse.c\n+++ b/src/scene_manager/swf_parse.c\n@@ -1425,18 +1425,21 @@ static GF_Err swf_def_font(SWFReader *read, u32 revision)\n \n \t\tcount = swf_get_16(read);\n \t\tft->nbGlyphs = count / 2;\n-\t\toffset_table = (u32*)gf_malloc(sizeof(u32) * ft->nbGlyphs);\n-\t\toffset_table[0] = 0;\n-\t\tfor (i=1; i<ft->nbGlyphs; i++) offset_table[i] = swf_get_16(read);\n+\t\tif (ft->nbGlyphs > 0) {\n+\t\t\toffset_table = (u32*)gf_malloc(sizeof(u32) * ft->nbGlyphs);\n+\t\t\tif (!offset_table) return GF_OUT_OF_MEM;\n+\t\t\toffset_table[0] = 0;\n+\t\t\tfor (i=1; i<ft->nbGlyphs; i++) offset_table[i] = swf_get_16(read);\n \n-\t\tfor (i=0; i<ft->nbGlyphs; i++) {\n-\t\t\tswf_align(read);\n-\t\t\te = swf_seek_file_to(read, start + offset_table[i]);\n-\t\t\tif (e) break;\n-\t\t\tswf_parse_shape_def(read, ft, 0);\n+\t\t\tfor (i=0; i<ft->nbGlyphs; i++) {\n+\t\t\t\tswf_align(read);\n+\t\t\t\te = swf_seek_file_to(read, start + offset_table[i]);\n+\t\t\t\tif (e) break;\n+\t\t\t\tswf_parse_shape_def(read, ft, 0);\n+\t\t\t}\n+\t\t\tgf_free(offset_table);\n+\t\t\tif (e) return e;\n \t\t}\n-\t\tgf_free(offset_table);\n-\t\tif (e) return e;\n \t} else if (revision==1) {\n \t\tSWFRec rc;\n \t\tBool wide_offset, wide_codes;\n"
+  },
+  "imagemagick.cve-2019-13304": {
+    "instance_id": "imagemagick.cve-2019-13304",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/pnm.c b/coders/pnm.c\nindex afaea30..e9f9822 100644\n--- a/coders/pnm.c\n+++ b/coders/pnm.c\n@@ -1757,7 +1757,7 @@ static MagickBooleanType WritePNMImage(const ImageInfo *image_info,Image *image,\n             *q++=(unsigned char) (GetPixelLuma(image,p) >= (QuantumRange/2.0) ?\n               '0' : '1');\n             *q++=' ';\n-            if ((q-pixels+1) >= (ssize_t) sizeof(pixels))\n+            if ((q-pixels+3) >= (ssize_t) sizeof(pixels))\n               {\n                 *q++='\\n';\n                 (void) WriteBlob(image,q-pixels,pixels);\n"
+  },
+  "gpac.cve-2023-4682": {
+    "instance_id": "gpac.cve-2023-4682",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/avilib.c b/src/media_tools/avilib.c\nindex 459ff80..66357af 100644\n--- a/src/media_tools/avilib.c\n+++ b/src/media_tools/avilib.c\n@@ -2842,7 +2842,14 @@ int AVI_frame_size(avi_t *AVI, int frame)\n \t}\n \n \tif(frame < 0 || frame >= AVI->video_frames) return 0;\n-\treturn (u32) (AVI->video_index[frame].len);\n+\t\n+\t// Validate frame size to prevent buffer overflow\n+\tu32 frame_size = (u32) (AVI->video_index[frame].len);\n+\tif (frame_size > 10000000) { // 10MB limit for video frames\n+\t\treturn 0;\n+\t}\n+\t\n+\treturn frame_size;\n }\n \n int AVI_audio_size(avi_t *AVI, int frame)\n@@ -2933,6 +2940,12 @@ int AVI_read_frame(avi_t *AVI, u8 *vidbuf, int *keyframe)\n \tif(AVI->video_pos < 0 || AVI->video_pos >= AVI->video_frames) return -1;\n \tn = (u32) AVI->video_index[AVI->video_pos].len;\n \n+\t// Validate frame size to prevent buffer overflow\n+\tif (n > 10000000) { // 10MB limit for video frames\n+\t\tAVI_errno = AVI_ERR_READ;\n+\t\treturn -1;\n+\t}\n+\n \t*keyframe = (AVI->video_index[AVI->video_pos].key==0x10) ? 1:0;\n \n \tif (vidbuf == NULL) {\n"
+  },
+  "matio.cve-2019-9037": {
+    "instance_id": "matio.cve-2019-9037",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/mat.c b/src/mat.c\nindex a0bc257..fcb0361 100644\n--- a/src/mat.c\n+++ b/src/mat.c\n@@ -1822,7 +1822,7 @@ Mat_VarPrint( matvar_t *matvar, int printdata )\n         printf(\" (logical)\");\n     printf(\"\\n\");\n     if ( matvar->data_type ) {\n-        const char *data_type_desc[23] = {\"Unknown\",\"8-bit, signed integer\",\n+        const char *data_type_desc[25] = {\"Unknown\",\"8-bit, signed integer\",\n            \"8-bit, unsigned integer\",\"16-bit, signed integer\",\n            \"16-bit, unsigned integer\",\"32-bit, signed integer\",\n            \"32-bit, unsigned integer\",\"IEEE 754 single-precision\",\"RESERVED\",\n@@ -1831,8 +1831,12 @@ Mat_VarPrint( matvar_t *matvar, int printdata )\n            \"Compressed Data\",\"Unicode UTF-8 Encoded Character Data\",\n            \"Unicode UTF-16 Encoded Character Data\",\n            \"Unicode UTF-32 Encoded Character Data\",\"\",\"String\",\"Cell Array\",\n-           \"Structure\"};\n-        printf(\" Data Type: %s\\n\", data_type_desc[matvar->data_type]);\n+           \"Structure\",\"Array\",\"Function\"};\n+        if ( matvar->data_type < 25 ) {\n+            printf(\" Data Type: %s\\n\", data_type_desc[matvar->data_type]);\n+        } else {\n+            printf(\" Data Type: Unknown\\n\");\n+        }\n     }\n \n     if ( MAT_C_STRUCT == matvar->class_type ) {\n"
+  },
+  "gpac.cve-2024-0322": {
+    "instance_id": "gpac.cve-2024-0322",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/filters/reframe_ac3.c b/src/filters/reframe_ac3.c\nindex 7b6452e..7ea3c13 100644\n--- a/src/filters/reframe_ac3.c\n+++ b/src/filters/reframe_ac3.c\n@@ -480,7 +480,7 @@ restart:\n \t\t\tcts = GF_FILTER_NO_TS;\n \t\t}\n \n-\t\tif (!ctx->in_seek && remain >= ctx->hdr.framesize) {\n+\t\tif (!ctx->in_seek && remain >= ctx->hdr.framesize && (sync + ctx->hdr.framesize <= start + remain)) {\n \t\t\tdst_pck = gf_filter_pck_new_alloc(ctx->opid, ctx->hdr.framesize, &output);\n \t\t\tif (!dst_pck) return GF_OUT_OF_MEM;\n \n"
+  },
+  "njs.cve-2022-31306": {
+    "instance_id": "njs.cve-2022-31306",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_array.c b/src/njs_array.c\nindex 81a7c15..36d94c3 100644\n--- a/src/njs_array.c\n+++ b/src/njs_array.c\n@@ -142,6 +142,10 @@ njs_array_convert_to_slow_array(njs_vm_t *vm, njs_array_t *array)\n     njs_value_t        index, value;\n     njs_object_prop_t  *prop;\n \n+    if (array->object.fast_array == 0) {\n+        return NJS_OK;\n+    }\n+\n     njs_set_array(&value, array);\n     array->object.fast_array = 0;\n \n"
+  },
+  "faad2.cve-2018-20359": {
+    "instance_id": "faad2.cve-2018-20359",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..06924ee 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -1214,6 +1214,13 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             G_max = min(G_max, 1e10);\n \n \n+            /* Validate limiter band indices against MAX_M */\n+            if (ml1 >= MAX_M || ml2 > MAX_M)\n+            {\n+                /* Skip this limiter band if indices are out of bounds */\n+                continue;\n+            }\n+\n             for (m = ml1; m < ml2; m++)\n             {\n                 real_t Q_M, G;\n@@ -1326,6 +1333,12 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             G_boost = (acc1 + EPS) / (den + EPS);\n             G_boost = min(G_boost, 2.51188643 /* 1.584893192 ^ 2 */);\n \n+            /* Skip if limiter band indices are out of bounds (already checked above) */\n+            if (ml1 >= MAX_M || ml2 > MAX_M)\n+            {\n+                continue;\n+            }\n+\n             for (m = ml1; m < ml2; m++)\n             {\n                 /* apply compensation to gain, noise floor sf's and sinusoid levels */\n"
+  },
+  "mruby.cve-2018-12248": {
+    "instance_id": "mruby.cve-2018-12248",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/mrbgems/mruby-fiber/src/fiber.c b/mrbgems/mruby-fiber/src/fiber.c\nindex 83153a9..82d703a 100644\n--- a/mrbgems/mruby-fiber/src/fiber.c\n+++ b/mrbgems/mruby-fiber/src/fiber.c\n@@ -94,6 +94,10 @@ fiber_init(mrb_state *mrb, mrb_value self)\n   if (p->body.irep->nregs > slen) {\n     slen += p->body.irep->nregs;\n   }\n+  /* Ensure stack is large enough for maximum arguments (255) plus other stack elements */\n+  if (slen < 255 + 2) {\n+    slen = 255 + 2;\n+  }\n   c->stbase = (mrb_value *)mrb_malloc(mrb, slen*sizeof(mrb_value));\n   c->stend = c->stbase + slen;\n   c->stack = c->stbase;\n@@ -213,6 +217,10 @@ fiber_switch(mrb_state *mrb, mrb_value self, mrb_int len, const mrb_value *a, mr\n     value = c->stack[0] = MRB_PROC_ENV(c->ci->proc)->stack[0];\n   }\n   else {\n+    /* Check if we have enough stack space for the arguments when resuming/transferring */\n+    if (len >= c->stend - c->stack) {\n+      mrb_raise(mrb, E_FIBER_ERROR, \"too many arguments to fiber\");\n+    }\n     value = fiber_result(mrb, a, len);\n   }\n   fiber_switch_context(mrb, c);\n"
+  },
+  "gpac.cve-2024-50665": {
+    "instance_id": "gpac.cve-2024-50665",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/isomedia/drm_sample.c b/src/isomedia/drm_sample.c\nindex a2f69d7..ac5d1dd 100644\n--- a/src/isomedia/drm_sample.c\n+++ b/src/isomedia/drm_sample.c\n@@ -1559,7 +1559,15 @@ static GF_Err isom_cenc_get_sai_by_saiz_saio(GF_MediaBox *mdia, u32 sampleNumber\n \t\t}\n \t\tif ((nb_saio==1) && !saio_cenc->total_size) {\n \t\t\tfor (j = 0; j < saiz->sample_count; j++) {\n-\t\t\t\tsaio_cenc->total_size += saiz->default_sample_info_size ? saiz->default_sample_info_size : saiz->sample_info_size[j];\n+\t\t\t\tif (saiz->default_sample_info_size) {\n+\t\t\t\t\tsaio_cenc->total_size += saiz->default_sample_info_size;\n+\t\t\t\t} else {\n+\t\t\t\t\tif (!saiz->sample_info_size) {\n+\t\t\t\t\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_CONTAINER, (\"[IsoMedia] Invalid saiz box: default_sample_info_size=0 but sample_info_size=NULL\\n\"));\n+\t\t\t\t\t\treturn GF_ISOM_INVALID_FILE;\n+\t\t\t\t\t}\n+\t\t\t\t\tsaio_cenc->total_size += saiz->sample_info_size[j];\n+\t\t\t\t}\n \t\t\t}\n \t\t}\n \t\tif (saiz->cached_sample_num+1== sampleNumber) {\n"
+  },
+  "gpac.cve-2024-0321": {
+    "instance_id": "gpac.cve-2024-0321",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/filters/load_text.c b/src/filters/load_text.c\nindex 6373398..5727ff6 100644\n--- a/src/filters/load_text.c\n+++ b/src/filters/load_text.c\n@@ -378,7 +378,9 @@ char *gf_text_get_utf8_line(char *szLine, u32 lineSize, FILE *txt_in, s32 unicod\n \t\t\tj = GF_ARRAY_LENGTH(szLineConv) -1 ;\n \t\t}\n \t\tszLineConv[j] = 0;\n-\t\tstrcpy(szLine, szLineConv);\n+\t\t// Use strncpy to avoid buffer overflow\n+\t\tstrncpy(szLine, szLineConv, lineSize);\n+\t\tszLine[lineSize-1] = 0;\n \t\treturn sOK;\n \t}\n \n@@ -402,7 +404,9 @@ char *gf_text_get_utf8_line(char *szLine, u32 lineSize, FILE *txt_in, s32 unicod\n \ti = gf_utf8_wcstombs(szLineConv, 2048, (const unsigned short **) &sptr);\n \tif (i == GF_UTF8_FAIL) i = 0;\n \tszLineConv[i] = 0;\n-\tstrcpy(szLine, szLineConv);\n+\t// Use strncpy to avoid buffer overflow\n+\tstrncpy(szLine, szLineConv, lineSize);\n+\tszLine[lineSize-1] = 0;\n \t/*this is ugly indeed: since input is UTF16-LE, there are many chances the gf_fgets never reads the \\0 after a \\n*/\n \tif (unicode_type==3) gf_fgetc(txt_in);\n \treturn sOK;\n"
+  },
+  "faad2.cve-2018-20358": {
+    "instance_id": "faad2.cve-2018-20358",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libfaad/specrec.c b/libfaad/specrec.c\nindex 9797d6e..fe7b4c2 100644\n--- a/libfaad/specrec.c\n+++ b/libfaad/specrec.c\n@@ -1201,6 +1201,14 @@ uint8_t reconstruct_channel_pair(NeAACDecStruct *hDecoder, ic_stream *ics1, ic_s\n #ifdef LTP_DEC\n     if (is_ltp_ot(hDecoder->object_type))\n     {\n+        /* Make sure lt_pred_stat arrays are allocated */\n+        if (hDecoder->lt_pred_stat[cpe->channel] == NULL || hDecoder->lt_pred_stat[cpe->paired_channel] == NULL)\n+        {\n+            retval = allocate_channel_pair(hDecoder, cpe->channel, (uint8_t)cpe->paired_channel);\n+            if (retval > 0)\n+                return retval;\n+        }\n+\n         ltp_info *ltp1 = &(ics1->ltp);\n         ltp_info *ltp2 = (cpe->common_window) ? &(ics2->ltp2) : &(ics2->ltp);\n #ifdef LD_DEC\n"
+  },
+  "mruby.cve-2022-1286": {
+    "instance_id": "mruby.cve-2022-1286",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "imagemagick.cve-2022-0284": {
+    "instance_id": "imagemagick.cve-2022-0284",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/xpm.c b/coders/xpm.c\nindex 782ed73..5f73df8 100644\n--- a/coders/xpm.c\n+++ b/coders/xpm.c\n@@ -773,7 +773,7 @@ static MagickBooleanType WritePICONImage(const ImageInfo *image_info,\n               break;\n             for (x=0; x < (ssize_t) picon->columns; x++)\n             {\n-              if (GetPixelAlpha(image,q) == (Quantum) TransparentAlpha)\n+              if (GetPixelAlpha(picon,q) == (Quantum) TransparentAlpha)\n                 transparent=MagickTrue;\n               else\n                 SetPixelAlpha(picon,OpaqueAlpha,q);\n@@ -804,7 +804,7 @@ static MagickBooleanType WritePICONImage(const ImageInfo *image_info,\n           break;\n         for (x=0; x < (ssize_t) picon->columns; x++)\n         {\n-          if (GetPixelAlpha(image,q) == (Quantum) TransparentAlpha)\n+          if (GetPixelAlpha(picon,q) == (Quantum) TransparentAlpha)\n             SetPixelIndex(picon,(Quantum) picon->colors,q);\n           q+=GetPixelChannels(picon);\n         }\n"
+  },
+  "njs.cve-2022-27007": {
+    "instance_id": "njs.cve-2022-27007",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_async.c b/src/njs_async.c\nindex e4dd748..d6a05fe 100644\n--- a/src/njs_async.c\n+++ b/src/njs_async.c\n@@ -106,6 +106,11 @@ njs_await_fulfilled(njs_vm_t *vm, njs_value_t *args, njs_uint_t nargs,\n         ret = njs_function_call(vm, njs_function(&ctx->capability->resolve),\n                             &njs_value_undefined, &vm->retval, 1, &vm->retval);\n \n+        /* Clear the skip flag before freeing the async context */\n+        if (ctx->await != NULL) {\n+            ctx->await->native.skip = 0;\n+        }\n+\n         njs_async_context_free(vm, ctx);\n \n     } else if (ret == NJS_AGAIN) {\n@@ -128,6 +133,11 @@ failed:\n     (void) njs_function_call(vm, njs_function(&ctx->capability->reject),\n                              &njs_value_undefined, value, 1, &vm->retval);\n \n+    /* Clear the skip flag before freeing the async context */\n+    if (ctx->await != NULL) {\n+        ctx->await->native.skip = 0;\n+    }\n+\n     njs_async_context_free(vm, ctx);\n \n     return NJS_ERROR;\ndiff --git a/src/njs_function.c b/src/njs_function.c\nindex c9d4d97..c2c60db 100644\n--- a/src/njs_function.c\n+++ b/src/njs_function.c\n@@ -792,7 +792,7 @@ njs_function_frame_free(njs_vm_t *vm, njs_native_frame_t *native)\n \n         /* GC: free frame->local, etc. */\n \n-        if (native->size != 0) {\n+        if (native->size != 0 && !native->skip) {\n             vm->stack_size -= native->size;\n             njs_mp_free(vm->mem_pool, native);\n         }\ndiff --git a/src/njs_vmcode.c b/src/njs_vmcode.c\nindex ef0beb5..35d70c4 100644\n--- a/src/njs_vmcode.c\n+++ b/src/njs_vmcode.c\n@@ -1918,6 +1918,7 @@ njs_vmcode_await(njs_vm_t *vm, njs_vmcode_await_t *await,\n \n         fulfilled = njs_promise_create_function(vm, size);\n         if (njs_slow_path(fulfilled == NULL)) {\n+            njs_mp_free(vm->mem_pool, ctx);\n             return NJS_ERROR;\n         }\n \n@@ -1926,9 +1927,13 @@ njs_vmcode_await(njs_vm_t *vm, njs_vmcode_await_t *await,\n \n         ret = njs_function_frame_save(vm, ctx->await, NULL);\n         if (njs_slow_path(ret != NJS_OK)) {\n+            njs_mp_free(vm->mem_pool, ctx);\n             return NJS_ERROR;\n         }\n \n+        /* Mark the frame as saved for async to prevent premature freeing */\n+        ctx->await->native.skip = 1;\n+\n     } else {\n         fulfilled = njs_promise_create_function(vm, 0);\n         if (njs_slow_path(fulfilled == NULL)) {\n@@ -1970,6 +1975,12 @@ njs_vmcode_await(njs_vm_t *vm, njs_vmcode_await_t *await,\n         return NJS_ERROR;\n     }\n \n+    /* Don't free the frame if it's saved for async continuation */\n+    if (ctx->await->native.skip) {\n+        vm->top_frame = vm->top_frame->previous;\n+        return NJS_AGAIN;\n+    }\n+\n     (void) njs_vmcode_return(vm, NULL, &vm->retval);\n \n     return NJS_AGAIN;\n"
+  },
+  "faad2.cve-2018-20194": {
+    "instance_id": "faad2.cve-2018-20194",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..43e5bfd 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -485,6 +485,11 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Validate ml1 and ml2 to prevent out-of-bounds access */\n+            if (ml1 >= MAX_M)\n+                ml1 = MAX_M - 1;\n+            if (ml2 > MAX_M)\n+                ml2 = MAX_M;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -949,6 +954,11 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Validate ml1 and ml2 to prevent out-of-bounds access */\n+            if (ml1 >= MAX_M)\n+                ml1 = MAX_M - 1;\n+            if (ml2 > MAX_M)\n+                ml2 = MAX_M;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n@@ -1193,6 +1203,11 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             ml1 = sbr->f_table_lim[sbr->bs_limiter_bands][k];\n             ml2 = sbr->f_table_lim[sbr->bs_limiter_bands][k+1];\n \n+            /* Validate ml1 and ml2 to prevent out-of-bounds access */\n+            if (ml1 >= MAX_M)\n+                ml1 = MAX_M - 1;\n+            if (ml2 > MAX_M)\n+                ml2 = MAX_M;\n \n             /* calculate the accumulated E_orig and E_curr over the limiter band */\n             for (m = ml1; m < ml2; m++)\n"
+  },
+  "mruby.cve-2022-0890": {
+    "instance_id": "mruby.cve-2022-0890",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 09f524a..1c5c1cf 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1925,6 +1925,10 @@ RETRY_TRY_BLOCK:\n \n       /* arguments is passed with Array */\n       if (argc == 15) {\n+        if (!mrb_array_p(regs[1])) {\n+          argnum_error(mrb, m1+m2);\n+          goto L_RAISE;\n+        }\n         struct RArray *ary = mrb_ary_ptr(regs[1]);\n         argv = ARY_PTR(ary);\n         argc = (int)ARY_LEN(ary);\n"
+  },
+  "faad2.cve-2018-20195": {
+    "instance_id": "faad2.cve-2018-20195",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-4681": {
+    "instance_id": "gpac.cve-2023-4681",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/avilib.c b/src/media_tools/avilib.c\nindex 27cd811..66273e8 100644\n--- a/src/media_tools/avilib.c\n+++ b/src/media_tools/avilib.c\n@@ -556,6 +556,12 @@ static int avi_add_index_entry(avi_t *AVI, unsigned char *tag, int flags, u64 po\n \n \t//   GF_LOG(GF_LOG_DEBUG, GF_LOG_CONTAINER, (\"[avilib] INDEX %s %ld %lu %lu\\n\", tag, flags, pos, len));\n \n+\t/* Check if AVI->idx is NULL before accessing it */\n+\tif (AVI->idx == NULL) {\n+\t\tAVI_errno = AVI_ERR_NO_MEM;\n+\t\treturn -1;\n+\t}\n+\n \tmemcpy(AVI->idx[AVI->n_idx],tag,4);\n \tlong2str(AVI->idx[AVI->n_idx]+ 4,flags);\n \tlong2str(AVI->idx[AVI->n_idx]+ 8, (s32) pos);\n"
+  },
+  "libiec61850.cve-2021-45769": {
+    "instance_id": "libiec61850.cve-2021-45769",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/mms/iso_acse/acse.c b/src/mms/iso_acse/acse.c\nindex 60b0f53..d7fdbf9 100644\n--- a/src/mms/iso_acse/acse.c\n+++ b/src/mms/iso_acse/acse.c\n@@ -420,6 +420,12 @@ AcseConnection_parseMessage(AcseConnection* self, ByteBuffer* message)\n {\n     AcseIndication indication = ACSE_ERROR;\n \n+    if (message == NULL || message->buffer == NULL) {\n+        if (DEBUG_ACSE)\n+            printf(\"ACSE: AcseConnection_parseMessage: invalid message or buffer!\\n\");\n+        return ACSE_ERROR;\n+    }\n+\n     uint8_t* buffer = message->buffer;\n \n     int messageSize = message->size;\ndiff --git a/src/mms/iso_server/iso_connection.c b/src/mms/iso_server/iso_connection.c\nindex 7e2a5b3..d6fedc7 100644\n--- a/src/mms/iso_server/iso_connection.c\n+++ b/src/mms/iso_server/iso_connection.c\n@@ -230,6 +230,14 @@ IsoConnection_handleTcpConnection(IsoConnection self, bool isSingleThread)\n \n                     ByteBuffer* acseBuffer = &(self->presentation->nextPayload);\n \n+                    /* Check if acseBuffer is valid before parsing */\n+                    if (acseBuffer->buffer == NULL) {\n+                        if (DEBUG_ISO_SERVER)\n+                            printf(\"ISO_SERVER: iso_connection: invalid ACSE buffer!\\n\");\n+                        self->state = ISO_CON_STATE_STOPPED;\n+                        break;\n+                    }\n+\n                     AcseIndication aIndication = AcseConnection_parseMessage(self->acseConnection, acseBuffer);\n \n                     if (aIndication == ACSE_ASSOCIATE) {\n"
+  },
+  "njs.cve-2020-24348": {
+    "instance_id": "njs.cve-2020-24348",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_json.c b/src/njs_json.c\nindex 07767f9..5d20618 100644\n--- a/src/njs_json.c\n+++ b/src/njs_json.c\n@@ -1314,8 +1314,21 @@ njs_json_stringify_iterator(njs_vm_t *vm, njs_json_stringify_t *stringify,\n                 njs_json_stringify_indent(stringify, &chain, 0);\n             }\n \n-            stringify->retval = njs_array_start(&state->value)[state->index++];\n-            value = &stringify->retval;\n+            if (njs_fast_path(njs_is_fast_array(&state->value))) {\n+                stringify->retval = njs_array_start(&state->value)[state->index++];\n+                value = &stringify->retval;\n+\n+            } else {\n+                njs_set_number(&index, state->index++);\n+                ret = njs_value_property(vm, &state->value, &index, value);\n+                if (njs_slow_path(ret == NJS_ERROR)) {\n+                    return ret;\n+                }\n+\n+                if (ret == NJS_DECLINED) {\n+                    njs_set_undefined(value);\n+                }\n+            }\n \n             ret = njs_json_stringify_to_json(stringify, state, NULL, value);\n             if (njs_slow_path(ret != NJS_OK)) {\n"
+  },
+  "md4c.cve-2021-30027": {
+    "instance_id": "md4c.cve-2021-30027",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "imagemagick.cve-2017-12644": {
+    "instance_id": "imagemagick.cve-2017-12644",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/dcm.c b/coders/dcm.c\nindex 08d497f..053becd 100644\n--- a/coders/dcm.c\n+++ b/coders/dcm.c\n@@ -3270,7 +3270,7 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n           if ((quantum != 0) && (length != 0))\n             {\n               if (length > GetBlobSize(image))\n-                ThrowReaderException(CorruptImageError,\n+                ThrowDCMException(CorruptImageError,\n                   \"InsufficientImageDataInFile\");\n               if (~length >= 1)\n                 data=(unsigned char *) AcquireQuantumMemory(length+1,quantum*\n@@ -3731,8 +3731,7 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n       data=(unsigned char *) RelinquishMagickMemory(data);\n     if (EOFBlob(image) != MagickFalse)\n       {\n-        ThrowFileException(exception,CorruptImageError,\"UnexpectedEndOfFile\",\n-          image->filename);\n+        ThrowDCMException(CorruptImageError,\"UnexpectedEndOfFile\");\n         break;\n       }\n   }\n@@ -3813,8 +3812,7 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n         if (file == (FILE *) NULL)\n           {\n             (void) RelinquishUniqueFileResource(filename);\n-            ThrowFileException(exception,FileOpenError,\n-              \"UnableToCreateTemporaryFile\",filename);\n+            ThrowDCMException(FileOpenError,\"UnableToCreateTemporaryFile\");\n             break;\n           }\n         for ( ; length != 0; length--)\n@@ -3822,8 +3820,7 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n           c=ReadBlobByte(image);\n           if (c == EOF)\n             {\n-              ThrowFileException(exception,CorruptImageError,\n-                \"UnexpectedEndOfFile\",image->filename);\n+              ThrowDCMException(CorruptImageError,\"UnexpectedEndOfFile\");\n               break;\n             }\n           (void) fputc(c,file);\n@@ -4103,8 +4100,7 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n       (void) SetImageColorspace(image,GRAYColorspace,exception);\n     if (EOFBlob(image) != MagickFalse)\n       {\n-        ThrowFileException(exception,CorruptImageError,\"UnexpectedEndOfFile\",\n-          image->filename);\n+        ThrowDCMException(CorruptImageError,\"UnexpectedEndOfFile\");\n         break;\n       }\n     /*\n"
+  },
+  "njs.cve-2023-27727": {
+    "instance_id": "njs.cve-2023-27727",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_object_prop.c b/src/njs_object_prop.c\nindex 6bf1c28..b525e24 100644\n--- a/src/njs_object_prop.c\n+++ b/src/njs_object_prop.c\n@@ -133,6 +133,12 @@ found:\n         return NJS_OK;\n     }\n \n+    /* Validate function pointer alignment before invocation */\n+    if (((uintptr_t) njs_prop_getter(prop) & 0x7) != 0) {\n+        njs_internal_error(vm, \"invalid property getter\");\n+        return NJS_ERROR;\n+    }\n+\n     njs_set_object(&value, object);\n \n     return njs_function_apply(vm, njs_prop_getter(prop), &value, 1, retval);\n"
+  },
+  "njs.cve-2021-46462": {
+    "instance_id": "njs.cve-2021-46462",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_object.c b/src/njs_object.c\nindex ad03bc3..70c5a4b 100644\n--- a/src/njs_object.c\n+++ b/src/njs_object.c\n@@ -2159,6 +2159,12 @@ njs_object_prototype_proto(njs_vm_t *vm, njs_object_prop_t *prop,\n \n     if (setval != NULL) {\n         if (njs_is_object(setval) || njs_is_null(setval)) {\n+            if (njs_slow_path(njs_is_object(setval) \n+                && (setval->type < NJS_OBJECT || setval->type >= NJS_VALUE_TYPE_MAX))) {\n+                njs_type_error(vm, \"Invalid object type for __proto__\");\n+                return NJS_ERROR;\n+            }\n+            \n             ret = njs_object_set_prototype(vm, object, setval);\n             if (njs_slow_path(ret == NJS_ERROR)) {\n                 njs_type_error(vm, \"Cyclic __proto__ value\");\n"
+  },
+  "imagemagick.cve-2017-11533": {
+    "instance_id": "imagemagick.cve-2017-11533",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/uil.c b/coders/uil.c\nindex beda560..8af1d09 100644\n--- a/coders/uil.c\n+++ b/coders/uil.c\n@@ -263,6 +263,7 @@ static MagickBooleanType WriteUILImage(const ImageInfo *image_info,Image *image,\n             *q;\n \n           colors++;\n+          i=0;\n           for (y=0; y < (ssize_t) image->rows; y++)\n           {\n             q=GetAuthenticPixels(image,0,y,image->columns,1,exception);\n@@ -272,6 +273,7 @@ static MagickBooleanType WriteUILImage(const ImageInfo *image_info,Image *image,\n             {\n               if (matte_image[i] != 0)\n                 SetPixelIndex(image,(Quantum) image->colors,q);\n+              i++;\n               q+=GetPixelChannels(image);\n             }\n           }\n"
+  },
+  "libredwg.cve-2020-6612": {
+    "instance_id": "libredwg.cve-2020-6612",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/decode_r2007.c b/src/decode_r2007.c\nindex 37527b9..9574dc2 100644\n--- a/src/decode_r2007.c\n+++ b/src/decode_r2007.c\n@@ -514,6 +514,11 @@ decompress_r2007 (BITCODE_RC *restrict dst, int dst_size,\n           LOG_ERROR (\"Decompression error: length overflow\");\n           return DWG_ERR_INTERNALERROR;\n         }\n+      if ((src + length) > src_end)\n+        {\n+          LOG_ERROR (\"Decompression error: source buffer overflow\");\n+          return DWG_ERR_INTERNALERROR;\n+        }\n \n       // LOG_INSANE(\"copy_compressed_bytes(%p %p %u)\\n\", dst, src, length);\n       copy_compressed_bytes (dst, src, length);\n"
+  },
+  "libredwg.cve-2020-21834": {
+    "instance_id": "libredwg.cve-2020-21834",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/programs/dwgbmp.c b/programs/dwgbmp.c\nindex 51e7002..e18a88b 100644\n--- a/programs/dwgbmp.c\n+++ b/programs/dwgbmp.c\n@@ -130,6 +130,17 @@ get_bmp (char *dwgfile, char *bmpfile)\n       bmp_free_dwg (&dwg);\n       return -3;\n     }\n+  /* Additional safety check: ensure data pointer is valid for the given size */\n+  if (data && size > 0 && (unsigned long)data + size > (unsigned long)data)\n+    {\n+      /* Pointer arithmetic check passed, data should be valid */\n+    }\n+  else\n+    {\n+      fprintf (stderr, \"Invalid thumbnail data in %s\\n\", dwgfile);\n+      bmp_free_dwg (&dwg);\n+      return -5;\n+    }\n \n   fh = fopen (bmpfile, \"w\");\n   if (!fh)\ndiff --git a/src/dwg.c b/src/dwg.c\nindex 72c3870..077ed05 100644\n--- a/src/dwg.c\n+++ b/src/dwg.c\n@@ -471,7 +471,14 @@ dwg_bmp (const Dwg_Data *restrict dwg, BITCODE_RL *restrict size)\n       LOG_TRACE (\"\\t\\tHeader data start: 0x%x [RL]\\n\", address)\n       if (code == 1)\n         {\n-          header_size += bit_read_RL (dat);\n+          BITCODE_RL new_header_size = bit_read_RL (dat);\n+          /* Sanity check for header size */\n+          if (new_header_size > dat->size || header_size + new_header_size < header_size)\n+            {\n+              LOG_ERROR (\"Invalid header size: %lu\", new_header_size);\n+              return NULL;\n+            }\n+          header_size += new_header_size;\n           LOG_TRACE (\"\\t\\tHeader data size: %i [RL]\\n\", header_size)\n         }\n       else if (code == 2 && found == 0)\n@@ -491,11 +498,18 @@ dwg_bmp (const Dwg_Data *restrict dwg, BITCODE_RL *restrict size)\n           LOG_TRACE (\"\\t\\tSize of unknown code %i: %i [RL]\\n\", code, osize)\n         }\n     }\n+  /* Check for buffer overflow before updating dat->byte */\n+  if (header_size > dat->size - dat->byte)\n+    {\n+      LOG_ERROR (\"Header size exceeds buffer: %lu > %lu\", header_size, dat->size - dat->byte);\n+      return NULL;\n+    }\n   dat->byte += header_size;\n   if (*size)\n     LOG_TRACE (\"BMP offset: %lu\\n\", dat->byte)\n \n-  if (*size > 0)\n+  /* Final bounds check before returning pointer */\n+  if (*size > 0 && dat->byte <= dat->size && *size <= dat->size - dat->byte)\n     return (dat->chain + dat->byte);\n   else\n     return NULL;\n"
+  },
+  "libredwg.cve-2020-21817": {
+    "instance_id": "libredwg.cve-2020-21817",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/programs/dwg2SVG.c b/programs/dwg2SVG.c\nindex b5e9558..176c961 100644\n--- a/programs/dwg2SVG.c\n+++ b/programs/dwg2SVG.c\n@@ -108,9 +108,19 @@ output_TEXT (Dwg_Object *obj)\n   BITCODE_2DPOINT pt;\n \n   if (dwg->header.version >= R_2007)\n-    escaped = htmlwescape ((BITCODE_TU)text->text_value);\n+    {\n+      if (text->text_value)\n+        escaped = htmlwescape ((BITCODE_TU)text->text_value);\n+      else\n+        escaped = NULL;\n+    }\n   else\n-    escaped = htmlescape (text->text_value, (int)dwg->header.codepage);\n+    {\n+      if (text->text_value)\n+        escaped = htmlescape (text->text_value, (int)dwg->header.codepage);\n+      else\n+        escaped = NULL;\n+    }\n   if (style && style->font_name && *style->font_name\n #ifdef HAVE_STRCASESTR\n       && strcasestr (style->font_name, \".ttf\")\ndiff --git a/programs/escape.c b/programs/escape.c\nindex 1daff81..fdd1b2d 100644\n--- a/programs/escape.c\n+++ b/programs/escape.c\n@@ -26,6 +26,8 @@\n char * ATTRIBUTE_MALLOC\n htmlescape (const char *restrict src, const int cp)\n {\n+  if (!src)\n+    return NULL;\n   int len = strlen (src) + 10;\n   char *dest, *d = malloc (len);\n   unsigned char *s = (unsigned char *)src;\n"
+  },
+  "libredwg.cve-2022-33034": {
+    "instance_id": "libredwg.cve-2022-33034",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "imagemagick.cve-2022-48541": {
+    "instance_id": "imagemagick.cve-2022-48541",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickWand/identify.c b/MagickWand/identify.c\nindex 0d3c05b..c17b757 100644\n--- a/MagickWand/identify.c\n+++ b/MagickWand/identify.c\n@@ -241,7 +241,10 @@ WandExport MagickBooleanType IdentifyImageCommand(ImageInfo *image_info,\n         }\n     }\n   if (argc < 2)\n-    return(IdentifyUsage());\n+    {\n+      status=IdentifyUsage();\n+      return(status);\n+    }\n   count=0;\n   format=NULL;\n   j=1;\n@@ -628,7 +631,11 @@ WandExport MagickBooleanType IdentifyImageCommand(ImageInfo *image_info,\n       {\n         if ((LocaleCompare(\"help\",option+1) == 0) ||\n             (LocaleCompare(\"-help\",option+1) == 0))\n-          return(IdentifyUsage());\n+          {\n+            status=IdentifyUsage();\n+            DestroyIdentify();\n+            return(status);\n+          }\n         ThrowIdentifyException(OptionError,\"UnrecognizedOption\",option)\n       }\n       case 'i':\n"
+  },
+  "gpac.cve-2023-4755": {
+    "instance_id": "gpac.cve-2023-4755",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "openexr.cve-2020-16588": {
+    "instance_id": "openexr.cve-2020-16588",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/OpenEXR/exrmakepreview/makePreview.cpp b/OpenEXR/exrmakepreview/makePreview.cpp\nindex ae0e99d..d3927d1 100644\n--- a/OpenEXR/exrmakepreview/makePreview.cpp\n+++ b/OpenEXR/exrmakepreview/makePreview.cpp\n@@ -120,8 +120,8 @@ generatePreview (const char inFileName[],\n     previewHeight = max (int (h / (w * a) * previewWidth + .5f), 1);\n     previewPixels.resizeErase (previewHeight, previewWidth);\n \n-    float fx = (previewWidth  > 0)? (float (w - 1) / (previewWidth  - 1)): 1;\n-    float fy = (previewHeight > 0)? (float (h - 1) / (previewHeight - 1)): 1;\n+    float fx = (previewWidth  > 1)? (float (w - 1) / (previewWidth  - 1)): 1;\n+    float fy = (previewHeight > 1)? (float (h - 1) / (previewHeight - 1)): 1;\n     float m  = Math<float>::pow (2.f, IMATH_NAMESPACE::clamp (exposure + 2.47393f, -20.f, 20.f));\n \n     for (int y = 0; y < previewHeight; ++y)\n@@ -129,7 +129,11 @@ generatePreview (const char inFileName[],\n \tfor (int x = 0; x < previewWidth; ++x)\n \t{\n \t    PreviewRgba &preview = previewPixels[y][x];\n-\t    const Rgba &pixel = pixels[int (y * fy + .5f)][int (x * fx + .5f)];\n+\t    int pixelY = (previewHeight > 1)? int (y * fy + .5f) : 0;\n+\t    int pixelX = (previewWidth  > 1)? int (x * fx + .5f) : 0;\n+\t    pixelY = IMATH_NAMESPACE::clamp (pixelY, 0, h - 1);\n+\t    pixelX = IMATH_NAMESPACE::clamp (pixelX, 0, w - 1);\n+\t    const Rgba &pixel = pixels[pixelY][pixelX];\n \n \t    preview.r = gamma (pixel.r, m);\n \t    preview.g = gamma (pixel.g, m);\n"
+  },
+  "imagemagick.cve-2019-13300": {
+    "instance_id": "imagemagick.cve-2019-13300",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickCore/statistic.c b/MagickCore/statistic.c\nindex a649880..0340bb9 100644\n--- a/MagickCore/statistic.c\n+++ b/MagickCore/statistic.c\n@@ -150,7 +150,7 @@ static PixelChannels **DestroyPixelThreadSet(PixelChannels **pixels)\n   return(pixels);\n }\n \n-static PixelChannels **AcquirePixelThreadSet(const Image *image)\n+static PixelChannels **AcquirePixelThreadSet(const Image *images)\n {\n   PixelChannels\n     **pixels;\n@@ -159,8 +159,20 @@ static PixelChannels **AcquirePixelThreadSet(const Image *image)\n     i;\n \n   size_t\n+    columns,\n     number_threads;\n \n+  const Image\n+    *p;\n+\n+  /*\n+    Find the maximum columns across all images in the sequence.\n+  */\n+  columns=0;\n+  for (p=images; p != (Image *) NULL; p=GetNextImageInList(p))\n+    if (p->columns > columns)\n+      columns=p->columns;\n+\n   number_threads=(size_t) GetMagickResourceLimit(ThreadResource);\n   pixels=(PixelChannels **) AcquireQuantumMemory(number_threads,\n     sizeof(*pixels));\n@@ -172,11 +184,11 @@ static PixelChannels **AcquirePixelThreadSet(const Image *image)\n     register ssize_t\n       j;\n \n-    pixels[i]=(PixelChannels *) AcquireQuantumMemory(image->columns,\n+    pixels[i]=(PixelChannels *) AcquireQuantumMemory(columns,\n       sizeof(**pixels));\n     if (pixels[i] == (PixelChannels *) NULL)\n       return(DestroyPixelThreadSet(pixels));\n-    for (j=0; j < (ssize_t) image->columns; j++)\n+    for (j=0; j < (ssize_t) columns; j++)\n     {\n       register ssize_t\n         k;\n"
+  },
+  "imagemagick.cve-2019-17541": {
+    "instance_id": "imagemagick.cve-2019-17541",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/jpeg.c b/coders/jpeg.c\nindex 275be95..177ea90 100644\n--- a/coders/jpeg.c\n+++ b/coders/jpeg.c\n@@ -567,6 +567,7 @@ static boolean ReadICCProfile(j_decompress_ptr jpeg_info)\n   if (i != (ssize_t) length)\n     {\n       profile=DestroyStringInfo(profile);\n+      error_manager->profile=NULL;\n       (void) ThrowMagickException(exception,GetMagickModule(),\n         CorruptImageError,\"InsufficientImageDataInFile\",\"`%s'\",\n         image->filename);\n"
+  },
+  "exiv2.cve-2017-18005": {
+    "instance_id": "exiv2.cve-2017-18005",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/value.cpp b/src/value.cpp\nindex d518926..19df2ea 100644\n--- a/src/value.cpp\n+++ b/src/value.cpp\n@@ -247,18 +247,27 @@ namespace Exiv2 {\n     long DataValue::toLong(long n) const\n     {\n         ok_ = true;\n+        if (value_.size() == 0 || n >= static_cast<long>(value_.size())) {\n+            return 0;\n+        }\n         return value_[n];\n     }\n \n     float DataValue::toFloat(long n) const\n     {\n         ok_ = true;\n+        if (value_.size() == 0 || n >= static_cast<long>(value_.size())) {\n+            return 0.0f;\n+        }\n         return value_[n];\n     }\n \n     Rational DataValue::toRational(long n) const\n     {\n         ok_ = true;\n+        if (value_.size() == 0 || n >= static_cast<long>(value_.size())) {\n+            return Rational(0, 1);\n+        }\n         return Rational(value_[n], 1);\n     }\n \n"
+  },
+  "gpac.cve-2023-46927": {
+    "instance_id": "gpac.cve-2023-46927",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/isomedia/isom_write.c b/src/isomedia/isom_write.c\nindex 11e3f1c..882e5c9 100644\n--- a/src/isomedia/isom_write.c\n+++ b/src/isomedia/isom_write.c\n@@ -3400,7 +3400,9 @@ GF_Err gf_isom_use_compact_size(GF_ISOFile *movie, u32 trackNumber, Bool Compact\n \t\tif (stsz->sizes) gf_free(stsz->sizes);\n \t\tstsz->sizes = (u32*) gf_malloc(sizeof(u32)*stsz->sampleCount);\n \t\tif (!stsz->sizes) return GF_OUT_OF_MEM;\n-\t\tmemset(stsz->sizes, stsz->sampleSize, sizeof(u32));\n+\t\tif (stsz->sampleCount > 0) {\n+\t\t\tmemset(stsz->sizes, stsz->sampleSize, sizeof(u32) * stsz->sampleCount);\n+\t\t}\n \t}\n \t//set the SampleSize to 0 while the file is open\n \tstsz->sampleSize = 0;\n"
+  },
+  "njs.cve-2022-43284": {
+    "instance_id": "njs.cve-2022-43284",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "liblouis.cve-2023-26768": {
+    "instance_id": "liblouis.cve-2023-26768",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/liblouis/logging.c b/liblouis/logging.c\nindex 9f470b4..bcb02b1 100644\n--- a/liblouis/logging.c\n+++ b/liblouis/logging.c\n@@ -127,7 +127,10 @@ lou_logFile(const char *fileName) {\n \t\tlogFile = NULL;\n \t}\n \tif (fileName == NULL || fileName[0] == 0) return;\n-\tif (initialLogFileName[0] == 0) strcpy(initialLogFileName, fileName);\n+\tif (initialLogFileName[0] == 0) {\n+\t\tstrncpy(initialLogFileName, fileName, sizeof(initialLogFileName) - 1);\n+\t\tinitialLogFileName[sizeof(initialLogFileName) - 1] = '\\0';\n+\t}\n \tlogFile = fopen(fileName, \"a\");\n \tif (logFile == NULL && initialLogFileName[0] != 0)\n \t\tlogFile = fopen(initialLogFileName, \"a\");\n"
+  },
+  "imagemagick.cve-2019-13306": {
+    "instance_id": "imagemagick.cve-2019-13306",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-46928": {
+    "instance_id": "gpac.cve-2023-46928",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/isom_tools.c b/src/media_tools/isom_tools.c\nindex 21f8905..a123b5a 100644\n--- a/src/media_tools/isom_tools.c\n+++ b/src/media_tools/isom_tools.c\n@@ -3289,6 +3289,9 @@ GF_Err gf_media_change_pl(GF_ISOFile *file, u32 track, u32 profile, u32 compat,\n \t}\n \n \tavcc = gf_isom_avc_config_get(file, track, 1);\n+\tif (!avcc) {\n+\t\treturn GF_NOT_SUPPORTED;\n+\t}\n \tif (level) avcc->AVCLevelIndication = level;\n \tif (compat) avcc->profile_compatibility = compat;\n \tif (profile) avcc->AVCProfileIndication = profile;\n"
+  },
+  "imagemagick.cve-2019-13310": {
+    "instance_id": "imagemagick.cve-2019-13310",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0630": {
+    "instance_id": "mruby.cve-2022-0630",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/hash.c b/src/hash.c\nindex fc6b6fa..2e6ec9a 100644\n--- a/src/hash.c\n+++ b/src/hash.c\n@@ -1239,6 +1239,7 @@ mrb_hash_fetch(mrb_state *mrb, mrb_value hash, mrb_value key, mrb_value def)\n MRB_API void\n mrb_hash_set(mrb_state *mrb, mrb_value hash, mrb_value key, mrb_value val)\n {\n+  if (!mrb_hash_p(hash)) return;\n   hash_modify(mrb, hash);\n   key = h_key_for(mrb, key);\n   h_set(mrb, mrb_hash_ptr(hash), key, val);\n@@ -1731,6 +1732,7 @@ mrb_hash_merge(mrb_state *mrb, mrb_value hash1, mrb_value hash2)\n {\n   struct RHash *h1, *h2;\n \n+  if (!mrb_hash_p(hash1)) return;\n   hash_modify(mrb, hash1);\n   mrb_ensure_hash_type(mrb, hash2);\n   h1 = mrb_hash_ptr(hash1);\ndiff --git a/src/vm.c b/src/vm.c\nindex 6133cbc..cdd0181 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -2776,6 +2776,10 @@ RETRY_TRY_BLOCK:\n     CASE(OP_HASHCAT, B) {\n       mrb_value hash = regs[a];\n \n+      if (!mrb_hash_p(hash)) {\n+        mrb_gc_arena_restore(mrb, ai);\n+        NEXT;\n+      }\n       mrb_assert(mrb_hash_p(hash));\n       mrb_hash_merge(mrb, hash, regs[a+1]);\n       mrb_gc_arena_restore(mrb, ai);\n"
+  },
+  "libarchive.cve-2020-21674": {
+    "instance_id": "libarchive.cve-2020-21674",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libarchive/archive_string.c b/libarchive/archive_string.c\nindex bd39c96..9779282 100644\n--- a/libarchive/archive_string.c\n+++ b/libarchive/archive_string.c\n@@ -828,6 +828,11 @@ archive_string_append_from_wcs(struct archive_string *as,\n \t\tlen--;\n \t}\n \tas->length = p - as->s;\n+\t/* Ensure there is space for the null terminator */\n+\tif (as->length >= as->buffer_length) {\n+\t\tif (archive_string_ensure(as, as->length + 1) == NULL)\n+\t\t\treturn (-1);\n+\t}\n \tas->s[as->length] = '\\0';\n \treturn (ret_val);\n }\n"
+  },
+  "njs.cve-2022-34029": {
+    "instance_id": "njs.cve-2022-34029",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_scope.h b/src/njs_scope.h\nindex 4164617..005252d 100644\n--- a/src/njs_scope.h\n+++ b/src/njs_scope.h\n@@ -71,8 +71,17 @@ njs_scope_index_value(njs_index_t index)\n njs_inline njs_value_t *\n njs_scope_value(njs_vm_t *vm, njs_index_t index)\n {\n-    return vm->levels[njs_scope_index_type(index)]\n-                     [njs_scope_index_value(index)];\n+    njs_level_type_t  type;\n+    uint32_t          value_index;\n+\n+    type = njs_scope_index_type(index);\n+    value_index = njs_scope_index_value(index);\n+\n+    if (vm->levels[type] == NULL) {\n+        return NULL;\n+    }\n+\n+    return vm->levels[type][value_index];\n }\n \n \n@@ -83,6 +92,12 @@ njs_scope_valid_value(njs_vm_t *vm, njs_index_t index)\n \n     value = njs_scope_value(vm, index);\n \n+    if (value == NULL) {\n+        njs_reference_error(vm, \"cannot access variable \"\n+                                \"before initialization\");\n+        return NULL;\n+    }\n+\n     if (!njs_is_valid(value)) {\n         if (njs_scope_index_var(index) <= NJS_VARIABLE_LET) {\n             njs_reference_error(vm, \"cannot access variable \"\n"
+  },
+  "imagemagick.cve-2018-5247": {
+    "instance_id": "imagemagick.cve-2018-5247",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/rla.c b/coders/rla.c\nindex 548fec3..2401dc7 100644\n--- a/coders/rla.c\n+++ b/coders/rla.c\n@@ -267,11 +267,17 @@ static Image *ReadRLAImage(const ImageInfo *image_info,ExceptionInfo *exception)\n     }\n   status=SetImageExtent(image,image->columns,image->rows,exception);\n   if (status == MagickFalse)\n-    return(DestroyImageList(image));\n+    {\n+      if (scanlines != (MagickOffsetType *) NULL)\n+        scanlines=(MagickOffsetType *) RelinquishMagickMemory(scanlines);\n+      return(DestroyImageList(image));\n+    }\n   scanlines=(MagickOffsetType *) AcquireQuantumMemory(image->rows,\n     sizeof(*scanlines));\n   if (scanlines == (MagickOffsetType *) NULL)\n-    ThrowReaderException(ResourceLimitError,\"MemoryAllocationFailed\");\n+    {\n+      ThrowReaderException(ResourceLimitError,\"MemoryAllocationFailed\");\n+    }\n   if (*rla_info.description != '\\0')\n     (void) SetImageProperty(image,\"comment\",rla_info.description,exception);\n   /*\n@@ -287,7 +293,11 @@ static Image *ReadRLAImage(const ImageInfo *image_info,ExceptionInfo *exception)\n   {\n     offset=SeekBlob(image,scanlines[image->rows-y-1],SEEK_SET);\n     if (offset < 0)\n-      ThrowReaderException(CorruptImageError,\"ImproperImageHeader\");\n+      {\n+        if (scanlines != (MagickOffsetType *) NULL)\n+          scanlines=(MagickOffsetType *) RelinquishMagickMemory(scanlines);\n+        ThrowReaderException(CorruptImageError,\"ImproperImageHeader\");\n+      }\n     for (channel=0; channel < (int) rla_info.number_channels; channel++)\n     {\n       length=ReadBlobMSBSignedShort(image);\n@@ -388,8 +398,12 @@ static Image *ReadRLAImage(const ImageInfo *image_info,ExceptionInfo *exception)\n       break;\n   }\n   if (EOFBlob(image) != MagickFalse)\n-    ThrowFileException(exception,CorruptImageError,\"UnexpectedEndOfFile\",\n-      image->filename);\n+    {\n+      if (scanlines != (MagickOffsetType *) NULL)\n+        scanlines=(MagickOffsetType *) RelinquishMagickMemory(scanlines);\n+      ThrowFileException(exception,CorruptImageError,\"UnexpectedEndOfFile\",\n+        image->filename);\n+    }\n   scanlines=(MagickOffsetType *) RelinquishMagickMemory(scanlines);\n   (void) CloseBlob(image);\n   return(GetFirstImageInList(image));\n"
+  },
+  "gpac.cve-2023-48013": {
+    "instance_id": "gpac.cve-2023-48013",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libredwg.cve-2023-36273": {
+    "instance_id": "libredwg.cve-2023-36273",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/decode.c b/src/decode.c\nindex d68d0fc..2cc80c7 100644\n--- a/src/decode.c\n+++ b/src/decode.c\n@@ -6316,7 +6316,8 @@ decode_preR13_auxheader (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n   FIELD_RLx (auxheader_address, 0);\n   if (_obj->auxheader_address < pos\n       || _obj->auxheader_address + 16 > dat->size\n-      || _obj->auxheader_address + _obj->auxheader_size > dat->size)\n+      || _obj->auxheader_address + _obj->auxheader_size > dat->size\n+      || _obj->auxheader_address + 16 + (_obj->auxheader_size - 2) > dat->size)\n     {\n       LOG_ERROR (\"Invalid auxheader_address %04X\", _obj->auxheader_address);\n       error |= DWG_ERR_WRONGCRC;\n"
+  },
+  "libredwg.cve-2021-28236": {
+    "instance_id": "libredwg.cve-2021-28236",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0631": {
+    "instance_id": "mruby.cve-2022-0631",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 9cb5084..b3cbb40 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -692,6 +692,9 @@ mrb_f_send(mrb_state *mrb, mrb_value self)\n     mrb_argnum_error(mrb, 0, 1, -1);\n   }\n   else if (n == 15) {\n+    if (RARRAY_LEN(regs[0]) == 0) {\n+      mrb_argnum_error(mrb, 0, 1, -1);\n+    }\n     name = mrb_obj_to_sym(mrb, RARRAY_PTR(regs[0])[0]);\n   }\n   else {\n@@ -708,7 +711,12 @@ mrb_f_send(mrb_state *mrb, mrb_value self)\n   ci->u.target_class = c;\n   /* remove first symbol from arguments */\n   if (n == 15) {     /* variable length arguments */\n-    regs[0] = mrb_ary_subseq(mrb, regs[0], 1, RARRAY_LEN(regs[0]) - 1);\n+    if (RARRAY_LEN(regs[0]) <= 1) {\n+      mrb_ary_clear(mrb, regs[0]);\n+    }\n+    else {\n+      regs[0] = mrb_ary_subseq(mrb, regs[0], 1, RARRAY_LEN(regs[0]) - 1);\n+    }\n   }\n   else { /* n > 0 */\n     for (int i=0; i<n; i++) {\n"
+  },
+  "gpac.cve-2021-40566": {
+    "instance_id": "gpac.cve-2021-40566",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libjpeg-turbo.cve-2020-13790": {
+    "instance_id": "libjpeg-turbo.cve-2020-13790",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libredwg.cve-2020-6614": {
+    "instance_id": "libredwg.cve-2020-6614",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/decode.c b/src/decode.c\nindex 205056a..96042f9 100644\n--- a/src/decode.c\n+++ b/src/decode.c\n@@ -2050,7 +2050,7 @@ read_R2004_section_info (Bit_Chain *restrict dat, Dwg_Data *restrict dwg,\n       uint64_t sum_decomp = 0;\n       uint64_t prev_address = 0;\n \n-      if (ptr + 64 >= decomp_end)\n+      if (ptr + 96 >= decomp_end)\n         {\n           free (decomp);\n           dwg->header.section_infohdr.num_desc = i;\n"
+  },
+  "libplist.cve-2017-5545": {
+    "instance_id": "libplist.cve-2017-5545",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/tools/plistutil.c b/tools/plistutil.c\nindex 6451604..89c530f 100644\n--- a/tools/plistutil.c\n+++ b/tools/plistutil.c\n@@ -134,7 +134,7 @@ int main(int argc, char *argv[])\n     fclose(iplist);\n \n     // convert from binary to xml or vice-versa\n-    if (memcmp(plist_entire, \"bplist00\", 8) == 0)\n+    if (read_size >= 8 && memcmp(plist_entire, \"bplist00\", 8) == 0)\n     {\n         plist_from_bin(plist_entire, read_size, &root_node);\n         plist_to_xml(root_node, &plist_out, &size);\n"
+  },
+  "libdwarf.cve-2022-34299": {
+    "instance_id": "libdwarf.cve-2022-34299",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/lib/libdwarf/dwarf_form.c b/src/lib/libdwarf/dwarf_form.c\nindex 8e8e230..39b4296 100644\n--- a/src/lib/libdwarf/dwarf_form.c\n+++ b/src/lib/libdwarf/dwarf_form.c\n@@ -605,8 +605,26 @@ find_sig8_target_as_global_offset(Dwarf_Attribute attr,\n     Dwarf_Bool targ_is_info = 0;\n     Dwarf_Off  localoff = 0;\n     int res = 0;\n+    Dwarf_Debug dbg = 0;\n+    Dwarf_CU_Context cu_context = 0;\n+    Dwarf_Byte_Ptr section_end = 0;\n+    Dwarf_Byte_Ptr readend = 0;\n \n     targ_is_info = attr->ar_cu_context->cc_is_info;\n+    \n+    /* Get the section end for bounds checking */\n+    dbg = attr->ar_dbg;\n+    cu_context = attr->ar_cu_context;\n+    section_end = _dwarf_calculate_info_section_end_ptr(cu_context);\n+    readend = attr->ar_debug_ptr + sizeof(*sig8);\n+    \n+    if (readend > section_end) {\n+        _dwarf_error_string(dbg, error,\n+            DW_DLE_READ_LITTLEENDIAN_ERROR,\n+            \"DW_DLE_READ_LITTLEENDIAN_ERROR: \"\n+            \"Read would end past the end of section\");\n+        return DW_DLV_ERROR;\n+    }\n     memcpy(sig8,attr->ar_debug_ptr,sizeof(*sig8));\n     res = dwarf_find_die_given_sig8(attr->ar_dbg,\n         sig8,&targdie,&targ_is_info,error);\n@@ -836,7 +854,15 @@ dwarf_global_formref_b(Dwarf_Attribute attr,\n         Dwarf_Sig8 sig8;\n         Dwarf_Bool t_is_info = TRUE;\n         Dwarf_Unsigned t_offset = 0;\n+        Dwarf_Byte_Ptr readend = attr->ar_debug_ptr + sizeof(Dwarf_Sig8);\n \n+        if (readend > section_end) {\n+            _dwarf_error_string(dbg, error,\n+                DW_DLE_READ_LITTLEENDIAN_ERROR,\n+                \"DW_DLE_READ_LITTLEENDIAN_ERROR: \"\n+                \"Read would end past the end of section\");\n+            return DW_DLV_ERROR;\n+        }\n         memcpy(&sig8,attr->ar_debug_ptr,sizeof(Dwarf_Sig8));\n         res = find_sig8_target_as_global_offset(attr,\n             &sig8,&t_is_info,&t_offset,error);\n"
+  },
+  "imagemagick.cve-2019-13311": {
+    "instance_id": "imagemagick.cve-2019-13311",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "php.cve-2017-12933": {
+    "instance_id": "php.cve-2017-12933",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/ext/standard/var_unserializer.c b/ext/standard/var_unserializer.c\nindex 3fc074d..dda9c4f 100644\n--- a/ext/standard/var_unserializer.c\n+++ b/ext/standard/var_unserializer.c\n@@ -433,6 +433,9 @@ static inline zend_long object_common1(UNSERIALIZE_PARAMETER, zend_class_entry *\n \n \telements = parse_iv2((*p) + 2, p);\n \n+\tif (*p + 2 > max) {\n+\t\treturn 0;\n+\t}\n \t(*p) += 2;\n \n \tif (ce->serialize == NULL) {\n"
+  },
+  "imagemagick.cve-2018-6405": {
+    "instance_id": "imagemagick.cve-2018-6405",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/dcm.c b/coders/dcm.c\nindex 5f9cb02..2e339fc 100644\n--- a/coders/dcm.c\n+++ b/coders/dcm.c\n@@ -3580,6 +3580,8 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n               break;\n             colors=(size_t) (length/2);\n             datum=(int) colors;\n+            if (redmap != (int *) NULL)\n+              redmap=(int *) RelinquishMagickMemory(redmap);\n             redmap=(int *) AcquireQuantumMemory((size_t) colors,\n               sizeof(*redmap));\n             if (redmap == (int *) NULL)\n@@ -3608,6 +3610,8 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n               break;\n             colors=(size_t) (length/2);\n             datum=(int) colors;\n+            if (greenmap != (int *) NULL)\n+              greenmap=(int *) RelinquishMagickMemory(greenmap);\n             greenmap=(int *) AcquireQuantumMemory((size_t) colors,\n               sizeof(*greenmap));\n             if (greenmap == (int *) NULL)\n@@ -3636,6 +3640,8 @@ static Image *ReadDCMImage(const ImageInfo *image_info,ExceptionInfo *exception)\n               break;\n             colors=(size_t) (length/2);\n             datum=(int) colors;\n+            if (bluemap != (int *) NULL)\n+              bluemap=(int *) RelinquishMagickMemory(bluemap);\n             bluemap=(int *) AcquireQuantumMemory((size_t) colors,\n               sizeof(*bluemap));\n             if (bluemap == (int *) NULL)\n"
+  },
+  "gpac.cve-2023-3291": {
+    "instance_id": "gpac.cve-2023-3291",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/filters/reframe_mp3.c b/src/filters/reframe_mp3.c\nindex e81dd17..358ba27 100644\n--- a/src/filters/reframe_mp3.c\n+++ b/src/filters/reframe_mp3.c\n@@ -265,7 +265,7 @@ void id3dmx_flush(GF_Filter *filter, u8 *id3_buf, u32 id3_buf_size, GF_FilterPid\n \t\t\tbreak;\n \t\t}\n \n-\t\tif (buf_alloc<=fsize) {\n+\t\tif (buf_alloc < fsize + 3) {\n \t\t\t_buf = gf_realloc(_buf, fsize+3);\n \t\t\tbuf_alloc = fsize+3;\n \t\t}\n"
+  },
+  "gpac.cve-2021-32437": {
+    "instance_id": "gpac.cve-2021-32437",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/media_tools/isom_hinter.c b/src/media_tools/isom_hinter.c\nindex c05d38c..9bff677 100644\n--- a/src/media_tools/isom_hinter.c\n+++ b/src/media_tools/isom_hinter.c\n@@ -1233,7 +1233,7 @@ GF_Err gf_hinter_finalize(GF_ISOFile *file, GF_SDP_IODProfile IOD_Profile, u32 b\n \t\tesd = gf_isom_get_esd(file, sceneT, 1);\n \t\tif (gf_isom_get_sample_count(file, sceneT)==1) {\n \t\t\tsamp = gf_isom_get_sample(file, sceneT, 1, &descIndex);\n-\t\t\tif (gf_hinter_can_embbed_data(samp->data, samp->dataLength, GF_STREAM_SCENE)) {\n+\t\t\tif (samp && gf_hinter_can_embbed_data(samp->data, samp->dataLength, GF_STREAM_SCENE)) {\n \n \t\t\t\tslc.timeScale = slc.timestampResolution = gf_isom_get_media_timescale(file, sceneT);\n \t\t\t\tslc.OCRResolution = 1000;\n"
+  },
+  "matio.cve-2019-9032": {
+    "instance_id": "matio.cve-2019-9032",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "wabt.cve-2022-43282": {
+    "instance_id": "wabt.cve-2022-43282",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/interp/binary-reader-interp.cc b/src/interp/binary-reader-interp.cc\nindex 47a2d25..7cb49e7 100644\n--- a/src/interp/binary-reader-interp.cc\n+++ b/src/interp/binary-reader-interp.cc\n@@ -1139,6 +1139,10 @@ Result BinaryReaderInterp::OnReturnCallExpr(Index func_index) {\n \n Result BinaryReaderInterp::OnReturnCallIndirectExpr(Index sig_index,\n                                                     Index table_index) {\n+  if (sig_index >= module_.func_types.size()) {\n+    PrintError(\"invalid func type index: %\" PRIindex, sig_index);\n+    return Result::Error;\n+  }\n   FuncType& func_type = module_.func_types[sig_index];\n \n   Index drop_count, keep_count, catch_drop_count;\n"
+  },
+  "libredwg.cve-2020-21827": {
+    "instance_id": "libredwg.cve-2020-21827",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/decode.c b/src/decode.c\nindex 96b48ef..30f9db1 100644\n--- a/src/decode.c\n+++ b/src/decode.c\n@@ -2295,7 +2295,11 @@ read_2004_compressed_section (Bit_Chain *dat, Dwg_Data *restrict dwg,\n                  info->compressed == 2 ? \"\" : \"un\");\n     }\n \n-  max_decomp_size = info->num_sections * info->max_decomp_size;\n+  /* For uncompressed sections, use the actual size for allocation */\n+  if (info->compressed != 2)\n+    max_decomp_size = info->num_sections * info->size;\n+  else\n+    max_decomp_size = info->num_sections * info->max_decomp_size;\n   if (info->num_sections == 0)\n     return 0;\n   if (max_decomp_size == 0 || max_decomp_size > 0x2f000000) // 790Mb\n@@ -2399,7 +2403,8 @@ read_2004_compressed_section (Bit_Chain *dat, Dwg_Data *restrict dwg,\n               return type < SECTION_REVHISTORY ? DWG_ERR_INVALIDDWG\n                                                : DWG_ERR_VALUEOUTOFBOUNDS;\n             }\n-          memcpy (&decomp[i * info->size],\n+          /* Use info->max_decomp_size for offset calculation to match allocation */\n+          memcpy (&decomp[i * info->max_decomp_size],\n                   &dat->chain[address + es.fields.address + 32],\n                   MIN (bytes_left, info->size));\n           bytes_left -= info->size;\n"
+  },
+  "md4c.cve-2020-26148": {
+    "instance_id": "md4c.cve-2020-26148",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/md4c.c b/src/md4c.c\nindex 6324446..6f8ebbb 100644\n--- a/src/md4c.c\n+++ b/src/md4c.c\n@@ -5602,7 +5602,7 @@ md_is_container_mark(MD_CTX* ctx, unsigned indent, OFF beg, OFF* p_end, MD_CONTA\n     }\n \n     /* Check for list item bullet mark. */\n-    if(off+1 < ctx->size  &&  ISANYOF(off, _T(\"-+*\"))  &&  (ISBLANK(off+1) || ISNEWLINE(off+1))) {\n+    if(off+1 < ctx->size  &&  ISANYOF(off, _T(\"-+*\"))  &&  CH(off) != 0  &&  (ISBLANK(off+1) || ISNEWLINE(off+1))) {\n         p_container->ch = CH(off);\n         p_container->is_loose = FALSE;\n         p_container->is_task = FALSE;\n@@ -5623,7 +5623,7 @@ md_is_container_mark(MD_CTX* ctx, unsigned indent, OFF beg, OFF* p_end, MD_CONTA\n     }\n     if(off > beg  &&  off+1 < ctx->size  &&\n        (CH(off) == _T('.') || CH(off) == _T(')'))  &&\n-       (ISBLANK(off+1) || ISNEWLINE(off+1)))\n+       CH(off) != 0  &&  (ISBLANK(off+1) || ISNEWLINE(off+1)))\n     {\n         p_container->ch = CH(off);\n         p_container->is_loose = FALSE;\n"
+  },
+  "imagemagick.cve-2018-5248": {
+    "instance_id": "imagemagick.cve-2018-5248",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/sixel.c b/coders/sixel.c\nindex ee146fb..c767de4 100644\n--- a/coders/sixel.c\n+++ b/coders/sixel.c\n@@ -1003,21 +1003,24 @@ static Image *ReadSIXELImage(const ImageInfo *image_info,ExceptionInfo *exceptio\n     sizeof(*sixel_buffer));\n   p=sixel_buffer;\n   if (sixel_buffer != (char *) NULL)\n-    while (ReadBlobString(image,p) != (char *) NULL)\n     {\n-      if ((*p == '#') && ((p == sixel_buffer) || (*(p-1) == '\\n')))\n-        continue;\n-      if ((*p == '}') && (*(p+1) == ';'))\n-        break;\n-      p+=strlen(p);\n-      if ((size_t) (p-sixel_buffer+MagickPathExtent) < length)\n-        continue;\n-      length<<=1;\n-      sixel_buffer=(char *) ResizeQuantumMemory(sixel_buffer,length+\n-        MagickPathExtent,sizeof(*sixel_buffer));\n-      if (sixel_buffer == (char *) NULL)\n-        break;\n-      p=sixel_buffer+strlen(sixel_buffer);\n+      sixel_buffer[0]='\\0';\n+      while (ReadBlobString(image,p) != (char *) NULL)\n+      {\n+        if ((*p == '#') && ((p == sixel_buffer) || (*(p-1) == '\\n')))\n+          continue;\n+        if ((*p == '}') && (*(p+1) == ';'))\n+          break;\n+        p+=strlen(p);\n+        if ((size_t) (p-sixel_buffer+MagickPathExtent) < length)\n+          continue;\n+        length<<=1;\n+        sixel_buffer=(char *) ResizeQuantumMemory(sixel_buffer,length+\n+          MagickPathExtent,sizeof(*sixel_buffer));\n+        if (sixel_buffer == (char *) NULL)\n+          break;\n+        p=sixel_buffer+strlen(sixel_buffer);\n+      }\n     }\n   if (sixel_buffer == (char *) NULL)\n     ThrowReaderException(ResourceLimitError,\"MemoryAllocationFailed\");\n"
+  },
+  "imagemagick.cve-2017-11540": {
+    "instance_id": "imagemagick.cve-2017-11540",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/xpm.c b/coders/xpm.c\nindex 1469fe4..2f0df96 100644\n--- a/coders/xpm.c\n+++ b/coders/xpm.c\n@@ -826,7 +826,8 @@ static MagickBooleanType WritePICONImage(const ImageInfo *image_info,\n       symbol[j]='\\0';\n       (void) CopyMagickString(buffer,symbol,MagickPathExtent);\n       (void) WriteBlobString(image,buffer);\n-      p+=GetPixelChannels(image);\n+      if (x < (ssize_t) (picon->columns - 1))\n+        p+=GetPixelChannels(picon);\n     }\n     (void) FormatLocaleString(buffer,MagickPathExtent,\"\\\"%s\\n\",\n       y == (ssize_t) (picon->rows-1) ? \"\" : \",\");\n"
+  },
+  "imagemagick.cve-2019-13295": {
+    "instance_id": "imagemagick.cve-2019-13295",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickCore/threshold.c b/MagickCore/threshold.c\nindex a3bb96a..b091315 100644\n--- a/MagickCore/threshold.c\n+++ b/MagickCore/threshold.c\n@@ -209,6 +209,12 @@ MagickExport Image *AdaptiveThresholdImage(const Image *image,\n     (void) LogMagickEvent(TraceEvent,GetMagickModule(),\"%s\",image->filename);\n   assert(exception != (ExceptionInfo *) NULL);\n   assert(exception->signature == MagickCoreSignature);\n+  if (width == 0 || height == 0)\n+    {\n+      (void) ThrowMagickException(exception,GetMagickModule(),OptionError,\n+        \"InvalidArgument\",\"%s\",\"width and height must be positive\");\n+      return((Image *) NULL);\n+    }\n   threshold_image=CloneImage(image,0,0,MagickTrue,exception);\n   if (threshold_image == (Image *) NULL)\n     return((Image *) NULL);\n"
+  },
+  "gpac.cve-2022-29537": {
+    "instance_id": "gpac.cve-2022-29537",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/ietf/rtp_pck_mpeg4.c b/src/ietf/rtp_pck_mpeg4.c\nindex d8bec0d..81333bd 100644\n--- a/src/ietf/rtp_pck_mpeg4.c\n+++ b/src/ietf/rtp_pck_mpeg4.c\n@@ -591,6 +591,11 @@ GF_Err gp_rtp_builder_do_hevc(GP_RTPPacketizer *builder, u8 *nalu, u32 nalu_size\n \n \t\t\t\tbuilder->hevc_payload_hdr[0] |= (nalu[0] & 0x80);\n \t\t\t\tcur_LayerId = ((builder->hevc_payload_hdr[0] & 0x01) << 5) + ((builder->hevc_payload_hdr[1] & 0xF8) >> 3);\n+\t\t\t\t/* Check if nalu has at least 2 bytes before accessing nalu[1] */\n+\t\t\t\tif (nalu_size < 2) {\n+\t\t\t\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (\"[rtp hinter] HEVC NALU too small for aggregation: size=%u, need at least 2 bytes\\n\", nalu_size));\n+\t\t\t\t\treturn GF_BAD_PARAM;\n+\t\t\t\t}\n \t\t\t\tnew_LayerId = ((nalu[0] & 0x01) << 5) + ((nalu[1] & 0xF8) >> 3);\n \t\t\t\tif (cur_LayerId > new_LayerId) {\n \t\t\t\t\tbuilder->hevc_payload_hdr[0] = (builder->hevc_payload_hdr[0] & 0xFE) | (nalu[0] & 0x01);\n@@ -636,7 +641,11 @@ GF_Err gp_rtp_builder_do_hevc(GP_RTPPacketizer *builder, u8 *nalu, u32 nalu_size\n \t\tassert(nalu_size + 4 >=builder->Path_MTU);\n \t\tassert(!builder->bytesInPacket);\n \n-\t\t/*FU payload doesn't have the NAL hdr (2 bytes*/\n+\t\t/*FU payload doesn't have the NAL hdr (2 bytes - check if nalu has at least 2 bytes*/\n+\t\tif (nalu_size < 2) {\n+\t\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (\"[rtp hinter] HEVC NALU too small for fragmentation: size=%u, need at least 2 bytes\\n\", nalu_size));\n+\t\t\treturn GF_BAD_PARAM;\n+\t\t}\n \t\tbytesLeft = nalu_size - 2;\n \t\toffset = 2;\n \t\twhile (bytesLeft) {\n@@ -650,7 +659,11 @@ GF_Err gp_rtp_builder_do_hevc(GP_RTPPacketizer *builder, u8 *nalu, u32 nalu_size\n \t\t\tmemset(payload_hdr, 0, 2);\n \t\t\t/*copy F bit and assign type*/\n \t\t\tpayload_hdr[0] = (nalu[0] & 0x81) | (49 << 1);\n-\t\t\t/*copy LayerId and TID*/\n+\t\t\t/*copy LayerId and TID - check if nalu has at least 2 bytes*/\n+\t\t\tif (nalu_size < 2) {\n+\t\t\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (\"[rtp hinter] HEVC NALU too small for fragmentation: size=%u, need at least 2 bytes\\n\", nalu_size));\n+\t\t\t\treturn GF_BAD_PARAM;\n+\t\t\t}\n \t\t\tpayload_hdr[1] = nalu[1];\n \t\t\tbuilder->OnData(builder->cbk_obj, (char *)payload_hdr, 2, GF_FALSE);\n \n@@ -789,7 +802,11 @@ GF_Err gp_rtp_builder_do_vvc(GP_RTPPacketizer *builder, u8 *nalu, u32 nalu_size,\n \t\tassert(nalu_size + 4 >=builder->Path_MTU);\n \t\tassert(!builder->bytesInPacket);\n \n-\t\t/*FU payload doesn't have the NAL hdr (2 bytes*/\n+\t\t/*FU payload doesn't have the NAL hdr (2 bytes - check if nalu has at least 2 bytes*/\n+\t\tif (nalu_size < 2) {\n+\t\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_RTP, (\"[rtp hinter] HEVC NALU too small for fragmentation: size=%u, need at least 2 bytes\\n\", nalu_size));\n+\t\t\treturn GF_BAD_PARAM;\n+\t\t}\n \t\tbytesLeft = nalu_size - 2;\n \t\toffset = 2;\n \t\twhile (bytesLeft) {\n"
+  },
+  "matio.cve-2019-9036": {
+    "instance_id": "matio.cve-2019-9036",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/mat5.c b/src/mat5.c\nindex 2841b58..94ccf5e 100644\n--- a/src/mat5.c\n+++ b/src/mat5.c\n@@ -1824,21 +1824,41 @@ ReadNextFunctionHandle(mat_t *mat, matvar_t *matvar)\n     int j;\n     size_t bytesread = 0, nfunctions = 1;\n \n-    for ( j = 0; j < matvar->rank; j++ )\n+    /* Calculate nfunctions with overflow check */\n+    for ( j = 0; j < matvar->rank; j++ ) {\n+        if ( matvar->dims[j] == 0 ) {\n+            nfunctions = 0;\n+            break;\n+        }\n+        if ( nfunctions > SIZE_MAX / matvar->dims[j] ) {\n+            /* Integer overflow would occur */\n+            nfunctions = SIZE_MAX;\n+            break;\n+        }\n         nfunctions *= matvar->dims[j];\n+    }\n \n-    matvar->data = malloc(nfunctions*sizeof(matvar_t *));\n+    /* Check if nfunctions is reasonable */\n+    if ( nfunctions == 0 || nfunctions > SIZE_MAX / sizeof(matvar_t *) ) {\n+        matvar->data = NULL;\n+        bytesread = 0;\n+        matvar->data_size = 0;\n+        matvar->nbytes = 0;\n+        return bytesread;\n+    }\n+\n+    matvar->data = malloc(nfunctions * sizeof(matvar_t *));\n     if ( matvar->data != NULL ) {\n         size_t i;\n-        matvar_t **functions = (matvar_t**)matvar->data;;\n+        matvar_t **functions = (matvar_t**)matvar->data;\n         matvar->data_size = sizeof(matvar_t *);\n-        matvar->nbytes    = nfunctions*matvar->data_size;\n+        matvar->nbytes = nfunctions * matvar->data_size;\n         for ( i = 0; i < nfunctions; i++ )\n             functions[i] = Mat_VarReadNextInfo(mat);\n     } else {\n         bytesread = 0;\n         matvar->data_size = 0;\n-        matvar->nbytes    = 0;\n+        matvar->nbytes = 0;\n     }\n \n     return bytesread;\n"
+  },
+  "njs.cve-2022-28049": {
+    "instance_id": "njs.cve-2022-28049",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_vmcode.c b/src/njs_vmcode.c\nindex ef0beb5..833a385 100644\n--- a/src/njs_vmcode.c\n+++ b/src/njs_vmcode.c\n@@ -1053,7 +1053,7 @@ njs_vmcode_array(njs_vm_t *vm, u_char *pc)\n \n     if (njs_fast_path(array != NULL)) {\n \n-        if (code->ctor) {\n+        if (code->ctor && array->object.fast_array) {\n             /* Array of the form [,,,], [1,,]. */\n             value = array->start;\n             length = array->length;\n"
+  },
+  "md4c.cve-2018-11545": {
+    "instance_id": "md4c.cve-2018-11545",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-0760": {
+    "instance_id": "gpac.cve-2023-0760",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "imagemagick.cve-2017-12641": {
+    "instance_id": "imagemagick.cve-2017-12641",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/coders/png.c b/coders/png.c\nindex dc8be52..227ed9f 100644\n--- a/coders/png.c\n+++ b/coders/png.c\n@@ -4377,7 +4377,13 @@ static Image *ReadOneJNGImage(MngInfo *mng_info,\n         type[0],type[1],type[2],type[3],(double) length);\n \n     if (length > PNG_UINT_31_MAX || count == 0)\n-      ThrowReaderException(CorruptImageError,\"CorruptImage\");\n+      {\n+        if (color_image_info != (ImageInfo *) NULL)\n+          color_image_info=DestroyImageInfo(color_image_info);\n+        if (color_image != (Image *) NULL)\n+          color_image=DestroyImage(color_image);\n+        ThrowReaderException(CorruptImageError,\"CorruptImage\");\n+      }\n \n     p=NULL;\n     chunk=(unsigned char *) NULL;\n"
+  },
+  "exiv2.cve-2020-18899": {
+    "instance_id": "exiv2.cve-2020-18899",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "imagemagick.cve-2019-13309": {
+    "instance_id": "imagemagick.cve-2019-13309",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/MagickWand/operation.c b/MagickWand/operation.c\nindex 9005da5..6653a33 100644\n--- a/MagickWand/operation.c\n+++ b/MagickWand/operation.c\n@@ -4171,7 +4171,11 @@ WandPrivate MagickBooleanType CLIListOperatorImages(MagickCLI *cli_wand,\n             {\n                index_image=GetImageFromList(_images,index-1);\n                if (index_image == (Image *) NULL)\n-                 CLIWandExceptArgBreak(OptionError,\"NoSuchImage\",option,arg1);\n+                 {\n+                   /* Clean up the insert_image if insertion fails */\n+                   insert_image=DestroyImage(insert_image);\n+                   CLIWandExceptArgBreak(OptionError,\"NoSuchImage\",option,arg1);\n+                 }\n               InsertImageInList(&index_image,insert_image);\n             }\n           _images=GetFirstImageInList(index_image);\n@@ -4599,7 +4603,8 @@ WandPrivate MagickBooleanType CLIListOperatorImages(MagickCLI *cli_wand,\n   /* if new image list generated, replace existing image list */\n   if (new_images == (Image *) NULL)\n     return(status == 0 ? MagickFalse : MagickTrue);\n-  _images=DestroyImageList(_images);\n+  if (_images != (Image *) NULL)\n+    _images=DestroyImageList(_images);\n   _images=GetFirstImageInList(new_images);\n   return(status == 0 ? MagickFalse : MagickTrue);\n \n"
+  },
+  "faad2.cve-2018-20198": {
+    "instance_id": "faad2.cve-2018-20198",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2023-0866": {
+    "instance_id": "gpac.cve-2023-0866",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/filters/reframe_adts.c b/src/filters/reframe_adts.c\nindex 80c98e5..46006ec 100644\n--- a/src/filters/reframe_adts.c\n+++ b/src/filters/reframe_adts.c\n@@ -794,6 +794,14 @@ GF_Err adts_dmx_process(GF_Filter *filter)\n \t\t\tgoto drop_byte;\n \t\t}\n \n+\t\t// Check if the frame size exceeds available buffer\n+\t\tif (ctx->hdr.frame_size > remain - sync_pos) {\n+\t\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_MEDIA, (\"[ADTSDmx] Frame size %u exceeds available buffer %u, resyncing\\n\", ctx->hdr.frame_size, remain - sync_pos));\n+\t\t\tctx->is_sync = GF_FALSE;\n+\t\t\tctx->nb_frames = 0;\n+\t\t\tgoto drop_byte;\n+\t\t}\n+\n \t\tadts_dmx_check_pid(filter, ctx);\n \n \t\tif (!ctx->is_playing) {\n@@ -809,6 +817,14 @@ GF_Err adts_dmx_process(GF_Filter *filter)\n \t\tif ((nb_blocks_per_frame==2) && !ctx->hdr.no_crc)\n \t\t\tsize -= 2;\n \n+\t\t// Validate that the payload size doesn't exceed available data\n+\t\tif (offset + size > remain) {\n+\t\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_MEDIA, (\"[ADTSDmx] Payload size %u exceeds available data %u, resyncing\\n\", offset + size, remain));\n+\t\t\tctx->is_sync = GF_FALSE;\n+\t\t\tctx->nb_frames = 0;\n+\t\t\tgoto drop_byte;\n+\t\t}\n+\n \t\tif (ctx->in_seek) {\n \t\t\tu64 nb_samples_at_seek = (u64) (ctx->start_range * GF_M4ASampleRates[ctx->sr_idx]);\n \t\t\tif (ctx->cts + ctx->dts_inc >= nb_samples_at_seek) {\n"
+  },
+  "mruby.cve-2022-1212": {
+    "instance_id": "mruby.cve-2022-1212",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libredwg.cve-2021-39521": {
+    "instance_id": "libredwg.cve-2021-39521",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "gpac.cve-2021-32439": {
+    "instance_id": "gpac.cve-2021-32439",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "njs.cve-2022-29369": {
+    "instance_id": "njs.cve-2022-29369",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libredwg.cve-2021-28237": {
+    "instance_id": "libredwg.cve-2021-28237",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/decode.c b/src/decode.c\nindex 281df66..d3140e3 100644\n--- a/src/decode.c\n+++ b/src/decode.c\n@@ -313,6 +313,11 @@ decode_preR13_section (Dwg_Section_Type_r11 id, Bit_Chain *restrict dat,\n       LOG_ERROR (\"Invalid table number %ld for %-8s [%2d]\", (long)tbl->number, tbl->name, id);\n       return DWG_ERR_INVALIDDWG;\n     }\n+  if (dwg->num_objects + tbl->number > 1000000)\n+    {\n+      LOG_ERROR (\"Too many objects: %lu + %ld\", dwg->num_objects, tbl->number);\n+      return DWG_ERR_INVALIDDWG;\n+    }\n   LOG_TRACE (\"\\ncontents table %-8s [%2d]: size:%-4u nr:%-3ld (0x%lx-0x%lx)\\n\",\n              tbl->name, id, tbl->size, (long)tbl->number, (unsigned long)tbl->address,\n              (unsigned long)(tbl->address + ((unsigned long long)tbl->number * tbl->size)))\n@@ -325,7 +330,7 @@ decode_preR13_section (Dwg_Section_Type_r11 id, Bit_Chain *restrict dat,\n       return DWG_ERR_INVALIDDWG;\n     }\n   if (dwg->num_objects % REFS_PER_REALLOC == 0)\n-    dwg->object = (Dwg_Object*)realloc (dwg->object, old_size + size + REFS_PER_REALLOC);\n+    dwg->object = (Dwg_Object*)realloc (dwg->object, old_size + size + REFS_PER_REALLOC * sizeof (Dwg_Object));\n \n     // TODO: move to a spec dwg_r11.spec, and dwg_decode_r11_NAME\n #define PREP_TABLE(token)                                                     \\\n"
+  },
+  "libheif.cve-2023-49460": {
+    "instance_id": "libheif.cve-2023-49460",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "njs.cve-2022-31307": {
+    "instance_id": "njs.cve-2022-31307",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/njs_array.c b/src/njs_array.c\nindex 81a7c15..238bae9 100644\n--- a/src/njs_array.c\n+++ b/src/njs_array.c\n@@ -2384,6 +2384,9 @@ njs_array_prototype_reverse_iterator(njs_vm_t *vm, njs_value_t *args,\n \n         } else if (from < 0) {\n             from += length;\n+            if (from < 0) {\n+                from = -1;\n+            }\n         }\n \n         break;\ndiff --git a/src/njs_iterator.c b/src/njs_iterator.c\nindex 90c3046..3e8c7de 100644\n--- a/src/njs_iterator.c\n+++ b/src/njs_iterator.c\n@@ -560,6 +560,10 @@ njs_object_iterate_reverse(njs_vm_t *vm, njs_iterator_args_t *args,\n         } else {\n             /* UTF-8 string. */\n \n+            if (from < 0 || from >= length) {\n+                return NJS_OK;\n+            }\n+\n             p = njs_string_offset(string_prop.start, end, from);\n             p = njs_utf8_next(p, end);\n \ndiff --git a/src/njs_string.c b/src/njs_string.c\nindex d1ae09e..5e77429 100644\n--- a/src/njs_string.c\n+++ b/src/njs_string.c\n@@ -2524,6 +2524,7 @@ njs_string_offset(const u_char *start, const u_char *end, size_t index)\n {\n     uint32_t    *map;\n     njs_uint_t  skip;\n+    size_t      map_index;\n \n     if (index >= NJS_STRING_MAP_STRIDE) {\n         map = njs_string_map_start(end);\n@@ -2532,11 +2533,22 @@ njs_string_offset(const u_char *start, const u_char *end, size_t index)\n             njs_string_offset_map_init(start, end - start);\n         }\n \n-        start += map[index / NJS_STRING_MAP_STRIDE - 1];\n+        map_index = index / NJS_STRING_MAP_STRIDE - 1;\n+        \n+        /* Check if map_index is within bounds of the allocated map */\n+        if (map_index < (end - start) / NJS_STRING_MAP_STRIDE + 1) {\n+            start += map[map_index];\n+        } else {\n+            /* Return end if index is out of bounds */\n+            return end;\n+        }\n     }\n \n     for (skip = index % NJS_STRING_MAP_STRIDE; skip != 0; skip--) {\n         start = njs_utf8_next(start, end);\n+        if (start >= end) {\n+            break;\n+        }\n     }\n \n     return start;\n"
+  },
+  "libredwg.cve-2020-21816": {
+    "instance_id": "libredwg.cve-2020-21816",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/programs/escape.c b/programs/escape.c\nindex 8a90741..b3d2a4a 100644\n--- a/programs/escape.c\n+++ b/programs/escape.c\n@@ -33,38 +33,49 @@ htmlescape (const char *restrict src, const int cp)\n     return NULL;\n   len = strlen (src) + 10;\n   d = malloc (len);\n+  if (!d)\n+    return NULL;\n+  d[0] = '\\0';  // Ensure buffer is null-terminated\n   s = (unsigned char *)src;\n   dest = d;\n-  while (*s++)\n+  while (*s)\n     {\n       const int off = d - dest;\n       if (off >= len - 8)\n         {\n           len += 10;\n-          dest = realloc (dest, len);\n+          char *new_dest = realloc (dest, len);\n+          if (!new_dest)\n+            {\n+              free (dest);\n+              return NULL;\n+            }\n+          dest = new_dest;\n           d = dest + off;\n         }\n       switch (*s)\n         {\n-        case '\"': strcat (d, \"&quot;\"); d += 6; break;\n-        case '\\'': strcat (d, \"&#39;\"); d += 5; break;\n-        case '`': strcat (d, \"&#96;\"); d += 5; break;\n-        case '&': strcat (d, \"&amp;\"); d += 5; break;\n-        case '<': strcat (d, \"&lt;\"); d += 4; break;\n-        case '>': strcat (d, \"&gt;\"); d += 4; break;\n-        case '{': strcat (d, \"&#123;\"); d += 6; break;\n-        case '}': strcat (d, \"&#125;\"); d += 6; break;\n+        case '\"': memcpy (d, \"&quot;\", 6); d += 6; break;\n+        case '\\'': memcpy (d, \"&#39;\", 5); d += 5; break;\n+        case '`': memcpy (d, \"&#96;\", 5); d += 5; break;\n+        case '&': memcpy (d, \"&amp;\", 5); d += 5; break;\n+        case '<': memcpy (d, \"&lt;\", 4); d += 4; break;\n+        case '>': memcpy (d, \"&gt;\", 4); d += 4; break;\n+        case '{': memcpy (d, \"&#123;\", 6); d += 6; break;\n+        case '}': memcpy (d, \"&#125;\", 6); d += 6; break;\n         default:\n           if (*s >= 127) // maybe encodings, no utf8 (see htmlwescape)\n             {\n-              sprintf (d, \"&#x%X;\", *s); // 4 + 4\n-              d += strlen (d);\n+              int written = sprintf (d, \"&#x%X;\", *s); // 4 + 4\n+              if (written > 0)\n+                d += written;\n             }\n           else if (*s >= 20)\n             *d++ = *s;\n         }\n+      s++;\n     }\n-  *d = 0;\n+  *d = '\\0';\n   return dest;\n }\n \n"
+  },
+  "exiv2.cve-2017-14864": {
+    "instance_id": "exiv2.cve-2017-14864",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "mruby.cve-2018-12249": {
+    "instance_id": "mruby.cve-2018-12249",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/class.c b/src/class.c\nindex c761f46..64a5659 100644\n--- a/src/class.c\n+++ b/src/class.c\n@@ -1765,7 +1765,7 @@ mrb_class_real(struct RClass* cl)\n {\n   if (cl == 0)\n     return NULL;\n-  while ((cl->tt == MRB_TT_SCLASS) || (cl->tt == MRB_TT_ICLASS)) {\n+  while (cl != NULL && ((cl->tt == MRB_TT_SCLASS) || (cl->tt == MRB_TT_ICLASS))) {\n     cl = cl->super;\n   }\n   return cl;\n"
+  },
+  "mruby.cve-2022-0623": {
+    "instance_id": "mruby.cve-2022-0623",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 61464de..9404141 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -2767,6 +2767,9 @@ RETRY_TRY_BLOCK:\n \n       hash = regs[a];\n       mrb_assert(mrb_hash_p(hash));\n+      if (!mrb_hash_p(hash)) {\n+        mrb_raise(mrb, E_TYPE_ERROR, \"expected Hash\");\n+      }\n       for (i=a+1; i<lim; i+=2) {\n         mrb_hash_set(mrb, hash, regs[i], regs[i+1]);\n       }\n"
+  },
+  "njs.cve-2023-27730": {
+    "instance_id": "njs.cve-2023-27730",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libmodbus.cve-2022-0367": {
+    "instance_id": "libmodbus.cve-2022-0367",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/modbus.c b/src/modbus.c\nindex 43e8a35..5b2e1fd 100644\n--- a/src/modbus.c\n+++ b/src/modbus.c\n@@ -961,7 +961,7 @@ int modbus_reply(modbus_t *ctx, const uint8_t *req,\n                 nb_write, nb, MODBUS_MAX_WR_WRITE_REGISTERS, MODBUS_MAX_WR_READ_REGISTERS);\n         } else if (mapping_address < 0 ||\n                    (mapping_address + nb) > mb_mapping->nb_registers ||\n-                   mapping_address < 0 ||\n+                   mapping_address_write < 0 ||\n                    (mapping_address_write + nb_write) > mb_mapping->nb_registers) {\n             rsp_length = response_exception(\n                 ctx, &sft, MODBUS_EXCEPTION_ILLEGAL_DATA_ADDRESS, rsp, FALSE,\n"
+  },
+  "libarchive.cve-2019-11463": {
+    "instance_id": "libarchive.cve-2019-11463",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c\nindex 677c437..ae47fc9 100644\n--- a/libarchive/archive_read_support_format_zip.c\n+++ b/libarchive/archive_read_support_format_zip.c\n@@ -1460,10 +1460,6 @@ zipx_lzma_alone_init(struct archive_read *a, struct zip *zip)\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \n-\t/* Flag the cleanup function that we want our lzma-related structures\n-\t * to be freed later. */\n-\tzip->zipx_lzma_valid = 1;\n-\n \t/* The \"lzma alone\" file format and the stream format inside ZIPx are\n \t * almost the same. Here's an example of a structure of \"lzma alone\"\n \t * format:\n@@ -1505,15 +1501,21 @@ zipx_lzma_alone_init(struct archive_read *a, struct zip *zip)\n \tif((p = __archive_read_ahead(a, 9, NULL)) == NULL) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated lzma data\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n \tif(p[2] != 0x05 || p[3] != 0x00) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Invalid lzma data\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n+\t/* Flag the cleanup function that we want our lzma-related structures\n+\t * to be freed later. */\n+\tzip->zipx_lzma_valid = 1;\n+\n \t/* Prepare an lzma alone header: copy the lzma_params blob into a proper\n \t * place into the lzma alone header. */\n \tmemcpy(&alone_header.bytes[0], p + 4, 5);\n@@ -1547,6 +1549,8 @@ zipx_lzma_alone_init(struct archive_read *a, struct zip *zip)\n \tif (r != LZMA_OK) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,\n \t\t    \"lzma stream initialization error\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n+\t\tzip->zipx_lzma_valid = 0;\n \t\treturn ARCHIVE_FATAL;\n \t}\n \n"
+  },
+  "libheif.cve-2023-49464": {
+    "instance_id": "libheif.cve-2023-49464",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "openexr.cve-2020-16587": {
+    "instance_id": "openexr.cve-2020-16587",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "matio.cve-2020-19497": {
+    "instance_id": "matio.cve-2020-19497",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/mat5.c b/src/mat5.c\nindex abdb351..8f91dce 100644\n--- a/src/mat5.c\n+++ b/src/mat5.c\n@@ -4870,6 +4870,13 @@ Mat_VarReadNextInfo5( mat_t *mat )\n                     else\n                         len = uncomp_buf[1];\n \n+                    /* Validate length to prevent integer overflow */\n+                    if (len > 0x7FFFFFFF) {\n+                        Mat_VarFree(matvar);\n+                        matvar = NULL;\n+                        break;\n+                    }\n+\n                     if ( len % 8 == 0 )\n                         len_pad = len;\n                     else\n@@ -4972,6 +4979,15 @@ Mat_VarReadNextInfo5( mat_t *mat )\n                     len = Mat_uint32Swap(buf+1);\n                 else\n                     len = buf[1];\n+                \n+                /* Validate length to prevent integer overflow */\n+                if (len > 0x7FFFFFFF) {\n+                    Mat_VarFree(matvar);\n+                    matvar = NULL;\n+                    (void)fseek((FILE*)mat->fp, fpos, SEEK_SET);\n+                    break;\n+                }\n+\n                 if ( len % 8 == 0 )\n                     len_pad = len;\n                 else\n"
+  },
+  "gpac.cve-2023-46930": {
+    "instance_id": "gpac.cve-2023-46930",
+    "model_name_or_path": "full_0_200",
+    "model_patch": "diff --git a/src/isomedia/media_odf.c b/src/isomedia/media_odf.c\nindex 76ecf9d..1ec7f15 100644\n--- a/src/isomedia/media_odf.c\n+++ b/src/isomedia/media_odf.c\n@@ -518,6 +518,7 @@ u32 gf_isom_find_od_id_for_track(GF_ISOFile *file, u32 track)\n \ti=0;\n \twhile ( (od_tk = (GF_TrackBox*)gf_list_enum(file->moov->trackList, &i))) {\n \t\tif (od_tk->Media->handler->handlerType != GF_ISOM_MEDIA_OD) continue;\n+\t\tif (!od_tk->Media || !od_tk->Media->information || !od_tk->Media->information->sampleTable || !od_tk->Media->information->sampleTable->SampleSize) continue;\n \n \t\tfor (j=0; j<od_tk->Media->information->sampleTable->SampleSize->sampleCount; j++) {\n \t\t\tGF_ISOSample *samp = gf_isom_get_sample(file, i, j+1, &di);\n"
+  },
+  "imagemagick.cve-2017-14400": {
+    "instance_id": "imagemagick.cve-2017-14400",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "libredwg.cve-2020-6615": {
+    "instance_id": "libredwg.cve-2020-6615",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "njs.cve-2022-29779": {
+    "instance_id": "njs.cve-2022-29779",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  },
+  "matio.cve-2019-9035": {
+    "instance_id": "matio.cve-2019-9035",
+    "model_name_or_path": "full_0_200",
+    "model_patch": null
+  }
+}

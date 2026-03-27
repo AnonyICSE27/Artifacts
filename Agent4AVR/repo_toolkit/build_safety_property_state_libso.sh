@@ -1,0 +1,1 @@
+clang -shared -fPIC -o libspstate.so safety_property_state.c -lpthread

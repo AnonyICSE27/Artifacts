@@ -1,0 +1,11 @@
+{
+    "text-embedding-3-small": {
+        "type": "openai",
+        "local_cache_path": "~/.AgentAPR4Vul/cache/embeddings_cache",
+        "namespace": "text-embedding-3-small",
+        "model": "text-embedding-3-small",
+        "base_url": "https://api.openai.com/v1",
+        "api_key": "< your api key >",
+        "chunk_size": 36
+    }
+}

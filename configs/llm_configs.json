@@ -1,0 +1,88 @@
+{
+    "< model identifier (example) >": {
+        "model_type": "OpenAI",
+        "base_url": "< your base url >",
+        "api_key": "< your api key >",
+        "model_name": "< your selected model name >",
+        "...": "< more parameters >"
+    },
+    "deepseek-chat": {
+        "model_type": "OpenAI",
+        "base_url": "https://api.deepseek.com",
+        "api_key": "< your api key >",
+        "model_name": "deepseek-chat",
+        "max_tokens": 8192
+    },
+    "o3-mini": {
+        "model_type": "OpenAI",
+        "base_url": "https://api.openai.com/v1",
+        "api_key": "< your api key >",
+        "model_name": "o3-mini"
+    },
+    "o3-mini-openrouter": {
+        "model_type": "OpenAI",
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key": "< your api key >",
+        "model_name": "openai/o3-mini",
+        "extra_body": {
+            "usage": {
+                "include": true
+            },
+            "provider": {
+                "order": [
+                    "openai"
+                ],
+                "allow_fallbacks": false
+            }
+        },
+        "official_config": {
+            "extra_body": {
+                "usage": {
+                    "include": true
+                },
+                "provider": {
+                    "order": [
+                        "openai"
+                    ],
+                    "allow_fallbacks": false
+                }
+            }
+        }
+    },
+    "gpt-4o": {
+        "model_type": "OpenAI",
+        "base_url": "https://api.openai.com/v1",
+        "api_key": "< your api key >",
+        "model_name": "gpt-4o"
+    },
+    "gpt-4o-openrouter": {
+        "model_type": "OpenAI",
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key": "< your api key >",
+        "model_name": "openai/gpt-4o",
+        "extra_body": {
+            "usage": {
+                "include": true
+            },
+            "provider": {
+                "order": [
+                    "openai"
+                ],
+                "allow_fallbacks": false
+            }
+        },
+        "official_config": {
+            "extra_body": {
+                "usage": {
+                    "include": true
+                },
+                "provider": {
+                    "order": [
+                        "openai"
+                    ],
+                    "allow_fallbacks": false
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,402 @@
+{
+  "gpac.cve-2023-4721": {
+    "instance_id": "gpac.cve-2023-4721",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/media_tools/mpeg2_ps.c b/src/media_tools/mpeg2_ps.c\nindex 0af7a31..e3201ac 100644\n--- a/src/media_tools/mpeg2_ps.c\n+++ b/src/media_tools/mpeg2_ps.c\n@@ -266,9 +266,9 @@ int MPEG12_ParseSeqHdr(unsigned char *pbuffer, u32 buflen, s32 *have_mpeg2, u32\n \tu32 scode, ix;\n \ts32 found = -1;\n \t*have_mpeg2 = 0;\n-\tbuflen -= 6;\n \tbitrate_int = 0;\n-\tfor (ix = 0; ix < buflen; ix++, pbuffer++) {\n+\tfor (ix = 0; ix < buflen - 6; ix++, pbuffer++) {\n+\t\tif (ix + 4 > buflen) break;\n \t\tscode = ((u32)pbuffer[0] << 24) | (pbuffer[1] << 16) | (pbuffer[2] << 8) |\n \t\t        pbuffer[3];\n \n"
+  },
+  "njs.cve-2022-32414": {
+    "instance_id": "njs.cve-2022-32414",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "libsndfile.cve-2018-19432": {
+    "instance_id": "libsndfile.cve-2018-19432",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "faad2.cve-2018-20362": {
+    "instance_id": "faad2.cve-2018-20362",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/libfaad/filtbank.c b/libfaad/filtbank.c\nindex 1b1464b..932c435 100644\n--- a/libfaad/filtbank.c\n+++ b/libfaad/filtbank.c\n@@ -214,6 +214,12 @@ void ifilter_bank(fb_info *fb, uint8_t window_sequence, uint8_t window_shape,\n     switch (window_sequence)\n     {\n     case ONLY_LONG_SEQUENCE:\n+        /* Ensure pointers are not null before use */\n+        if (overlap == NULL || time_out == NULL) {\n+            fprintf(stderr, \"Error: Null pointer encountered in ifilter_bank.\\n\");\n+            return;\n+        }\n+\n         /* perform iMDCT */\n         imdct_long(fb, freq_in, transf_buf, 2*nlong);\n \n@@ -237,6 +243,12 @@ void ifilter_bank(fb_info *fb, uint8_t window_sequence, uint8_t window_shape,\n         break;\n \n     case LONG_START_SEQUENCE:\n+        /* Ensure pointers are not null before use */\n+        if (overlap == NULL || time_out == NULL) {\n+            fprintf(stderr, \"Error: Null pointer encountered in ifilter_bank.\\n\");\n+            return;\n+        }\n+\n         /* perform iMDCT */\n         imdct_long(fb, freq_in, transf_buf, 2*nlong);\n \n@@ -260,6 +272,12 @@ void ifilter_bank(fb_info *fb, uint8_t window_sequence, uint8_t window_shape,\n         break;\n \n     case EIGHT_SHORT_SEQUENCE:\n+        /* Ensure pointers are not null before use */\n+        if (overlap == NULL || time_out == NULL) {\n+            fprintf(stderr, \"Error: Null pointer encountered in ifilter_bank.\\n\");\n+            return;\n+        }\n+\n         /* perform iMDCT for each short block */\n         faad_imdct(fb->mdct256, freq_in+0*nshort, transf_buf+2*nshort*0);\n         faad_imdct(fb->mdct256, freq_in+1*nshort, transf_buf+2*nshort*1);\n@@ -298,6 +316,12 @@ void ifilter_bank(fb_info *fb, uint8_t window_sequence, uint8_t window_shape,\n         break;\n \n     case LONG_STOP_SEQUENCE:\n+        /* Ensure pointers are not null before use */\n+        if (overlap == NULL || time_out == NULL) {\n+            fprintf(stderr, \"Error: Null pointer encountered in ifilter_bank.\\n\");\n+            return;\n+        }\n+\n         /* perform iMDCT */\n         imdct_long(fb, freq_in, transf_buf, 2*nlong);\n \n"
+  },
+  "openjpeg.cve-2016-7445": {
+    "instance_id": "openjpeg.cve-2016-7445",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/bin/jp2/convert.c b/src/bin/jp2/convert.c\nindex c130b3b..0aca0e1 100644\n--- a/src/bin/jp2/convert.c\n+++ b/src/bin/jp2/convert.c\n@@ -1412,7 +1412,10 @@ static void read_pnm_header(FILE *reader, struct pnm_header *ph)\n         {\n             s = skip_idf(s, idf);\n \n-            if(s == NULL || *s == 0) return;\n+            if(s == NULL || *s == 0) {\n+                fprintf(stderr, \"read_pnm_header: Failed to parse WIDTH\\n\");\n+                return;\n+            }\n \n             if(strcmp(idf, \"ENDHDR\") == 0)\n             {\n@@ -1421,35 +1424,50 @@ static void read_pnm_header(FILE *reader, struct pnm_header *ph)\n             if(strcmp(idf, \"WIDTH\") == 0)\n             {\n                 s = skip_int(s, &ph->width);\n-                if(s == NULL || *s == 0) return;\n+                if(s == NULL || *s == 0) {\n+                fprintf(stderr, \"read_pnm_header: Failed to parse WIDTH\\n\");\n+                return;\n+            }\n \n                 continue;\n             }\n             if(strcmp(idf, \"HEIGHT\") == 0)\n             {\n                 s = skip_int(s, &ph->height);\n-                if(s == NULL || *s == 0) return;\n+                if(s == NULL || *s == 0) {\n+                fprintf(stderr, \"read_pnm_header: Failed to parse WIDTH\\n\");\n+                return;\n+            }\n \n                 continue;\n             }\n             if(strcmp(idf, \"DEPTH\") == 0)\n             {\n                 s = skip_int(s, &ph->depth);\n-                if(s == NULL || *s == 0) return;\n+                if(s == NULL || *s == 0) {\n+                fprintf(stderr, \"read_pnm_header: Failed to parse WIDTH\\n\");\n+                return;\n+            }\n \n                 continue;\n             }\n             if(strcmp(idf, \"MAXVAL\") == 0)\n             {\n                 s = skip_int(s, &ph->maxval);\n-                if(s == NULL || *s == 0) return;\n+                if(s == NULL || *s == 0) {\n+                fprintf(stderr, \"read_pnm_header: Failed to parse WIDTH\\n\");\n+                return;\n+            }\n \n                 continue;\n             }\n             if(strcmp(idf, \"TUPLTYPE\") == 0)\n             {\n                 s = skip_idf(s, type);\n-                if(s == NULL || *s == 0) return;\n+                if(s == NULL || *s == 0) {\n+                fprintf(stderr, \"read_pnm_header: Failed to parse WIDTH\\n\");\n+                return;\n+            }\n \n                 if(strcmp(type, \"BLACKANDWHITE\") == 0)\n                 {\n@@ -1481,8 +1499,16 @@ static void read_pnm_header(FILE *reader, struct pnm_header *ph)\n         if( !have_wh)\n         {\n             s = skip_int(s, &ph->width);\n+            if(s == NULL || *s == 0) {\n+                fprintf(stderr, \"read_pnm_header: Failed to parse width\\n\");\n+                return;\n+            }\n \n             s = skip_int(s, &ph->height);\n+            if(s == NULL || *s == 0) {\n+                fprintf(stderr, \"read_pnm_header: Failed to parse height\\n\");\n+                return;\n+            }\n \n             have_wh = 1;\n \n"
+  },
+  "exiv2.cve-2018-19607": {
+    "instance_id": "exiv2.cve-2018-19607",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0614": {
+    "instance_id": "mruby.cve-2022-0614",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/hash.c b/src/hash.c\nindex fc6b6fa..12c1950 100644\n--- a/src/hash.c\n+++ b/src/hash.c\n@@ -383,6 +383,7 @@ obj_eql(mrb_state *mrb, mrb_value a, mrb_value b, struct RHash *h)\n static mrb_bool\n entry_deleted_p(const hash_entry* entry)\n {\n+  if (entry == NULL) return FALSE;\n   return mrb_undef_p(entry->key);\n }\n \n@@ -1239,6 +1240,10 @@ mrb_hash_fetch(mrb_state *mrb, mrb_value hash, mrb_value key, mrb_value def)\n MRB_API void\n mrb_hash_set(mrb_state *mrb, mrb_value hash, mrb_value key, mrb_value val)\n {\n+  if (!mrb_hash_p(hash)) {\n+    mrb_raise(mrb, E_TYPE_ERROR, \"expected a hash\");\n+    return;\n+  }\n   hash_modify(mrb, hash);\n   key = h_key_for(mrb, key);\n   h_set(mrb, mrb_hash_ptr(hash), key, val);\n"
+  },
+  "gpac.cve-2023-0770": {
+    "instance_id": "gpac.cve-2023-0770",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "faad2.cve-2018-20197": {
+    "instance_id": "faad2.cve-2018-20197",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..a541d6b 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -1339,11 +1339,13 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n #endif\n                 adj->Q_M_lim_boost[l][m] = sqrt(Q_M_lim[m] * G_boost);\n \n-                if (S_M[m] != 0)\n-                {\n-                    adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n-                } else {\n-                    adj->S_M_boost[l][m] = 0;\n+                if (l < MAX_L_E && m < MAX_M) {\n+                    if (S_M[m] != 0)\n+                    {\n+                        adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n+                    } else {\n+                        adj->S_M_boost[l][m] = 0;\n+                    }\n                 }\n             }\n         }\n"
+  },
+  "faad2.cve-2018-20357": {
+    "instance_id": "faad2.cve-2018-20357",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2022-1427": {
+    "instance_id": "mruby.cve-2022-1427",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/object.c b/src/object.c\nindex d03bfcf..02090ae 100644\n--- a/src/object.c\n+++ b/src/object.c\n@@ -463,6 +463,9 @@ mrb_any_to_s(mrb_state *mrb, mrb_value obj)\n MRB_API mrb_bool\n mrb_obj_is_kind_of(mrb_state *mrb, mrb_value obj, struct RClass *c)\n {\n+  if (c == NULL) {\n+    mrb_raise(mrb, E_TYPE_ERROR, \"class or module required\");\n+  }\n   struct RClass *cl = mrb_class(mrb, obj);\n \n   switch (c->tt) {\ndiff --git a/src/vm.c b/src/vm.c\nindex 5013c87..fe0cca1 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1760,7 +1760,7 @@ RETRY_TRY_BLOCK:\n         }\n       }\n       recv = regs[0];\n-      if (!mrb_obj_is_kind_of(mrb, recv, target_class)) {\n+      if (target_class == NULL || !mrb_obj_is_kind_of(mrb, recv, target_class)) {\n       super_typeerror: ;\n         mrb_value exc = mrb_exc_new_lit(mrb, E_TYPE_ERROR,\n                                             \"self has wrong type to call super in this context\");\n"
+  },
+  "mruby.cve-2022-0240": {
+    "instance_id": "mruby.cve-2022-0240",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/class.c b/src/class.c\nindex ec9c648..7415766 100644\n--- a/src/class.c\n+++ b/src/class.c\n@@ -357,7 +357,7 @@ prepare_singleton_class(mrb_state *mrb, struct RBasic *o)\n {\n   struct RClass *sc, *c;\n \n-  if (o->c->tt == MRB_TT_SCLASS) return;\n+  if (o->c == NULL || o->c->tt == MRB_TT_SCLASS) return;\n   sc = MRB_OBJ_ALLOC(mrb, MRB_TT_SCLASS, mrb->class_class);\n   sc->flags |= MRB_FL_CLASS_IS_INHERITED;\n   sc->mt = mt_new(mrb);\n"
+  },
+  "faad2.cve-2021-32272": {
+    "instance_id": "faad2.cve-2021-32272",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/frontend/mp4read.c b/frontend/mp4read.c\nindex 1414684..2221302 100644\n--- a/frontend/mp4read.c\n+++ b/frontend/mp4read.c\n@@ -344,7 +344,12 @@ static int stszin(int size)\n     u32in();\n     // Number of entries\n     mp4config.frame.ents = u32in();\n-    // fixme: check atom size\n+    // Check if size is sufficient for the number of entries and version/flags\n+    if (size < 12 + mp4config.frame.ents * sizeof(uint32_t)) {\n+        fprintf(stderr, \"stszin: insufficient size for entries\\n\");\n+        return ERR_FAIL;\n+    }\n+\n     mp4config.frame.data = malloc(sizeof(*mp4config.frame.data)\n                                   * (mp4config.frame.ents + 1));\n \n"
+  },
+  "gpac.cve-2023-48011": {
+    "instance_id": "gpac.cve-2023-48011",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2022-1201": {
+    "instance_id": "mruby.cve-2022-1201",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 77edbb3..3bb9510 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1749,7 +1749,7 @@ RETRY_TRY_BLOCK:\n       }\n       else if (target_class->tt == MRB_TT_MODULE) {\n         target_class = mrb_vm_ci_target_class(ci);\n-        if (target_class->tt != MRB_TT_ICLASS) {\n+        if (!target_class || target_class->tt != MRB_TT_ICLASS) {\n           goto super_typeerror;\n         }\n       }\n"
+  },
+  "libdwarf.cve-2022-32200": {
+    "instance_id": "libdwarf.cve-2022-32200",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/lib/libdwarf/dwarf_global.c b/src/lib/libdwarf/dwarf_global.c\nindex 03ee0cd..d7608ee 100644\n--- a/src/lib/libdwarf/dwarf_global.c\n+++ b/src/lib/libdwarf/dwarf_global.c\n@@ -391,8 +391,12 @@ _dwarf_internal_get_pubnames_like_data(Dwarf_Debug dbg,\n         pubnames_context->pu_dbg = dbg;\n         pubnames_context->pu_pub_offset = pubnames_section_offset;\n         pubnames_ptr_past_end_cu = pubnames_like_ptr + length;\n-        pubnames_context->pu_pub_entries_end_ptr =\n-            pubnames_ptr_past_end_cu;\n+        /* Ensure the end pointer does not exceed the section end */\n+        if (pubnames_ptr_past_end_cu > section_end_ptr) {\n+            pubnames_context->pu_pub_entries_end_ptr = section_end_ptr;\n+        } else {\n+            pubnames_context->pu_pub_entries_end_ptr = pubnames_ptr_past_end_cu;\n+        }\n \n         if ((pubnames_like_ptr + (DWARF_HALF_SIZE) ) >\n             /* A minimum size needed */\n"
+  },
+  "njs.cve-2023-27728": {
+    "instance_id": "njs.cve-2023-27728",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/njs_value.c b/src/njs_value.c\nindex ff885fe..6179c63 100644\n--- a/src/njs_value.c\n+++ b/src/njs_value.c\n@@ -240,8 +240,7 @@ njs_value_own_enumerate(njs_vm_t *vm, njs_value_t *value,\n     if (njs_is_object(value)) {\n         slots = njs_object_slots(value);\n         if (slots == NULL || slots->keys == NULL) {\n-            return njs_object_own_enumerate(vm, njs_object(value), kind, type,\n-                                            all);\n+            return NULL; // Ensuring that we do not call functions when slots or keys are NULL\n         }\n \n         ret = slots->keys(vm, value, &keys);\n"
+  },
+  "libarchive.cve-2017-14503": {
+    "instance_id": "libarchive.cve-2017-14503",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/libarchive/archive_read_support_format_lha.c b/libarchive/archive_read_support_format_lha.c\nindex b8ef4ae..26db0a3 100644\n--- a/libarchive/archive_read_support_format_lha.c\n+++ b/libarchive/archive_read_support_format_lha.c\n@@ -1712,9 +1712,10 @@ lha_crc16(uint16_t crc, const void *pp, size_t len)\n \t * without unrolling pragma, and Clang is so. So we should\n \t * unroll this loop for its performance.\n \t */\n-\tfor (;len >= 8; len -= 8) {\n-\t\t/* This if statement expects compiler optimization will\n-\t\t * remove the statement which will not be executed. */\n+\twhile (len >= 8) {\n+\t\tif ((const unsigned char *)(buff + 4) > (p + len)) {\n+\t\t\tbreak;\n+\t\t}\n #undef bswap16\n #if defined(_MSC_VER) && _MSC_VER >= 1400  /* Visual Studio */\n #  define bswap16(x) _byteswap_ushort(x)\n"
+  },
+  "gpac.cve-2022-1795": {
+    "instance_id": "gpac.cve-2022-1795",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2018-12247": {
+    "instance_id": "mruby.cve-2018-12247",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "imagemagick.cve-2021-3962": {
+    "instance_id": "imagemagick.cve-2021-3962",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "gpac.cve-2023-5586": {
+    "instance_id": "gpac.cve-2023-5586",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/filters/reframe_rawpcm.c b/src/filters/reframe_rawpcm.c\nindex 37decc0..05d4b25 100644\n--- a/src/filters/reframe_rawpcm.c\n+++ b/src/filters/reframe_rawpcm.c\n@@ -232,7 +232,12 @@ GF_Err pcmreframe_process(GF_Filter *filter)\n \n \tif (ctx->done) return GF_EOS;\n \n-\tif (!ctx->is_playing && ctx->opid) return GF_OK;\n+\tif (!ctx->opid) {\n+\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_MEDIA, (\"[PCMReframe] Output PID is not initialized, cannot process\\n\"));\n+\t\treturn GF_BAD_PARAM;\n+\t}\n+\n+\tif (!ctx->is_playing) return GF_OK;\n \n \tpck = gf_filter_pid_get_packet(ctx->ipid);\n \tif (!pck) {\n"
+  },
+  "gpac.cve-2023-46929": {
+    "instance_id": "gpac.cve-2023-46929",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/media_tools/av_parsers.c b/src/media_tools/av_parsers.c\nindex 43c3200..d4c7e2f 100644\n--- a/src/media_tools/av_parsers.c\n+++ b/src/media_tools/av_parsers.c\n@@ -6866,10 +6866,14 @@ GF_Err gf_avc_change_vui(GF_AVCConfig *avcc, GF_VUIInfo *vui_info)\n \torig = NULL;\n \n \tmemset(&avc, 0, sizeof(AVCState));\n-\tavc.sps_active_idx = -1;\n+\t    avc.sps_active_idx = -1;\n+\n+    if (!avcc || !avcc->sequenceParameterSets) {\n+        return GF_BAD_PARAM; // Return an error if avcc or its sequenceParameterSets is NULL\n+    }\n \n-\ti=0;\n-\twhile ((slc = (GF_AVCConfigSlot *)gf_list_enum(avcc->sequenceParameterSets, &i))) {\n+    i=0;\n+    while ((slc = (GF_AVCConfigSlot *)gf_list_enum(avcc->sequenceParameterSets, &i))) {\n \t\tu8 *no_emulation_buf = NULL;\n \t\tu32 no_emulation_buf_size = 0, emulation_bytes = 0;\n \t\tidx = gf_avc_read_sps(slc->data, slc->size, &avc, 0, &bit_offset);\n"
+  },
+  "gpac.cve-2023-5998": {
+    "instance_id": "gpac.cve-2023-5998",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "njs.cve-2022-38890": {
+    "instance_id": "njs.cve-2022-38890",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/njs_utf8.h b/src/njs_utf8.h\nindex 26c23db..20faa98 100644\n--- a/src/njs_utf8.h\n+++ b/src/njs_utf8.h\n@@ -49,7 +49,11 @@ njs_utf8_next(const u_char *p, const u_char *end)\n {\n     u_char  c;\n \n-    c = *p++;\n+    if (p < end) {\n+        c = *p++;\n+    } else {\n+        return end;\n+    }\n \n     if ((c & 0x80) != 0) {\n \n@@ -91,7 +95,11 @@ njs_utf8_copy(u_char *dst, const u_char **src, const u_char *end)\n     const u_char  *p;\n \n     p = *src;\n-    c = *p++;\n+    if (p < end) {\n+        c = *p++;\n+    } else {\n+        return end;\n+    }\n     *dst++ = c;\n \n     if ((c & 0x80) != 0) {\n"
+  },
+  "gpac.cve-2023-0841": {
+    "instance_id": "gpac.cve-2023-0841",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "gpac.cve-2022-2454": {
+    "instance_id": "gpac.cve-2022-2454",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/laser/lsr_dec.c b/src/laser/lsr_dec.c\nindex 99d16aa..acf407a 100644\n--- a/src/laser/lsr_dec.c\n+++ b/src/laser/lsr_dec.c\n@@ -839,7 +839,7 @@ static void lsr_read_id(GF_LASeRCodec *lsr, GF_Node *n)\n static Fixed lsr_translate_coords(GF_LASeRCodec *lsr, u32 val, u32 nb_bits)\n {\n #ifdef GPAC_FIXED_POINT\n-\tif (val >> (nb_bits-1) ) {\n+\tif (nb_bits > 0 && val >> (nb_bits-1) ) {\n \t\ts32 neg = (s32) val - (1<<nb_bits);\n \t\tif (neg < -FIX_ONE / 2)\n \t\t\treturn 2 * gf_divfix(INT2FIX(neg/2), lsr->res_factor);\n@@ -850,7 +850,7 @@ static Fixed lsr_translate_coords(GF_LASeRCodec *lsr, u32 val, u32 nb_bits)\n \t\treturn gf_divfix(INT2FIX(val), lsr->res_factor);\n \t}\n #else\n-\tif (val >> (nb_bits-1) ) {\n+\tif (nb_bits > 0 && val >> (nb_bits-1) ) {\n \t\ts32 neg = (s32) val - (1<<nb_bits);\n \t\treturn gf_divfix(INT2FIX(neg), lsr->res_factor);\n \t} else {\n"
+  },
+  "libredwg.cve-2022-45332": {
+    "instance_id": "libredwg.cve-2022-45332",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0717": {
+    "instance_id": "mruby.cve-2022-0717",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "gpac.cve-2021-32438": {
+    "instance_id": "gpac.cve-2021-32438",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/media_tools/media_export.c b/src/media_tools/media_export.c\nindex b89936f..968818d 100644\n--- a/src/media_tools/media_export.c\n+++ b/src/media_tools/media_export.c\n@@ -1108,7 +1108,7 @@ static GF_Err gf_media_export_filters(GF_MediaExporter *dumper)\n \t\t}\n \t\tesd = gf_media_map_esd(dumper->file, track_num, 0);\n \t\tsample_count = gf_isom_get_sample_count(dumper->file, dumper->trackID);\n-\t\tif (esd) {\n+\t\tif (esd && esd->decoderConfig) {\n \t\t\tif (esd->decoderConfig->objectTypeIndication<GF_CODECID_LAST_MPEG4_MAPPING) {\n \t\t\t\tcodec_id = gf_codecid_from_oti(esd->decoderConfig->streamType, esd->decoderConfig->objectTypeIndication);\n #ifndef GPAC_DISABLE_AV_PARSERS\n"
+  },
+  "faad2.cve-2018-20361": {
+    "instance_id": "faad2.cve-2018-20361",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..f4aca24 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -1339,11 +1339,13 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n #endif\n                 adj->Q_M_lim_boost[l][m] = sqrt(Q_M_lim[m] * G_boost);\n \n-                if (S_M[m] != 0)\n-                {\n-                    adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n-                } else {\n-                    adj->S_M_boost[l][m] = 0;\n+                if (m < MAX_M && l < MAX_L_E) {\n+                    if (S_M[m] != 0)\n+                    {\n+                        adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n+                    } else {\n+                        adj->S_M_boost[l][m] = 0;\n+                    }\n                 }\n             }\n         }\n"
+  },
+  "faad2.cve-2018-20196": {
+    "instance_id": "faad2.cve-2018-20196",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "gpac.cve-2023-3012": {
+    "instance_id": "gpac.cve-2023-3012",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/utils/xml_parser.c b/src/utils/xml_parser.c\nindex 49df338..bd3d234 100644\n--- a/src/utils/xml_parser.c\n+++ b/src/utils/xml_parser.c\n@@ -967,10 +967,11 @@ exit:\n \n static GF_Err xml_sax_append_string(GF_SAXParser *parser, char *string)\n {\n-\tu32 size = parser->line_size;\n-\tu32 nl_size = (u32) strlen(string);\n+    if (!string) return GF_BAD_PARAM; // Check for NULL string\n+    u32 size = parser->line_size;\n+    u32 nl_size = (u32) strlen(string);\n \n-\tif (!nl_size) return GF_OK;\n+    if (!nl_size) return GF_OK;\n \n \tif ( (parser->alloc_size < size+nl_size+1)\n \t        /*\t\t|| (parser->alloc_size / 2 ) > size+nl_size+1 */\n"
+  },
+  "gpac.cve-2023-4679": {
+    "instance_id": "gpac.cve-2023-4679",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2022-1934": {
+    "instance_id": "mruby.cve-2022-1934",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "openjpeg.cve-2024-56827": {
+    "instance_id": "openjpeg.cve-2024-56827",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/lib/openjp2/j2k.c b/src/lib/openjp2/j2k.c\nindex 7dc389f..71cb354 100644\n--- a/src/lib/openjp2/j2k.c\n+++ b/src/lib/openjp2/j2k.c\n@@ -8456,7 +8456,8 @@ static OPJ_BOOL opj_j2k_add_tlmarker(OPJ_UINT32 tileno,\n     if (type == J2K_MS_SOT) {\n         OPJ_UINT32 l_current_tile_part = cstr_index->tile_index[tileno].current_tpsno;\n \n-        if (cstr_index->tile_index[tileno].tp_index) {\n+        if (cstr_index->tile_index[tileno].tp_index && \n+            l_current_tile_part < cstr_index->tile_index[tileno].nb_tps) {\n             cstr_index->tile_index[tileno].tp_index[l_current_tile_part].start_pos = pos;\n         }\n \n"
+  },
+  "gpac.cve-2022-3178": {
+    "instance_id": "gpac.cve-2022-3178",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/isomedia/box_code_base.c b/src/isomedia/box_code_base.c\nindex 3cf6b3b..6ed5db9 100644\n--- a/src/isomedia/box_code_base.c\n+++ b/src/isomedia/box_code_base.c\n@@ -12887,10 +12887,11 @@ GF_Err xtra_box_read(GF_Box *s, GF_BitStream *bs)\n \t\t\tprop_size -= 6;\n \t\t\tISOM_DECREASE_SIZE_NO_ERR(ptr, prop_size)\n \t\t\t//add 2 extra bytes for UTF16 case string dump\n-\t\t\tdata2 = gf_malloc(sizeof(char) * (prop_size+2));\n-\t\t\tgf_bs_read_data(bs, data2, prop_size);\n-\t\t\tdata2[prop_size] = 0;\n-\t\t\tdata2[prop_size+1] = 0;\n+\t\t\t            data2 = gf_malloc(sizeof(char) * (prop_size+3));\n+            gf_bs_read_data(bs, data2, prop_size);\n+            data2[prop_size] = 0;\n+            data2[prop_size+1] = 0;\n+            data2[prop_size+2] = 0;\n \t\t\ttag_size-=prop_size;\n \t\t} else {\n \t\t\tprop_size = 0;\n"
+  },
+  "gpac.cve-2021-40575": {
+    "instance_id": "gpac.cve-2021-40575",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/filters/reframe_mpgvid.c b/src/filters/reframe_mpgvid.c\nindex 328db28..78d8a62 100644\n--- a/src/filters/reframe_mpgvid.c\n+++ b/src/filters/reframe_mpgvid.c\n@@ -639,10 +639,12 @@ GF_Err mpgviddmx_process(GF_Filter *filter)\n \t\tBool copy_last_bytes = GF_FALSE;\n \n \t\t//not enough bytes to parse start code\n-\t\tif (remain<5) {\n-\t\t\tmemcpy(ctx->hdr_store, start, remain);\n-\t\t\tctx->bytes_in_header = remain;\n-\t\t\tbreak;\n+\t\t        if (remain < 5) {\n+            if (remain > 0) {\n+                memcpy(ctx->hdr_store, start, remain);\n+                ctx->bytes_in_header = remain;\n+            }\n+            break;\n \t\t}\n \t\tcurrent = -1;\n \n"
+  },
+  "gpac.cve-2022-2453": {
+    "instance_id": "gpac.cve-2022-2453",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2018-10199": {
+    "instance_id": "mruby.cve-2018-10199",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/mrbgems/mruby-io/src/io.c b/mrbgems/mruby-io/src/io.c\nindex 58bcdd1..6ace9e1 100644\n--- a/mrbgems/mruby-io/src/io.c\n+++ b/mrbgems/mruby-io/src/io.c\n@@ -561,13 +561,13 @@ mrb_io_initialize_copy(mrb_state *mrb, mrb_value copy)\n   mrb_bool failed = TRUE;\n \n   mrb_get_args(mrb, \"o\", &orig);\n+  fptr_orig = io_get_open_fptr(mrb, orig);\n   fptr_copy = (struct mrb_io *)DATA_PTR(copy);\n   if (fptr_copy != NULL) {\n     fptr_finalize(mrb, fptr_copy, FALSE);\n     mrb_free(mrb, fptr_copy);\n   }\n   fptr_copy = (struct mrb_io *)mrb_io_alloc(mrb);\n-  fptr_orig = io_get_open_fptr(mrb, orig);\n \n   DATA_TYPE(copy) = &mrb_io_type;\n   DATA_PTR(copy) = fptr_copy;\n"
+  },
+  "gpac.cve-2023-0358": {
+    "instance_id": "gpac.cve-2023-0358",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/odf/descriptors.c b/src/odf/descriptors.c\nindex 0d42ff2..f5afeb5 100644\n--- a/src/odf/descriptors.c\n+++ b/src/odf/descriptors.c\n@@ -1396,14 +1396,17 @@ GF_VVCConfig *gf_odf_vvc_cfg_read_bs(GF_BitStream *bs)\n \t\t\tbreak;\n \t\tdefault:\n \t\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_CODING, (\"[VVC] Invalid NALU type in vvcC - ignoring\\n\", ar->nalus));\n-\t\t\tgf_free(ar);\n-\t\t\tbreak;\n-\t\t}\n+\t\t\t            valid = GF_FALSE;\n+            gf_free(ar);\n+            break;\n+        }\n+\n+        if (!valid) continue;\n \n-\t\tif ((ar->type != GF_VVC_NALU_DEC_PARAM) && (ar->type != GF_VVC_NALU_OPI))\n-\t\t\tnalucount = gf_bs_read_int(bs, 16);\n-\t\telse\n-\t\t\tnalucount = 1;\n+        if ((ar->type != GF_VVC_NALU_DEC_PARAM) && (ar->type != GF_VVC_NALU_OPI))\n+            nalucount = gf_bs_read_int(bs, 16);\n+        else\n+            nalucount = 1;\n \t\t\t\n \t\tfor (j=0; j<nalucount; j++) {\n \t\t\tGF_NALUFFParam *sl;\n"
+  },
+  "gpac.cve-2023-48014": {
+    "instance_id": "gpac.cve-2023-48014",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/media_tools/av_parsers.c b/src/media_tools/av_parsers.c\nindex 8a37040..065a8a0 100644\n--- a/src/media_tools/av_parsers.c\n+++ b/src/media_tools/av_parsers.c\n@@ -7732,7 +7732,12 @@ static Bool hevc_parse_vps_extension(HEVC_VPS *vps, GF_BitStream *bs)\n \t\t\t\t\tdim_bit_offset[i] += dimension_id_len[j];\n \t\t\t}\n \t\t\tdimension_id_len[num_scalability_types - 1] = 1 + (5 - dim_bit_offset[num_scalability_types - 1]);\n-\t\t\tdim_bit_offset[num_scalability_types] = 6;\n+\t\t\tif (num_scalability_types < 16) {\n+\t\t\t\tdim_bit_offset[num_scalability_types] = 6;\n+\t\t\t} else {\n+\t\t\t\tGF_LOG(GF_LOG_ERROR, GF_LOG_CODING, (\"[HEVC] num_scalability_types exceeds bounds: %d\\n\", num_scalability_types));\n+\t\t\t\treturn GF_FALSE;\n+\t\t\t}\n \t\t}\n \t}\n \n"
+  },
+  "mruby.cve-2018-11743": {
+    "instance_id": "mruby.cve-2018-11743",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "gpac.cve-2023-4682": {
+    "instance_id": "gpac.cve-2023-4682",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "gpac.cve-2024-0322": {
+    "instance_id": "gpac.cve-2024-0322",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "njs.cve-2022-31306": {
+    "instance_id": "njs.cve-2022-31306",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/njs_array.c b/src/njs_array.c\nindex 81a7c15..f1032bd 100644\n--- a/src/njs_array.c\n+++ b/src/njs_array.c\n@@ -147,22 +147,24 @@ njs_array_convert_to_slow_array(njs_vm_t *vm, njs_array_t *array)\n \n     length = array->length;\n \n-    for (i = 0; i < length; i++) {\n-        if (njs_is_valid(&array->start[i])) {\n-            njs_uint32_to_string(&index, i);\n-            prop = njs_object_property_add(vm, &value, &index, 0);\n-            if (njs_slow_path(prop == NULL)) {\n-                return NJS_ERROR;\n-            }\n+    if (array->start != NULL) {\n+        for (i = 0; i < length; i++) {\n+            if (njs_is_valid(&array->start[i])) {\n+                njs_uint32_to_string(&index, i);\n+                prop = njs_object_property_add(vm, &value, &index, 0);\n+                if (njs_slow_path(prop == NULL)) {\n+                    return NJS_ERROR;\n+                }\n \n-            prop->value = array->start[i];\n+                prop->value = array->start[i];\n+            }\n         }\n-    }\n \n-    /* GC: release value. */\n+        /* GC: release value. */\n \n-    njs_mp_free(vm->mem_pool, array->start);\n-    array->start = NULL;\n+        njs_mp_free(vm->mem_pool, array->start);\n+        array->start = NULL;\n+    }\n \n     return NJS_OK;\n }\n"
+  },
+  "faad2.cve-2018-20359": {
+    "instance_id": "faad2.cve-2018-20359",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2018-12248": {
+    "instance_id": "mruby.cve-2018-12248",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 3ebdea3..75569a1 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1790,6 +1790,7 @@ RETRY_TRY_BLOCK:\n       mrb_value *argv = regs+1;\n       mrb_value *argv0 = argv;\n       int len = m1 + o + r + m2;\n+      if (argc > len) argc = len; /* restrict argc to available (len) */\n       mrb_value *blk = &argv[argc < 0 ? 1 : argc];\n \n       if (argc < 0) {\n@@ -1813,12 +1814,16 @@ RETRY_TRY_BLOCK:\n       }\n       if (argc < len) {\n         int mlen = m2;\n-        if (argc < m1+m2) {\n+        /* calculate the maximum length to move */\n+        if (argc < m1 + m2) {\n           if (m1 < argc)\n             mlen = argc - m1;\n           else\n             mlen = 0;\n         }\n+        if (mrb->c->ci->nregs < len + 2) {\n+          mrb_stack_extend(mrb, len + 2);\n+        }\n         regs[len+1] = *blk; /* move block */\n         SET_NIL_VALUE(regs[argc+1]);\n         if (argv0 != argv) {\n@@ -1836,7 +1841,7 @@ RETRY_TRY_BLOCK:\n         if (r) {\n           regs[m1+o+1] = mrb_ary_new_capa(mrb, 0);\n         }\n-        if (o == 0 || argc < m1+m2) pc++;\n+        if (o == 0 || argc < m1 + m2) pc++;\n         else\n           pc += argc - m1 - m2 + 1;\n       }\n"
+  },
+  "gpac.cve-2024-0321": {
+    "instance_id": "gpac.cve-2024-0321",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/filters/load_text.c b/src/filters/load_text.c\nindex 6373398..60fa803 100644\n--- a/src/filters/load_text.c\n+++ b/src/filters/load_text.c\n@@ -378,7 +378,8 @@ char *gf_text_get_utf8_line(char *szLine, u32 lineSize, FILE *txt_in, s32 unicod\n \t\t\tj = GF_ARRAY_LENGTH(szLineConv) -1 ;\n \t\t}\n \t\tszLineConv[j] = 0;\n-\t\tstrcpy(szLine, szLineConv);\n+\t\t        strncpy(szLine, szLineConv, lineSize - 1);\n+        szLine[lineSize - 1] = '\u0000'; // Ensure null-termination\n \t\treturn sOK;\n \t}\n \n@@ -402,7 +403,8 @@ char *gf_text_get_utf8_line(char *szLine, u32 lineSize, FILE *txt_in, s32 unicod\n \ti = gf_utf8_wcstombs(szLineConv, 2048, (const unsigned short **) &sptr);\n \tif (i == GF_UTF8_FAIL) i = 0;\n \tszLineConv[i] = 0;\n-\tstrcpy(szLine, szLineConv);\n+\t        strncpy(szLine, szLineConv, lineSize - 1);\n+        szLine[lineSize - 1] = '\u0000'; // Ensure null-termination\n \t/*this is ugly indeed: since input is UTF16-LE, there are many chances the gf_fgets never reads the \\0 after a \\n*/\n \tif (unicode_type==3) gf_fgetc(txt_in);\n \treturn sOK;\n"
+  },
+  "faad2.cve-2018-20358": {
+    "instance_id": "faad2.cve-2018-20358",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "faad2.cve-2018-20194": {
+    "instance_id": "faad2.cve-2018-20194",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..a541d6b 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -1339,11 +1339,13 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n #endif\n                 adj->Q_M_lim_boost[l][m] = sqrt(Q_M_lim[m] * G_boost);\n \n-                if (S_M[m] != 0)\n-                {\n-                    adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n-                } else {\n-                    adj->S_M_boost[l][m] = 0;\n+                if (l < MAX_L_E && m < MAX_M) {\n+                    if (S_M[m] != 0)\n+                    {\n+                        adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n+                    } else {\n+                        adj->S_M_boost[l][m] = 0;\n+                    }\n                 }\n             }\n         }\n"
+  },
+  "faad2.cve-2018-20195": {
+    "instance_id": "faad2.cve-2018-20195",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "libiec61850.cve-2021-45769": {
+    "instance_id": "libiec61850.cve-2021-45769",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/mms/iso_acse/acse.c b/src/mms/iso_acse/acse.c\nindex 60b0f53..bd1bfce 100644\n--- a/src/mms/iso_acse/acse.c\n+++ b/src/mms/iso_acse/acse.c\n@@ -422,6 +422,12 @@ AcseConnection_parseMessage(AcseConnection* self, ByteBuffer* message)\n \n     uint8_t* buffer = message->buffer;\n \n+    if (buffer == NULL) {\n+        if (DEBUG_ACSE)\n+            printf(\"ACSE: AcseConnection_parseMessage: buffer is NULL!\\n\");\n+        return ACSE_ERROR;\n+    }\n+\n     int messageSize = message->size;\n \n     int bufPos = 0;\n"
+  },
+  "njs.cve-2023-27727": {
+    "instance_id": "njs.cve-2023-27727",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "njs.cve-2021-46462": {
+    "instance_id": "njs.cve-2021-46462",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "libredwg.cve-2020-21834": {
+    "instance_id": "libredwg.cve-2020-21834",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/programs/dwgbmp.c b/programs/dwgbmp.c\nindex 51e7002..20df49b 100644\n--- a/programs/dwgbmp.c\n+++ b/programs/dwgbmp.c\n@@ -124,7 +124,7 @@ get_bmp (char *dwgfile, char *bmpfile)\n       bmp_free_dwg (&dwg);\n       return 0;\n     }\n-  if (size < 1)\n+  if (size < 1 || size > 10485760) // Ensure size is within a reasonable range\n     {\n       fprintf (stderr, \"Empty thumbnail data in %s\\n\", dwgfile);\n       bmp_free_dwg (&dwg);\n"
+  },
+  "njs.cve-2022-34029": {
+    "instance_id": "njs.cve-2022-34029",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "imagemagick.cve-2018-5247": {
+    "instance_id": "imagemagick.cve-2018-5247",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/coders/rla.c b/coders/rla.c\nindex 548fec3..b833087 100644\n--- a/coders/rla.c\n+++ b/coders/rla.c\n@@ -286,8 +286,10 @@ static Image *ReadRLAImage(const ImageInfo *image_info,ExceptionInfo *exception)\n   for (y=0; y < (ssize_t) image->rows; y++)\n   {\n     offset=SeekBlob(image,scanlines[image->rows-y-1],SEEK_SET);\n-    if (offset < 0)\n+    if (offset < 0) {\n+      scanlines=(MagickOffsetType *) RelinquishMagickMemory(scanlines);\n       ThrowReaderException(CorruptImageError,\"ImproperImageHeader\");\n+    }\n     for (channel=0; channel < (int) rla_info.number_channels; channel++)\n     {\n       length=ReadBlobMSBSignedShort(image);\n"
+  },
+  "gpac.cve-2023-48013": {
+    "instance_id": "gpac.cve-2023-48013",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "libredwg.cve-2021-28236": {
+    "instance_id": "libredwg.cve-2021-28236",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/out_dxfb.c b/src/out_dxfb.c\nindex a4006b6..f0b1f60 100644\n--- a/src/out_dxfb.c\n+++ b/src/out_dxfb.c\n@@ -1838,8 +1838,10 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n   SINCE (R_9c1)\n   {\n     Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_VPORT_CONTROL);\n-    Dwg_Object_VPORT_CONTROL *_ctrl = ctrl->tio.object->tio.VPORT_CONTROL;\n+    Dwg_Object_VPORT_CONTROL *_ctrl = NULL;\n     if (ctrl && ctrl->fixedtype == DWG_TYPE_VPORT_CONTROL)\n+      _ctrl = ctrl->tio.object->tio.VPORT_CONTROL;\n+    if (_ctrl)\n       {\n         Dwg_Object *obj = ctrl;\n         TABLE (VPORT);\n@@ -1869,8 +1871,10 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n   }\n   {\n     Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_LTYPE_CONTROL);\n-    Dwg_Object_LTYPE_CONTROL *_ctrl = ctrl->tio.object->tio.LTYPE_CONTROL;\n+    Dwg_Object_LTYPE_CONTROL *_ctrl = NULL;\n     if (ctrl && ctrl->fixedtype == DWG_TYPE_LTYPE_CONTROL)\n+      _ctrl = ctrl->tio.object->tio.LTYPE_CONTROL;\n+    if (_ctrl)\n       {\n         Dwg_Object *obj = ctrl;\n         TABLE (LTYPE);\n@@ -1899,8 +1903,10 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n   }\n   {\n     Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_LAYER_CONTROL);\n-    Dwg_Object_LAYER_CONTROL *_ctrl = ctrl->tio.object->tio.LAYER_CONTROL;\n+    Dwg_Object_LAYER_CONTROL *_ctrl = NULL;\n     if (ctrl && ctrl->fixedtype == DWG_TYPE_LAYER_CONTROL)\n+      _ctrl = ctrl->tio.object->tio.LAYER_CONTROL;\n+    if (_ctrl)\n       {\n         Dwg_Object *obj = ctrl;\n         TABLE (LAYER);\n@@ -1921,8 +1927,10 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n   }\n   {\n     Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_STYLE_CONTROL);\n-    Dwg_Object_STYLE_CONTROL *_ctrl = ctrl->tio.object->tio.STYLE_CONTROL;\n+    Dwg_Object_STYLE_CONTROL *_ctrl = NULL;\n     if (ctrl && ctrl->fixedtype == DWG_TYPE_STYLE_CONTROL)\n+      _ctrl = ctrl->tio.object->tio.STYLE_CONTROL;\n+    if (_ctrl)\n       {\n         Dwg_Object *obj = ctrl;\n         TABLE (STYLE);\n@@ -1941,8 +1949,10 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n   }\n   {\n     Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_VIEW_CONTROL);\n-    Dwg_Object_VIEW_CONTROL *_ctrl = ctrl->tio.object->tio.VIEW_CONTROL;\n+    Dwg_Object_VIEW_CONTROL *_ctrl = NULL;\n     if (ctrl && ctrl->fixedtype == DWG_TYPE_VIEW_CONTROL)\n+      _ctrl = ctrl->tio.object->tio.VIEW_CONTROL;\n+    if (_ctrl)\n       {\n         Dwg_Object *obj = ctrl;\n         TABLE (VIEW);\n"
+  },
+  "mruby.cve-2022-0631": {
+    "instance_id": "mruby.cve-2022-0631",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 9cb5084..8abbb9b 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -692,7 +692,11 @@ mrb_f_send(mrb_state *mrb, mrb_value self)\n     mrb_argnum_error(mrb, 0, 1, -1);\n   }\n   else if (n == 15) {\n-    name = mrb_obj_to_sym(mrb, RARRAY_PTR(regs[0])[0]);\n+    if (RARRAY_LEN(regs[0]) > 0) {\n+      name = mrb_obj_to_sym(mrb, RARRAY_PTR(regs[0])[0]);\n+    } else {\n+      mrb_raise(mrb, E_ARGUMENT_ERROR, \"no method name given\");\n+    }\n   }\n   else {\n     name = mrb_obj_to_sym(mrb, regs[0]);\n@@ -708,7 +712,11 @@ mrb_f_send(mrb_state *mrb, mrb_value self)\n   ci->u.target_class = c;\n   /* remove first symbol from arguments */\n   if (n == 15) {     /* variable length arguments */\n-    regs[0] = mrb_ary_subseq(mrb, regs[0], 1, RARRAY_LEN(regs[0]) - 1);\n+    if (RARRAY_LEN(regs[0]) > 1) {\n+      regs[0] = mrb_ary_subseq(mrb, regs[0], 1, RARRAY_LEN(regs[0]) - 1);\n+    } else {\n+      regs[0] = mrb_ary_new(mrb);\n+    }\n   }\n   else { /* n > 0 */\n     for (int i=0; i<n; i++) {\n"
+  },
+  "gpac.cve-2021-40566": {
+    "instance_id": "gpac.cve-2021-40566",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "libredwg.cve-2020-6614": {
+    "instance_id": "libredwg.cve-2020-6614",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/decode.c b/src/decode.c\nindex 205056a..9f02c99 100644\n--- a/src/decode.c\n+++ b/src/decode.c\n@@ -2050,7 +2050,7 @@ read_R2004_section_info (Bit_Chain *restrict dat, Dwg_Data *restrict dwg,\n       uint64_t sum_decomp = 0;\n       uint64_t prev_address = 0;\n \n-      if (ptr + 64 >= decomp_end)\n+      if (ptr + (32 + 64) > decomp_end)\n         {\n           free (decomp);\n           dwg->header.section_infohdr.num_desc = i;\n@@ -2073,7 +2073,7 @@ read_R2004_section_info (Bit_Chain *restrict dat, Dwg_Data *restrict dwg,\n                  info->encrypted)\n       LOG_TRACE (\"name:            %s\\n\\n\", info->name)\n \n-      if (ptr + (16 * info->num_sections) >= decomp_end)\n+      if (ptr + (16 * info->num_sections) > decomp_end)\n         {\n           info->name[0] = '\\0';\n           info->num_sections = 0;\n"
+  },
+  "gpac.cve-2023-3291": {
+    "instance_id": "gpac.cve-2023-3291",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/filters/reframe_mp3.c b/src/filters/reframe_mp3.c\nindex e81dd17..9204d31 100644\n--- a/src/filters/reframe_mp3.c\n+++ b/src/filters/reframe_mp3.c\n@@ -265,14 +265,14 @@ void id3dmx_flush(GF_Filter *filter, u8 *id3_buf, u32 id3_buf_size, GF_FilterPid\n \t\t\tbreak;\n \t\t}\n \n-\t\tif (buf_alloc<=fsize) {\n-\t\t\t_buf = gf_realloc(_buf, fsize+3);\n-\t\t\tbuf_alloc = fsize+3;\n-\t\t}\n-\t\t//read into _buf+1 so that buf+1 is always %2 mem aligned as it can be loaded as unsigned short\n-\t\tgf_bs_read_data(bs, _buf+1, fsize);\n-\t\t_buf[fsize+1]=0;\n-\t\t_buf[fsize+2]=0;\n+\t\t        if (buf_alloc <= fsize + 2) {\n+            _buf = gf_realloc(_buf, fsize + 3);\n+            buf_alloc = fsize + 3;\n+        }\n+        //read into _buf+1 so that buf+1 is always %2 mem aligned as it can be loaded as unsigned short\n+        gf_bs_read_data(bs, _buf + 1, fsize);\n+        _buf[fsize + 1] = 0;\n+        _buf[fsize + 2] = 0;\n \t\tbuf = _buf+1;\n \n \t\ttag_idx = gf_itags_find_by_id3tag(ftag);\n"
+  },
+  "imagemagick.cve-2018-5248": {
+    "instance_id": "imagemagick.cve-2018-5248",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "njs.cve-2022-28049": {
+    "instance_id": "njs.cve-2022-28049",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/njs_vmcode.c b/src/njs_vmcode.c\nindex ef0beb5..c5b5be0 100644\n--- a/src/njs_vmcode.c\n+++ b/src/njs_vmcode.c\n@@ -1051,7 +1051,7 @@ njs_vmcode_array(njs_vm_t *vm, u_char *pc)\n \n     array = njs_array_alloc(vm, 0, code->length, NJS_ARRAY_SPARE);\n \n-    if (njs_fast_path(array != NULL)) {\n+    if (njs_fast_path(array != NULL && array->start != NULL)) {\n \n         if (code->ctor) {\n             /* Array of the form [,,,], [1,,]. */\n"
+  },
+  "gpac.cve-2023-0760": {
+    "instance_id": "gpac.cve-2023-0760",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/isomedia/box_code_base.c b/src/isomedia/box_code_base.c\nindex baf07ff..3b460f6 100644\n--- a/src/isomedia/box_code_base.c\n+++ b/src/isomedia/box_code_base.c\n@@ -10245,13 +10245,18 @@ GF_Err sgpd_box_read(GF_Box *s, GF_BitStream *bs)\n \t}\n \tentry_count = gf_bs_read_u32(bs);\n \n-\tif (entry_count>p->size)\n-\t\treturn GF_ISOM_INVALID_FILE;\n-\n-\twhile (entry_count) {\n-\t\tvoid *ptr;\n-\t\tu32 parsed_bytes=0;\n-\t\tu32 size = p->default_length;\n+\t    if (entry_count > (p->size / sizeof(void *)))\n+        return GF_ISOM_INVALID_FILE;\n+\n+    while (entry_count) {\n+        void *ptr;\n+        u32 parsed_bytes = 0;\n+        u32 size = p->default_length;\n+\n+        // Prevent potential heap overflow\n+        if (size > p->size) {\n+            return GF_ISOM_INVALID_FILE;\n+        }\n \t\tif ((p->version>=1) && !size) {\n \t\t\tsize = gf_bs_read_u32(bs);\n \t\t\tISOM_DECREASE_SIZE(p, 4);\n"
+  },
+  "imagemagick.cve-2019-13309": {
+    "instance_id": "imagemagick.cve-2019-13309",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "faad2.cve-2018-20198": {
+    "instance_id": "faad2.cve-2018-20198",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "gpac.cve-2023-0866": {
+    "instance_id": "gpac.cve-2023-0866",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "njs.cve-2022-29369": {
+    "instance_id": "njs.cve-2022-29369",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "libredwg.cve-2021-28237": {
+    "instance_id": "libredwg.cve-2021-28237",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/decode.c b/src/decode.c\nindex 281df66..4a29154 100644\n--- a/src/decode.c\n+++ b/src/decode.c\n@@ -324,8 +324,16 @@ decode_preR13_section (Dwg_Section_Type_r11 id, Bit_Chain *restrict dat,\n                  tbl->name, id);\n       return DWG_ERR_INVALIDDWG;\n     }\n-  if (dwg->num_objects % REFS_PER_REALLOC == 0)\n-    dwg->object = (Dwg_Object*)realloc (dwg->object, old_size + size + REFS_PER_REALLOC);\n+  if (size > old_size || dwg->num_objects % REFS_PER_REALLOC == 0)\n+    {\n+      Dwg_Object* new_objects = (Dwg_Object*)realloc (dwg->object, old_size + size + REFS_PER_REALLOC);\n+      if (!new_objects)\n+        {\n+          LOG_ERROR (\"Out of memory during object reallocation\");\n+          return DWG_ERR_OUTOFMEM;\n+        }\n+      dwg->object = new_objects;\n+    }\n \n     // TODO: move to a spec dwg_r11.spec, and dwg_decode_r11_NAME\n #define PREP_TABLE(token)                                                     \\\n@@ -467,6 +475,11 @@ decode_preR13_section (Dwg_Section_Type_r11 id, Bit_Chain *restrict dat,\n     case SECTION_UCS:\n       for (i = 0; i < tbl->number; i++)\n         {\n+          if (num + i >= tbl->number)\n+          {\n+            LOG_ERROR (\"Object index out of bounds\");\n+            return DWG_ERR_INVALIDDWG;\n+          }\n           PREP_TABLE (UCS);\n \n           FIELD_RC (flag, 70);\n"
+  },
+  "njs.cve-2022-31307": {
+    "instance_id": "njs.cve-2022-31307",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/njs_string.c b/src/njs_string.c\nindex d1ae09e..559b98e 100644\n--- a/src/njs_string.c\n+++ b/src/njs_string.c\n@@ -2532,7 +2532,12 @@ njs_string_offset(const u_char *start, const u_char *end, size_t index)\n             njs_string_offset_map_init(start, end - start);\n         }\n \n-        start += map[index / NJS_STRING_MAP_STRIDE - 1];\n+        size_t map_size = (end - start) / NJS_STRING_MAP_STRIDE;\n+        if (index / NJS_STRING_MAP_STRIDE - 1 < map_size) {\n+            start += map[index / NJS_STRING_MAP_STRIDE - 1];\n+        } else {\n+            return end;  // Return end to indicate an invalid offset.\n+        }\n     }\n \n     for (skip = index % NJS_STRING_MAP_STRIDE; skip != 0; skip--) {\n"
+  },
+  "libredwg.cve-2020-21816": {
+    "instance_id": "libredwg.cve-2020-21816",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0623": {
+    "instance_id": "mruby.cve-2022-0623",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/hash.c b/src/hash.c\nindex fc6b6fa..65b39c9 100644\n--- a/src/hash.c\n+++ b/src/hash.c\n@@ -1239,6 +1239,9 @@ mrb_hash_fetch(mrb_state *mrb, mrb_value hash, mrb_value key, mrb_value def)\n MRB_API void\n mrb_hash_set(mrb_state *mrb, mrb_value hash, mrb_value key, mrb_value val)\n {\n+  if (!mrb_hash_p(hash)) {\n+    mrb_raise(mrb, E_TYPE_ERROR, \"expected Hash\");\n+  }\n   hash_modify(mrb, hash);\n   key = h_key_for(mrb, key);\n   h_set(mrb, mrb_hash_ptr(hash), key, val);\n"
+  },
+  "libarchive.cve-2019-11463": {
+    "instance_id": "libarchive.cve-2019-11463",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c\nindex 677c437..f59ac55 100644\n--- a/libarchive/archive_read_support_format_zip.c\n+++ b/libarchive/archive_read_support_format_zip.c\n@@ -849,6 +849,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,\n \tif ((p = __archive_read_ahead(a, 30, NULL)) == NULL) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated ZIP file header\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -888,6 +889,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,\n \tif ((h = __archive_read_ahead(a, filename_length, NULL)) == NULL) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated ZIP file header\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \tif (zip_entry->zip_flags & ZIP_UTF8_NAME) {\n@@ -925,6 +927,7 @@ zip_read_local_file_header(struct archive_read *a, struct archive_entry *entry,\n \tif ((h = __archive_read_ahead(a, extra_length, NULL)) == NULL) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated ZIP file header\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1410,6 +1413,7 @@ zipx_xz_init(struct archive_read *a, struct zip *zip)\n \t\t    \"xz initialization failed(%d)\",\n \t\t    r);\n \n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \n@@ -1457,6 +1461,7 @@ zipx_lzma_alone_init(struct archive_read *a, struct zip *zip)\n \t\tarchive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC,\n \t\t    \"lzma initialization failed(%d)\", r);\n \n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \n@@ -1505,12 +1510,14 @@ zipx_lzma_alone_init(struct archive_read *a, struct zip *zip)\n \tif((p = __archive_read_ahead(a, 9, NULL)) == NULL) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated lzma data\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n \tif(p[2] != 0x05 || p[3] != 0x00) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Invalid lzma data\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1582,6 +1589,7 @@ zip_read_data_zipx_xz(struct archive_read *a, const void **buff,\n \tif (bytes_avail < 0) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated xz file body\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1673,6 +1681,7 @@ zip_read_data_zipx_lzma_alone(struct archive_read *a, const void **buff,\n \tif (bytes_avail < 0) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated lzma file body\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1705,7 +1714,8 @@ zip_read_data_zipx_lzma_alone(struct archive_read *a, const void **buff,\n \t\tdefault:\n \t\t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,\n \t\t\t    \"lzma unknown error %d\", (int) lz_ret);\n-\t\t\treturn (ARCHIVE_FATAL);\n+\t\t\tlzma_end(&zip->zipx_lzma_stream);\n+\t\treturn (ARCHIVE_FATAL);\n \t}\n \n \tto_consume = zip->zipx_lzma_stream.total_in;\n@@ -1774,6 +1784,7 @@ zipx_ppmd8_init(struct archive_read *a, struct zip *zip)\n \tif(!p) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated file data in PPMd8 stream\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \t__archive_read_consume(a, 2);\n@@ -1788,6 +1799,7 @@ zipx_ppmd8_init(struct archive_read *a, struct zip *zip)\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Invalid parameter set in PPMd8 stream (order=%d, \"\n \t\t    \"restore=%d)\", order, restore_method);\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \n@@ -1796,6 +1808,7 @@ zipx_ppmd8_init(struct archive_read *a, struct zip *zip)\n \t\tarchive_set_error(&a->archive, ENOMEM,\n \t\t    \"Unable to allocate memory for PPMd8 stream: %d bytes\",\n \t\t    mem << 20);\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1807,6 +1820,7 @@ zipx_ppmd8_init(struct archive_read *a, struct zip *zip)\n \tif(!__archive_ppmd8_functions.Ppmd8_RangeDec_Init(&zip->ppmd8)) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,\n \t\t    \"PPMd8 stream range decoder initialization error\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1862,6 +1876,7 @@ zip_read_data_zipx_ppmd(struct archive_read *a, const void **buff,\n \tif(bytes_avail < 0) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated PPMd8 file body\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1980,6 +1995,7 @@ zip_read_data_zipx_bzip2(struct archive_read *a, const void **buff,\n \tif(bytes_avail < 0) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated bzip2 file body\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1991,6 +2007,7 @@ zip_read_data_zipx_bzip2(struct archive_read *a, const void **buff,\n \n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated bzip2 file body\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -2125,6 +2142,7 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,\n \tif (bytes_avail < 0) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated ZIP file body\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -2201,6 +2219,7 @@ zip_read_data_deflate(struct archive_read *a, const void **buff,\n \tdefault:\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,\n \t\t    \"ZIP decompression failed (%d)\", r);\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -2286,6 +2305,7 @@ read_decryption_header(struct archive_read *a)\n \t\t    ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Unsupported encryption format version: %u\",\n \t\t    archive_le16dec(p+4));\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \n@@ -2311,6 +2331,7 @@ read_decryption_header(struct archive_read *a)\n \t\tarchive_set_error(&a->archive,\n \t\t    ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Unknown encryption algorithm: %u\", zip->alg_id);\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \n@@ -2332,6 +2353,7 @@ read_decryption_header(struct archive_read *a)\n \t\tarchive_set_error(&a->archive,\n \t\t    ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Unknown encryption flag: %u\", zip->flags);\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \tif ((zip->flags & 0xf000) == 0 ||\n@@ -2339,6 +2361,7 @@ read_decryption_header(struct archive_read *a)\n \t\tarchive_set_error(&a->archive,\n \t\t    ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Unknown encryption flag: %u\", zip->flags);\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \n@@ -2472,6 +2495,7 @@ init_traditional_PKWARE_decryption(struct archive_read *a)\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated Zip encrypted body: only %jd bytes available\",\n \t\t    (intmax_t)zip->entry_bytes_remaining);\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -2479,6 +2503,7 @@ init_traditional_PKWARE_decryption(struct archive_read *a)\n \tif (p == NULL) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated ZIP file data\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -2585,6 +2610,7 @@ init_WinZip_AES_decryption(struct archive_read *a)\n \tif (r != 0) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,\n \t\t    \"Decryption is unsupported due to lack of crypto library\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \tr = archive_hmac_sha1_init(&zip->hctx, derived_key + key_len, key_len);\n@@ -2592,6 +2618,7 @@ init_WinZip_AES_decryption(struct archive_read *a)\n \t\tarchive_decrypto_aes_ctr_release(&zip->cctx);\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,\n \t\t    \"Failed to initialize HMAC-SHA1\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FAILED);\n \t}\n \tzip->cctx_valid = zip->hctx_valid = 1;\n@@ -3113,6 +3140,7 @@ archive_read_support_format_zip_streamable(struct archive *_a)\n \tif (zip == NULL) {\n \t\tarchive_set_error(&a->archive, ENOMEM,\n \t\t    \"Can't allocate zip data\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -3672,6 +3700,7 @@ zip_read_mac_metadata(struct archive_read *a, struct archive_entry *entry,\n \tif (metadata == NULL) {\n \t\tarchive_set_error(&a->archive, ENOMEM,\n \t\t    \"Can't allocate memory for Mac metadata\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -3877,6 +3906,7 @@ archive_read_support_format_zip_seekable(struct archive *_a)\n \tif (zip == NULL) {\n \t\tarchive_set_error(&a->archive, ENOMEM,\n \t\t    \"Can't allocate zip data\");\n+\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n"
+  },
+  "gpac.cve-2023-46930": {
+    "instance_id": "gpac.cve-2023-46930",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": "diff --git a/src/isomedia/media_odf.c b/src/isomedia/media_odf.c\nindex 76ecf9d..fc83259 100644\n--- a/src/isomedia/media_odf.c\n+++ b/src/isomedia/media_odf.c\n@@ -519,7 +519,9 @@ u32 gf_isom_find_od_id_for_track(GF_ISOFile *file, u32 track)\n \twhile ( (od_tk = (GF_TrackBox*)gf_list_enum(file->moov->trackList, &i))) {\n \t\tif (od_tk->Media->handler->handlerType != GF_ISOM_MEDIA_OD) continue;\n \n-\t\tfor (j=0; j<od_tk->Media->information->sampleTable->SampleSize->sampleCount; j++) {\n+\t\tGF_SampleSizeBox *sampleSize = od_tk->Media->information->sampleTable->SampleSize;\n+\tif (!sampleSize) continue;\n+\tfor (j=0; j<sampleSize->sampleCount; j++) {\n \t\t\tGF_ISOSample *samp = gf_isom_get_sample(file, i, j+1, &di);\n \t\t\tthe_od_id = Media_FindOD_ID(od_tk->Media, samp, tk->Header->trackID);\n \t\t\tgf_isom_sample_del(&samp);\n"
+  },
+  "wabt.cve-2022-43282": {
+    "instance_id": "wabt.cve-2022-43282",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "libredwg.cve-2020-6615": {
+    "instance_id": "libredwg.cve-2020-6615",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  },
+  "njs.cve-2022-29779": {
+    "instance_id": "njs.cve-2022-29779",
+    "model_name_or_path": "VulnResolver-GPT-4o",
+    "model_patch": null
+  }
+}

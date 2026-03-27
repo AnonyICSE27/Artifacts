@@ -1,0 +1,402 @@
+{
+  "gpac.cve-2023-4721": {
+    "instance_id": "gpac.cve-2023-4721",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/media_tools/mpeg2_ps.c b/src/media_tools/mpeg2_ps.c\nindex 0af7a31..acf6157 100644\n--- a/src/media_tools/mpeg2_ps.c\n+++ b/src/media_tools/mpeg2_ps.c\n@@ -266,11 +266,16 @@ int MPEG12_ParseSeqHdr(unsigned char *pbuffer, u32 buflen, s32 *have_mpeg2, u32\n \tu32 scode, ix;\n \ts32 found = -1;\n \t*have_mpeg2 = 0;\n+\tif (buflen < 6) {\n+\t    return -1;\n+\t}\n \tbuflen -= 6;\n \tbitrate_int = 0;\n \tfor (ix = 0; ix < buflen; ix++, pbuffer++) {\n-\t\tscode = ((u32)pbuffer[0] << 24) | (pbuffer[1] << 16) | (pbuffer[2] << 8) |\n-\t\t        pbuffer[3];\n+\t\tif (ix + 4 > buflen) {\n+\t\t    break;\n+\t\t}\n+\t\tscode = ((u32)pbuffer[0] << 24) | (pbuffer[1] << 16) | (pbuffer[2] << 8) | pbuffer[3];\n \n \t\tif (scode == MPEG12_SEQUENCE_START_CODE) {\n \t\t\tpbuffer += sizeof(u32);\n"
+  },
+  "njs.cve-2022-32414": {
+    "instance_id": "njs.cve-2022-32414",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "libsndfile.cve-2018-19432": {
+    "instance_id": "libsndfile.cve-2018-19432",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/programs/sndfile-deinterleave.c b/programs/sndfile-deinterleave.c\nindex e27593e..9b2f608 100644\n--- a/programs/sndfile-deinterleave.c\n+++ b/programs/sndfile-deinterleave.c\n@@ -161,6 +161,10 @@ static void\n deinterleave_int (STATE * state)\n {\tint read_len ;\n \tint ch, k ;\n+\tif (state->channels > MAX_CHANNELS) {\n+\t\tfprintf(stderr, \"Error: state->channels (%d) exceeds MAX_CHANNELS (%d)\\n\", state->channels, MAX_CHANNELS);\n+\t\texit(1);\n+\t}\n \n \tdo\n \t{\tread_len = sf_readf_int (state->infile, state->din.i, BUFFER_LEN) ;\n"
+  },
+  "faad2.cve-2018-20362": {
+    "instance_id": "faad2.cve-2018-20362",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/libfaad/filtbank.c b/libfaad/filtbank.c\nindex 1b1464b..1a3547a 100644\n--- a/libfaad/filtbank.c\n+++ b/libfaad/filtbank.c\n@@ -271,6 +271,10 @@ void ifilter_bank(fb_info *fb, uint8_t window_sequence, uint8_t window_shape,\n         faad_imdct(fb->mdct256, freq_in+7*nshort, transf_buf+2*nshort*7);\n \n         /* add second half output of previous frame to windowed output of current frame */\n+        if (!overlap) {\n+            memset(time_out, 0, nlong * sizeof(real_t));\n+            return;\n+        }\n         for (i = 0; i < nflat_ls; i++)\n             time_out[i] = overlap[i];\n         for(i = 0; i < nshort; i++)\n"
+  },
+  "openjpeg.cve-2016-7445": {
+    "instance_id": "openjpeg.cve-2016-7445",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/bin/jp2/convert.c b/src/bin/jp2/convert.c\nindex c130b3b..0e2f8a9 100644\n--- a/src/bin/jp2/convert.c\n+++ b/src/bin/jp2/convert.c\n@@ -1478,12 +1478,14 @@ static void read_pnm_header(FILE *reader, struct pnm_header *ph)\n             return;\n         } /* if(format == 7) */\n \n-        if( !have_wh)\n+                if( !have_wh)\n         {\n             s = skip_int(s, &ph->width);\n-\n+            if(s == NULL || *s == '\u0000') return;\n+            \n             s = skip_int(s, &ph->height);\n-\n+            if(s == NULL || *s == '\u0000') return;\n+            \n             have_wh = 1;\n \n             if(format == 1 || format == 4) break;\n"
+  },
+  "exiv2.cve-2018-19607": {
+    "instance_id": "exiv2.cve-2018-19607",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/easyaccess.cpp b/src/easyaccess.cpp\nindex 1eed30c..ab5d9d4 100644\n--- a/src/easyaccess.cpp\n+++ b/src/easyaccess.cpp\n@@ -175,7 +175,7 @@ namespace Exiv2 {\n                     md = md_st;\n                     break;\n                 }\n-                while (strcmp(sensKeys->keys[idx++], md_st->key().c_str()) != 0 && idx < cnt) {}\n+                while (strcmp(sensKeys->keys[idx++], md_st->key().c_str()) != 0 && idx < sensKeys->count) {}\n             }\n             break;\n         }\n"
+  },
+  "mruby.cve-2022-0614": {
+    "instance_id": "mruby.cve-2022-0614",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/hash.c b/src/hash.c\nindex fc6b6fa..9ef86c2 100644\n--- a/src/hash.c\n+++ b/src/hash.c\n@@ -1151,7 +1151,11 @@ static mrb_value mrb_hash_default(mrb_state *mrb, mrb_value hash);\n static void\n hash_modify(mrb_state *mrb, mrb_value hash)\n {\n-  mrb_check_frozen(mrb, mrb_hash_ptr(hash));\n+  void *hp = mrb_hash_ptr(hash);\n+  if (!hp || ((uintptr_t)hp) <= 0xFFF) {\n+    mrb_raise(mrb, E_RUNTIME_ERROR, \"Invalid hash pointer in hash_modify\");\n+  }\n+  mrb_check_frozen(mrb, hp);\n }\n \n static mrb_value\n"
+  },
+  "gpac.cve-2023-0770": {
+    "instance_id": "gpac.cve-2023-0770",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "faad2.cve-2018-20197": {
+    "instance_id": "faad2.cve-2018-20197",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..d68baa8 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -1326,7 +1326,7 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             G_boost = (acc1 + EPS) / (den + EPS);\n             G_boost = min(G_boost, 2.51188643 /* 1.584893192 ^ 2 */);\n \n-            for (m = ml1; m < ml2; m++)\n+                        for (m = ml1; m < ml2 && m < sbr->N_L[sbr->bs_limiter_bands]; m++)\n             {\n                 /* apply compensation to gain, noise floor sf's and sinusoid levels */\n #ifndef SBR_LOW_POWER\n@@ -1338,7 +1338,6 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n                 adj->G_lim_boost[l][m] = G_lim[m] * G_boost;\n #endif\n                 adj->Q_M_lim_boost[l][m] = sqrt(Q_M_lim[m] * G_boost);\n-\n                 if (S_M[m] != 0)\n                 {\n                     adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n"
+  },
+  "faad2.cve-2018-20357": {
+    "instance_id": "faad2.cve-2018-20357",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/libfaad/sbr_dec.c b/libfaad/sbr_dec.c\nindex 0705ddd..b6c4ccc 100644\n--- a/libfaad/sbr_dec.c\n+++ b/libfaad/sbr_dec.c\n@@ -418,7 +418,7 @@ static uint8_t sbr_process_channel(sbr_info *sbr, real_t *channel_buf, qmf_t X[M\n                 QMF_RE(X[l][k]) = QMF_RE(sbr->Xsbr[ch][l + sbr->tHFAdj][k]);\n                 QMF_IM(X[l][k]) = QMF_IM(sbr->Xsbr[ch][l + sbr->tHFAdj][k]);\n             }\n-            for (k = max(kx_band + bsco_band, kx_band + M_band); k < 64; k++)\n+                        for (k = max(kx_band + bsco_band, kx_band + M_band); k < 64; k++)\n             {\n                 QMF_RE(X[l][k]) = 0;\n                 QMF_IM(X[l][k]) = 0;\ndiff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..7f8b0f8 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -1326,7 +1326,7 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             G_boost = (acc1 + EPS) / (den + EPS);\n             G_boost = min(G_boost, 2.51188643 /* 1.584893192 ^ 2 */);\n \n-            for (m = ml1; m < ml2; m++)\n+                        for (m = ml1; m < ml2 && m < (sizeof(adj->S_M_boost[0]) / sizeof(adj->S_M_boost[0][0])); m++)\n             {\n                 /* apply compensation to gain, noise floor sf's and sinusoid levels */\n #ifndef SBR_LOW_POWER\n@@ -1338,7 +1338,7 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n                 adj->G_lim_boost[l][m] = G_lim[m] * G_boost;\n #endif\n                 adj->Q_M_lim_boost[l][m] = sqrt(Q_M_lim[m] * G_boost);\n-\n+    \n                 if (S_M[m] != 0)\n                 {\n                     adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n"
+  },
+  "mruby.cve-2022-1427": {
+    "instance_id": "mruby.cve-2022-1427",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/object.c b/src/object.c\nindex d03bfcf..84271da 100644\n--- a/src/object.c\n+++ b/src/object.c\n@@ -463,8 +463,11 @@ mrb_any_to_s(mrb_state *mrb, mrb_value obj)\n MRB_API mrb_bool\n mrb_obj_is_kind_of(mrb_state *mrb, mrb_value obj, struct RClass *c)\n {\n-  struct RClass *cl = mrb_class(mrb, obj);\n-\n+    struct RClass *cl = mrb_class(mrb, obj);\n+  if (c == NULL) {\n+    mrb_raise(mrb, E_TYPE_ERROR, \"class or module required\");\n+  }\n+  \n   switch (c->tt) {\n     case MRB_TT_MODULE:\n     case MRB_TT_CLASS:\n"
+  },
+  "mruby.cve-2022-0240": {
+    "instance_id": "mruby.cve-2022-0240",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/class.c b/src/class.c\nindex ec9c648..0e49d8d 100644\n--- a/src/class.c\n+++ b/src/class.c\n@@ -357,6 +357,9 @@ prepare_singleton_class(mrb_state *mrb, struct RBasic *o)\n {\n   struct RClass *sc, *c;\n \n+  if (!o->c) {\n+    o->c = mrb->object_class;\n+  }\n   if (o->c->tt == MRB_TT_SCLASS) return;\n   sc = MRB_OBJ_ALLOC(mrb, MRB_TT_SCLASS, mrb->class_class);\n   sc->flags |= MRB_FL_CLASS_IS_INHERITED;\n"
+  },
+  "faad2.cve-2021-32272": {
+    "instance_id": "faad2.cve-2021-32272",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/frontend/mp4read.c b/frontend/mp4read.c\nindex 1414684..7cd7f9e 100644\n--- a/frontend/mp4read.c\n+++ b/frontend/mp4read.c\n@@ -344,7 +344,10 @@ static int stszin(int size)\n     u32in();\n     // Number of entries\n     mp4config.frame.ents = u32in();\n-    // fixme: check atom size\n+    // Check for a reasonable number of entries to prevent integer overflow and excessive allocation.\n+    if (mp4config.frame.ents > 100000 || mp4config.frame.ents > (UINT32_MAX / sizeof(*mp4config.frame.data)) - 1) {\n+        return ERR_FAIL;\n+    }\n     mp4config.frame.data = malloc(sizeof(*mp4config.frame.data)\n                                   * (mp4config.frame.ents + 1));\n \n"
+  },
+  "gpac.cve-2023-48011": {
+    "instance_id": "gpac.cve-2023-48011",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "mruby.cve-2022-1201": {
+    "instance_id": "mruby.cve-2022-1201",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 77edbb3..0b090be 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1746,10 +1746,15 @@ RETRY_TRY_BLOCK:\n       }\n       if (target_class->flags & MRB_FL_CLASS_IS_PREPENDED) {\n         target_class = mrb_vm_ci_target_class(ci);\n+        if (!target_class) {\n+          mrb_value exc = mrb_exc_new_lit(mrb, E_NOMETHOD_ERROR, \"no target class available (prepended)\");\n+          mrb_exc_set(mrb, exc);\n+          goto L_RAISE;\n+        }\n       }\n       else if (target_class->tt == MRB_TT_MODULE) {\n         target_class = mrb_vm_ci_target_class(ci);\n-        if (target_class->tt != MRB_TT_ICLASS) {\n+        if (!target_class || target_class->tt != MRB_TT_ICLASS) {\n           goto super_typeerror;\n         }\n       }\n"
+  },
+  "libdwarf.cve-2022-32200": {
+    "instance_id": "libdwarf.cve-2022-32200",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/lib/libdwarf/dwarf_elfread.c b/src/lib/libdwarf/dwarf_elfread.c\nindex 46b0941..4726762 100644\n--- a/src/lib/libdwarf/dwarf_elfread.c\n+++ b/src/lib/libdwarf/dwarf_elfread.c\n@@ -241,6 +241,19 @@ elf_load_nolibelf_section (void *obj, Dwarf_Half section_index,\n             return res;\n         }\n         *return_data = (Dwarf_Small *)sp->gh_content;\n+        /* Ensure the section content is null terminated */\n+        if (sp->gh_size > 0 && ((Dwarf_Small *)sp->gh_content)[sp->gh_size - 1] != 0) {\n+            Dwarf_Small *tmp = realloc(sp->gh_content, sp->gh_size + 1);\n+            if (tmp == NULL) {\n+                free(sp->gh_content);\n+                sp->gh_content = 0;\n+                *error = DW_DLE_ALLOC_FAIL;\n+                return DW_DLV_ERROR;\n+            }\n+            sp->gh_content = tmp;\n+            ((Dwarf_Small *)sp->gh_content)[sp->gh_size] = 0;\n+            *return_data = (Dwarf_Small *)sp->gh_content;\n+        }\n         return DW_DLV_OK;\n     }\n     return DW_DLV_NO_ENTRY;\n"
+  },
+  "njs.cve-2023-27728": {
+    "instance_id": "njs.cve-2023-27728",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/njs_value.c b/src/njs_value.c\nindex ff885fe..b1798fc 100644\n--- a/src/njs_value.c\n+++ b/src/njs_value.c\n@@ -240,8 +240,7 @@ njs_value_own_enumerate(njs_vm_t *vm, njs_value_t *value,\n     if (njs_is_object(value)) {\n         slots = njs_object_slots(value);\n         if (slots == NULL || slots->keys == NULL) {\n-            return njs_object_own_enumerate(vm, njs_object(value), kind, type,\n-                                            all);\n+            return njs_array_alloc(vm, 1, 0, NJS_ARRAY_SPARE);\n         }\n \n         ret = slots->keys(vm, value, &keys);\n"
+  },
+  "libarchive.cve-2017-14503": {
+    "instance_id": "libarchive.cve-2017-14503",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/libarchive/archive_read_support_format_lha.c b/libarchive/archive_read_support_format_lha.c\nindex b8ef4ae..5f5f258 100644\n--- a/libarchive/archive_read_support_format_lha.c\n+++ b/libarchive/archive_read_support_format_lha.c\n@@ -1706,6 +1706,8 @@ lha_crc16(uint16_t crc, const void *pp, size_t len)\n \t\tcrc = (crc >> 8) ^ crc16tbl[0][(crc ^ *p++) & 0xff];\n \t\tlen--;\n \t}\n+\tif (len & 1)\n+\t\tlen--;\n \tbuff = (const uint16_t *)p;\n \t/*\n \t * Modern C compiler such as GCC does not unroll automatically yet\n"
+  },
+  "gpac.cve-2022-1795": {
+    "instance_id": "gpac.cve-2022-1795",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "mruby.cve-2018-12247": {
+    "instance_id": "mruby.cve-2018-12247",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "imagemagick.cve-2021-3962": {
+    "instance_id": "imagemagick.cve-2021-3962",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2023-5586": {
+    "instance_id": "gpac.cve-2023-5586",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2023-46929": {
+    "instance_id": "gpac.cve-2023-46929",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2023-5998": {
+    "instance_id": "gpac.cve-2023-5998",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/filters/reframe_mpgvid.c b/src/filters/reframe_mpgvid.c\nindex 8e092f9..14bc640 100644\n--- a/src/filters/reframe_mpgvid.c\n+++ b/src/filters/reframe_mpgvid.c\n@@ -1163,6 +1163,10 @@ GF_Err mpgviddmx_process(GF_Filter *filter)\n \t\t\tif (byte_offset != GF_FILTER_NO_BO) {\n \t\t\t\tgf_filter_pck_set_byte_offset(dst_pck, byte_offset - bytes_from_store);\n \t\t\t}\n+\t\t\t// Ensure we do not copy more than the allocated buffer (avoid off-by-one error)\n+\t\t\tif (size > 0) {\n+\t\t\t\tsize--;\n+\t\t\t}\n \t\t\tmemcpy(pck_data + bytes_from_store, start, (size_t) size);\n \t\t} else {\n \t\t\t//bytes only come the data packet\n"
+  },
+  "njs.cve-2022-38890": {
+    "instance_id": "njs.cve-2022-38890",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/njs_utf8.h b/src/njs_utf8.h\nindex 26c23db..48e7242 100644\n--- a/src/njs_utf8.h\n+++ b/src/njs_utf8.h\n@@ -49,20 +49,20 @@ njs_utf8_next(const u_char *p, const u_char *end)\n {\n     u_char  c;\n \n+    if (p >= end) {\n+        return end;\n+    }\n+\n     c = *p++;\n \n     if ((c & 0x80) != 0) {\n-\n-        do {\n+        while (p < end) {\n             c = *p;\n-\n             if ((c & 0xC0) != 0x80) {\n                 return p;\n             }\n-\n             p++;\n-\n-        } while (p < end);\n+        }\n     }\n \n     return p;\n"
+  },
+  "gpac.cve-2023-0841": {
+    "instance_id": "gpac.cve-2023-0841",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/filters/reframe_mp3.c b/src/filters/reframe_mp3.c\nindex 096e0ce..8fa032e 100644\n--- a/src/filters/reframe_mp3.c\n+++ b/src/filters/reframe_mp3.c\n@@ -672,6 +672,10 @@ GF_Err mp3_dmx_process(GF_Filter *filter)\n \t\t\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_MEDIA, (\"[MP3Dmx] truncated frame of size %u (remains %u)\\n\", size, remain));\n \t\t\t\tbreak;\n \t\t\t}\n+\t\t\tif (((sync - ctx->mp3_buffer) + size) > ctx->mp3_buffer_size) {\n+\t\t\t\tGF_LOG(GF_LOG_WARNING, GF_LOG_MEDIA, (\"[MP3Dmx] buffer overread: sync offset=%zu, requested=%u, buffer_size=%u\\n\", (size_t)(sync - ctx->mp3_buffer), size, ctx->mp3_buffer_size));\n+\t\t\t\tbreak;\n+\t\t\t}\n \t\t\tdst_pck = gf_filter_pck_new_alloc(ctx->opid, size, &output);\n \t\t\tif (!dst_pck) break;\n \t\t\tmemcpy(output, sync, size);\n"
+  },
+  "gpac.cve-2022-2454": {
+    "instance_id": "gpac.cve-2022-2454",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/laser/lsr_dec.c b/src/laser/lsr_dec.c\nindex 99d16aa..779bc11 100644\n--- a/src/laser/lsr_dec.c\n+++ b/src/laser/lsr_dec.c\n@@ -838,6 +838,9 @@ static void lsr_read_id(GF_LASeRCodec *lsr, GF_Node *n)\n \n static Fixed lsr_translate_coords(GF_LASeRCodec *lsr, u32 val, u32 nb_bits)\n {\n+    if (nb_bits == 0) {\n+        return gf_divfix(INT2FIX(val), lsr->res_factor);\n+    }\n #ifdef GPAC_FIXED_POINT\n \tif (val >> (nb_bits-1) ) {\n \t\ts32 neg = (s32) val - (1<<nb_bits);\n"
+  },
+  "libredwg.cve-2022-45332": {
+    "instance_id": "libredwg.cve-2022-45332",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0717": {
+    "instance_id": "mruby.cve-2022-0717",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2021-32438": {
+    "instance_id": "gpac.cve-2021-32438",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/media_tools/media_export.c b/src/media_tools/media_export.c\nindex b89936f..38cc27d 100644\n--- a/src/media_tools/media_export.c\n+++ b/src/media_tools/media_export.c\n@@ -1109,18 +1109,20 @@ static GF_Err gf_media_export_filters(GF_MediaExporter *dumper)\n \t\tesd = gf_media_map_esd(dumper->file, track_num, 0);\n \t\tsample_count = gf_isom_get_sample_count(dumper->file, dumper->trackID);\n \t\tif (esd) {\n-\t\t\tif (esd->decoderConfig->objectTypeIndication<GF_CODECID_LAST_MPEG4_MAPPING) {\n-\t\t\t\tcodec_id = gf_codecid_from_oti(esd->decoderConfig->streamType, esd->decoderConfig->objectTypeIndication);\n+\t\t\tif (esd->decoderConfig) {\n+\t\t\t\tif (esd->decoderConfig->objectTypeIndication < GF_CODECID_LAST_MPEG4_MAPPING) {\n+\t\t\t\t\tcodec_id = gf_codecid_from_oti(esd->decoderConfig->streamType, esd->decoderConfig->objectTypeIndication);\n #ifndef GPAC_DISABLE_AV_PARSERS\n-\t\t\t\tif (esd->decoderConfig->decoderSpecificInfo && (codec_id==GF_CODECID_AAC_MPEG4)) {\n-\t\t\t\t\tGF_M4ADecSpecInfo acfg;\n-\t\t\t\t\tgf_m4a_get_config(esd->decoderConfig->decoderSpecificInfo->data, esd->decoderConfig->decoderSpecificInfo->dataLength, &acfg);\n-\t\t\t\t\tif (acfg.base_object_type == GF_M4A_USAC)\n-\t\t\t\t\t\tcodec_id = GF_CODECID_USAC;\n-\t\t\t\t}\n+\t\t\t\t\tif (esd->decoderConfig->decoderSpecificInfo && (codec_id==GF_CODECID_AAC_MPEG4)) {\n+\t\t\t\t\t\tGF_M4ADecSpecInfo acfg;\n+\t\t\t\t\t\tgf_m4a_get_config(esd->decoderConfig->decoderSpecificInfo->data, esd->decoderConfig->decoderSpecificInfo->dataLength, &acfg);\n+\t\t\t\t\t\tif (acfg.base_object_type == GF_M4A_USAC)\n+\t\t\t\t\t\t\tcodec_id = GF_CODECID_USAC;\n+\t\t\t\t\t}\n #endif\n-\t\t\t} else {\n-\t\t\t\tcodec_id = esd->decoderConfig->objectTypeIndication;\n+\t\t\t\t} else {\n+\t\t\t\t\tcodec_id = esd->decoderConfig->objectTypeIndication;\n+\t\t\t\t}\n \t\t\t}\n \t\t}\n \t\tif (!codec_id) {\n"
+  },
+  "faad2.cve-2018-20361": {
+    "instance_id": "faad2.cve-2018-20361",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "faad2.cve-2018-20196": {
+    "instance_id": "faad2.cve-2018-20196",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2023-3012": {
+    "instance_id": "gpac.cve-2023-3012",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/utils/xml_parser.c b/src/utils/xml_parser.c\nindex 49df338..94c79a8 100644\n--- a/src/utils/xml_parser.c\n+++ b/src/utils/xml_parser.c\n@@ -967,6 +967,7 @@ exit:\n \n static GF_Err xml_sax_append_string(GF_SAXParser *parser, char *string)\n {\n+\tif (!string) return GF_OK;\n \tu32 size = parser->line_size;\n \tu32 nl_size = (u32) strlen(string);\n \n"
+  },
+  "gpac.cve-2023-4679": {
+    "instance_id": "gpac.cve-2023-4679",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "mruby.cve-2022-1934": {
+    "instance_id": "mruby.cve-2022-1934",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex b04c9d7..9f4d6a2 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -1163,9 +1163,14 @@ static mrb_value\n hash_new_from_values(mrb_state *mrb, mrb_int argc, mrb_value *regs)\n {\n   mrb_value hash = mrb_hash_new_capa(mrb, argc);\n-  while (argc--) {\n-    mrb_hash_set(mrb, hash, regs[0], regs[1]);\n-    regs += 2;\n+  if (argc > 0) {\n+    mrb_int total = argc * 2;\n+    mrb_value *tmp_regs = (mrb_value *)mrb_malloc(mrb, sizeof(mrb_value) * total);\n+    memcpy(tmp_regs, regs, sizeof(mrb_value) * total);\n+    for (mrb_int i = 0; i < total; i += 2) {\n+      mrb_hash_set(mrb, hash, tmp_regs[i], tmp_regs[i+1]);\n+    }\n+    mrb_free(mrb, tmp_regs);\n   }\n   return hash;\n }\n"
+  },
+  "openjpeg.cve-2024-56827": {
+    "instance_id": "openjpeg.cve-2024-56827",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2022-3178": {
+    "instance_id": "gpac.cve-2022-3178",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/isomedia/box_code_base.c b/src/isomedia/box_code_base.c\nindex 3cf6b3b..59e5e3c 100644\n--- a/src/isomedia/box_code_base.c\n+++ b/src/isomedia/box_code_base.c\n@@ -12886,11 +12886,12 @@ GF_Err xtra_box_read(GF_Box *s, GF_BitStream *bs)\n \t\t\tprop_type = gf_bs_read_u16(bs);\n \t\t\tprop_size -= 6;\n \t\t\tISOM_DECREASE_SIZE_NO_ERR(ptr, prop_size)\n-\t\t\t//add 2 extra bytes for UTF16 case string dump\n-\t\t\tdata2 = gf_malloc(sizeof(char) * (prop_size+2));\n+\t\t\t//add 2 extra bytes for UTF16 case string dump (plus one extra byte for safety)\n+\t\t\tdata2 = gf_malloc(sizeof(char) * (prop_size+3));\n \t\t\tgf_bs_read_data(bs, data2, prop_size);\n \t\t\tdata2[prop_size] = 0;\n \t\t\tdata2[prop_size+1] = 0;\n+\t\t\tdata2[prop_size+2] = 0;\n \t\t\ttag_size-=prop_size;\n \t\t} else {\n \t\t\tprop_size = 0;\n"
+  },
+  "gpac.cve-2021-40575": {
+    "instance_id": "gpac.cve-2021-40575",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2022-2453": {
+    "instance_id": "gpac.cve-2022-2453",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "mruby.cve-2018-10199": {
+    "instance_id": "mruby.cve-2018-10199",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/mrbgems/mruby-io/src/io.c b/mrbgems/mruby-io/src/io.c\nindex 58bcdd1..6ace9e1 100644\n--- a/mrbgems/mruby-io/src/io.c\n+++ b/mrbgems/mruby-io/src/io.c\n@@ -561,13 +561,13 @@ mrb_io_initialize_copy(mrb_state *mrb, mrb_value copy)\n   mrb_bool failed = TRUE;\n \n   mrb_get_args(mrb, \"o\", &orig);\n+  fptr_orig = io_get_open_fptr(mrb, orig);\n   fptr_copy = (struct mrb_io *)DATA_PTR(copy);\n   if (fptr_copy != NULL) {\n     fptr_finalize(mrb, fptr_copy, FALSE);\n     mrb_free(mrb, fptr_copy);\n   }\n   fptr_copy = (struct mrb_io *)mrb_io_alloc(mrb);\n-  fptr_orig = io_get_open_fptr(mrb, orig);\n \n   DATA_TYPE(copy) = &mrb_io_type;\n   DATA_PTR(copy) = fptr_copy;\n"
+  },
+  "gpac.cve-2023-0358": {
+    "instance_id": "gpac.cve-2023-0358",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2023-48014": {
+    "instance_id": "gpac.cve-2023-48014",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/media_tools/av_parsers.c b/src/media_tools/av_parsers.c\nindex 8a37040..9b086ff 100644\n--- a/src/media_tools/av_parsers.c\n+++ b/src/media_tools/av_parsers.c\n@@ -7717,7 +7717,10 @@ static Bool hevc_parse_vps_extension(HEVC_VPS *vps, GF_BitStream *bs)\n \t\tnum_scalability_types += vps->scalability_mask[i];\n \t}\n \tif (num_scalability_types >= 16) {\n-\t\tnum_scalability_types = 16;\n+\t    if (splitting_flag)\n+\t\t    num_scalability_types = 15;\n+\t    else\n+\t\t    num_scalability_types = 16;\n \t}\n \tdimension_id_len[0] = 0;\n \tif (num_scalability_types) {\n"
+  },
+  "mruby.cve-2018-11743": {
+    "instance_id": "mruby.cve-2018-11743",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2023-4682": {
+    "instance_id": "gpac.cve-2023-4682",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2024-0322": {
+    "instance_id": "gpac.cve-2024-0322",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/filters/reframe_ac3.c b/src/filters/reframe_ac3.c\nindex 7b6452e..e80454c 100644\n--- a/src/filters/reframe_ac3.c\n+++ b/src/filters/reframe_ac3.c\n@@ -394,8 +394,9 @@ restart:\n \t\t\t}\n \t\t}\n \n-\t\tif (ctx->ac3_buffer_size + pck_size > ctx->ac3_buffer_alloc) {\n-\t\t\tctx->ac3_buffer_alloc = ctx->ac3_buffer_size + pck_size;\n+\t\t// Ensure that the allocated buffer has additional space for the complete AC3 frame.\n+\t\tif (ctx->ac3_buffer_size + pck_size + ctx->hdr.framesize > ctx->ac3_buffer_alloc) {\n+\t\t\tctx->ac3_buffer_alloc = ctx->ac3_buffer_size + pck_size + ctx->hdr.framesize;\n \t\t\tctx->ac3_buffer = gf_realloc(ctx->ac3_buffer, ctx->ac3_buffer_alloc);\n \t\t}\n \t\tmemcpy(ctx->ac3_buffer + ctx->ac3_buffer_size, data, pck_size);\n"
+  },
+  "njs.cve-2022-31306": {
+    "instance_id": "njs.cve-2022-31306",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/njs_array.c b/src/njs_array.c\nindex 81a7c15..8d4091b 100644\n--- a/src/njs_array.c\n+++ b/src/njs_array.c\n@@ -142,9 +142,11 @@ njs_array_convert_to_slow_array(njs_vm_t *vm, njs_array_t *array)\n     njs_value_t        index, value;\n     njs_object_prop_t  *prop;\n \n-    njs_set_array(&value, array);\n+        njs_set_array(&value, array);\n     array->object.fast_array = 0;\n-\n+    if (array->start == NULL) {\n+        return NJS_OK;\n+    }\n     length = array->length;\n \n     for (i = 0; i < length; i++) {\n"
+  },
+  "faad2.cve-2018-20359": {
+    "instance_id": "faad2.cve-2018-20359",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..eab9419 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -1326,7 +1326,7 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             G_boost = (acc1 + EPS) / (den + EPS);\n             G_boost = min(G_boost, 2.51188643 /* 1.584893192 ^ 2 */);\n \n-            for (m = ml1; m < ml2; m++)\n+            for (m = ml1; (m < ml2) && (m < MAX_M); m++)\n             {\n                 /* apply compensation to gain, noise floor sf's and sinusoid levels */\n #ifndef SBR_LOW_POWER\n"
+  },
+  "mruby.cve-2018-12248": {
+    "instance_id": "mruby.cve-2018-12248",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/mrbgems/mruby-fiber/src/fiber.c b/mrbgems/mruby-fiber/src/fiber.c\nindex 83153a9..e4adc16 100644\n--- a/mrbgems/mruby-fiber/src/fiber.c\n+++ b/mrbgems/mruby-fiber/src/fiber.c\n@@ -90,10 +90,7 @@ fiber_init(mrb_state *mrb, mrb_value self)\n   f->cxt = c;\n \n   /* initialize VM stack */\n-  slen = FIBER_STACK_INIT_SIZE;\n-  if (p->body.irep->nregs > slen) {\n-    slen += p->body.irep->nregs;\n-  }\n+  slen = (FIBER_STACK_INIT_SIZE > p->body.irep->nlocals ? FIBER_STACK_INIT_SIZE : p->body.irep->nlocals) + 1;\n   c->stbase = (mrb_value *)mrb_malloc(mrb, slen*sizeof(mrb_value));\n   c->stend = c->stbase + slen;\n   c->stack = c->stbase;\n"
+  },
+  "gpac.cve-2024-0321": {
+    "instance_id": "gpac.cve-2024-0321",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/filters/load_text.c b/src/filters/load_text.c\nindex 6373398..829995b 100644\n--- a/src/filters/load_text.c\n+++ b/src/filters/load_text.c\n@@ -375,10 +375,15 @@ char *gf_text_get_utf8_line(char *szLine, u32 lineSize, FILE *txt_in, s32 unicod\n \t\t}\n \t\tif ( j >= GF_ARRAY_LENGTH(szLineConv) ) {\n \t\t\tGF_LOG(GF_LOG_DEBUG, GF_LOG_PARSER, (\"[TXTIn] Line too long to convert to utf8 (len: %d)\\n\", len));\n-\t\t\tj = GF_ARRAY_LENGTH(szLineConv) -1 ;\n+\t\t\tj = GF_ARRAY_LENGTH(szLineConv) - 1;\n \t\t}\n \t\tszLineConv[j] = 0;\n-\t\tstrcpy(szLine, szLineConv);\n+\t\tif ( strlen(szLineConv) + 1 > lineSize ) {\n+\t\t\tmemcpy(szLine, szLineConv, lineSize - 1);\n+\t\t\tszLine[lineSize - 1] = '\\0';\n+\t\t} else {\n+\t\t\tstrcpy(szLine, szLineConv);\n+\t\t}\n \t\treturn sOK;\n \t}\n \n@@ -402,7 +407,12 @@ char *gf_text_get_utf8_line(char *szLine, u32 lineSize, FILE *txt_in, s32 unicod\n \ti = gf_utf8_wcstombs(szLineConv, 2048, (const unsigned short **) &sptr);\n \tif (i == GF_UTF8_FAIL) i = 0;\n \tszLineConv[i] = 0;\n-\tstrcpy(szLine, szLineConv);\n+\tif ( strlen(szLineConv) + 1 > lineSize ) {\n+\t\tmemcpy(szLine, szLineConv, lineSize - 1);\n+\t\tszLine[lineSize - 1] = '\\0';\n+\t} else {\n+\t\tstrcpy(szLine, szLineConv);\n+\t}\n \t/*this is ugly indeed: since input is UTF16-LE, there are many chances the gf_fgets never reads the \\0 after a \\n*/\n \tif (unicode_type==3) gf_fgetc(txt_in);\n \treturn sOK;\n"
+  },
+  "faad2.cve-2018-20358": {
+    "instance_id": "faad2.cve-2018-20358",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "faad2.cve-2018-20194": {
+    "instance_id": "faad2.cve-2018-20194",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/libfaad/sbr_hfadj.c b/libfaad/sbr_hfadj.c\nindex 3f310b8..78c5f01 100644\n--- a/libfaad/sbr_hfadj.c\n+++ b/libfaad/sbr_hfadj.c\n@@ -1326,24 +1326,25 @@ static void calculate_gain(sbr_info *sbr, sbr_hfadj_info *adj, uint8_t ch)\n             G_boost = (acc1 + EPS) / (den + EPS);\n             G_boost = min(G_boost, 2.51188643 /* 1.584893192 ^ 2 */);\n \n-            for (m = ml1; m < ml2; m++)\n-            {\n-                /* apply compensation to gain, noise floor sf's and sinusoid levels */\n+                        {\n+                uint8_t n, count = ml2 - ml1;\n+                if (count > MAX_M)\n+                    count = MAX_M;\n+                for (n = 0; n < count; n++)\n+                {\n #ifndef SBR_LOW_POWER\n-                adj->G_lim_boost[l][m] = sqrt(G_lim[m] * G_boost);\n+                    adj->G_lim_boost[l][n] = sqrt(G_lim[n] * G_boost);\n #else\n-                /* sqrt() will be done after the aliasing reduction to save a\n-                 * few multiplies\n-                 */\n-                adj->G_lim_boost[l][m] = G_lim[m] * G_boost;\n+                    adj->G_lim_boost[l][n] = G_lim[n] * G_boost;\n #endif\n-                adj->Q_M_lim_boost[l][m] = sqrt(Q_M_lim[m] * G_boost);\n-\n-                if (S_M[m] != 0)\n-                {\n-                    adj->S_M_boost[l][m] = sqrt(S_M[m] * G_boost);\n-                } else {\n-                    adj->S_M_boost[l][m] = 0;\n+                    adj->Q_M_lim_boost[l][n] = sqrt(Q_M_lim[n] * G_boost);\n+    \n+                    if (S_M[n] != 0)\n+                    {\n+                        adj->S_M_boost[l][n] = sqrt(S_M[n] * G_boost);\n+                    } else {\n+                        adj->S_M_boost[l][n] = 0;\n+                    }\n                 }\n             }\n         }\n"
+  },
+  "faad2.cve-2018-20195": {
+    "instance_id": "faad2.cve-2018-20195",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "libiec61850.cve-2021-45769": {
+    "instance_id": "libiec61850.cve-2021-45769",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/mms/iso_acse/acse.c b/src/mms/iso_acse/acse.c\nindex 60b0f53..a4a6b73 100644\n--- a/src/mms/iso_acse/acse.c\n+++ b/src/mms/iso_acse/acse.c\n@@ -426,6 +426,13 @@ AcseConnection_parseMessage(AcseConnection* self, ByteBuffer* message)\n \n     int bufPos = 0;\n \n+    if (buffer == NULL)\n+    {\n+        if (DEBUG_ACSE)\n+            printf(\"ACSE: AcseConnection_parseMessage: buffer is NULL\\n\");\n+        return ACSE_ERROR;\n+    }\n+\n     uint8_t messageType = buffer[bufPos++];\n \n     int len;\n"
+  },
+  "njs.cve-2023-27727": {
+    "instance_id": "njs.cve-2023-27727",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "njs.cve-2021-46462": {
+    "instance_id": "njs.cve-2021-46462",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/njs_object.c b/src/njs_object.c\nindex ad03bc3..05ccd80 100644\n--- a/src/njs_object.c\n+++ b/src/njs_object.c\n@@ -2128,13 +2128,14 @@ njs_object_set_prototype(njs_vm_t *vm, njs_object_t *object,\n         return NJS_OK;\n     }\n \n-    do {\n+        do {\n         if (proto == object) {\n             return NJS_ERROR;\n         }\n-\n+        if ((uintptr_t) proto >= 0x0000800000000000UL) {\n+            return NJS_ERROR;\n+        }\n         proto = proto->__proto__;\n-\n     } while (proto != NULL);\n \n     object->__proto__ = njs_object(value);\n"
+  },
+  "libredwg.cve-2020-21834": {
+    "instance_id": "libredwg.cve-2020-21834",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/programs/dwgbmp.c b/programs/dwgbmp.c\nindex 51e7002..131706e 100644\n--- a/programs/dwgbmp.c\n+++ b/programs/dwgbmp.c\n@@ -161,6 +161,12 @@ get_bmp (char *dwgfile, char *bmpfile)\n     }\n \n   /* Write data (DIB header + bitmap) */\n+  if (size >= 1073741824) {\n+      fprintf (stderr, \"BMP data size too large: %zu\\n\", size);\n+      bmp_free_dwg (&dwg);\n+      fclose (fh);\n+      return -5;\n+  }\n   retval = fwrite (data, sizeof (char), size, fh);\n   if (!retval)\n     {\n"
+  },
+  "libredwg.cve-2020-6615": {
+    "instance_id": "libredwg.cve-2020-6615",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "njs.cve-2022-34029": {
+    "instance_id": "njs.cve-2022-34029",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "imagemagick.cve-2018-5247": {
+    "instance_id": "imagemagick.cve-2018-5247",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/coders/rla.c b/coders/rla.c\nindex 548fec3..b833087 100644\n--- a/coders/rla.c\n+++ b/coders/rla.c\n@@ -286,8 +286,10 @@ static Image *ReadRLAImage(const ImageInfo *image_info,ExceptionInfo *exception)\n   for (y=0; y < (ssize_t) image->rows; y++)\n   {\n     offset=SeekBlob(image,scanlines[image->rows-y-1],SEEK_SET);\n-    if (offset < 0)\n+    if (offset < 0) {\n+      scanlines=(MagickOffsetType *) RelinquishMagickMemory(scanlines);\n       ThrowReaderException(CorruptImageError,\"ImproperImageHeader\");\n+    }\n     for (channel=0; channel < (int) rla_info.number_channels; channel++)\n     {\n       length=ReadBlobMSBSignedShort(image);\n"
+  },
+  "gpac.cve-2023-48013": {
+    "instance_id": "gpac.cve-2023-48013",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "libredwg.cve-2021-28236": {
+    "instance_id": "libredwg.cve-2021-28236",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/out_dxfb.c b/src/out_dxfb.c\nindex a4006b6..8a39b18 100644\n--- a/src/out_dxfb.c\n+++ b/src/out_dxfb.c\n@@ -1867,11 +1867,11 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n         ENDTAB ();\n       }\n   }\n-  {\n-    Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_LTYPE_CONTROL);\n-    Dwg_Object_LTYPE_CONTROL *_ctrl = ctrl->tio.object->tio.LTYPE_CONTROL;\n-    if (ctrl && ctrl->fixedtype == DWG_TYPE_LTYPE_CONTROL)\n       {\n+      Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_LTYPE_CONTROL);\n+      if (ctrl && ctrl->tio.object && ctrl->tio.object->tio.LTYPE_CONTROL && ctrl->fixedtype == DWG_TYPE_LTYPE_CONTROL)\n+        {\n+          Dwg_Object_LTYPE_CONTROL *_ctrl = ctrl->tio.object->tio.LTYPE_CONTROL;\n         Dwg_Object *obj = ctrl;\n         TABLE (LTYPE);\n         COMMON_TABLE_CONTROL_FLAGS;\n@@ -1897,11 +1897,11 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n         ENDTAB ();\n       }\n   }\n-  {\n-    Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_LAYER_CONTROL);\n-    Dwg_Object_LAYER_CONTROL *_ctrl = ctrl->tio.object->tio.LAYER_CONTROL;\n-    if (ctrl && ctrl->fixedtype == DWG_TYPE_LAYER_CONTROL)\n       {\n+      Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_LAYER_CONTROL);\n+      if (ctrl && ctrl->tio.object && ctrl->tio.object->tio.LAYER_CONTROL && ctrl->fixedtype == DWG_TYPE_LAYER_CONTROL)\n+        {\n+          Dwg_Object_LAYER_CONTROL *_ctrl = ctrl->tio.object->tio.LAYER_CONTROL;\n         Dwg_Object *obj = ctrl;\n         TABLE (LAYER);\n         COMMON_TABLE_CONTROL_FLAGS;\n@@ -1919,11 +1919,11 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n         ENDTAB ();\n       }\n   }\n-  {\n-    Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_STYLE_CONTROL);\n-    Dwg_Object_STYLE_CONTROL *_ctrl = ctrl->tio.object->tio.STYLE_CONTROL;\n-    if (ctrl && ctrl->fixedtype == DWG_TYPE_STYLE_CONTROL)\n       {\n+      Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_STYLE_CONTROL);\n+      if (ctrl && ctrl->tio.object && ctrl->tio.object->tio.STYLE_CONTROL && ctrl->fixedtype == DWG_TYPE_STYLE_CONTROL)\n+        {\n+          Dwg_Object_STYLE_CONTROL *_ctrl = ctrl->tio.object->tio.STYLE_CONTROL;\n         Dwg_Object *obj = ctrl;\n         TABLE (STYLE);\n         COMMON_TABLE_CONTROL_FLAGS;\n@@ -1939,11 +1939,11 @@ dxfb_tables_write (Bit_Chain *restrict dat, Dwg_Data *restrict dwg)\n         ENDTAB ();\n       }\n   }\n-  {\n-    Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_VIEW_CONTROL);\n-    Dwg_Object_VIEW_CONTROL *_ctrl = ctrl->tio.object->tio.VIEW_CONTROL;\n-    if (ctrl && ctrl->fixedtype == DWG_TYPE_VIEW_CONTROL)\n       {\n+      Dwg_Object *ctrl = dwg_get_first_object (dwg, DWG_TYPE_VIEW_CONTROL);\n+      if (ctrl && ctrl->tio.object && ctrl->tio.object->tio.VIEW_CONTROL && ctrl->fixedtype == DWG_TYPE_VIEW_CONTROL)\n+        {\n+          Dwg_Object_VIEW_CONTROL *_ctrl = ctrl->tio.object->tio.VIEW_CONTROL;\n         Dwg_Object *obj = ctrl;\n         TABLE (VIEW);\n         COMMON_TABLE_CONTROL_FLAGS;\n"
+  },
+  "mruby.cve-2022-0631": {
+    "instance_id": "mruby.cve-2022-0631",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/vm.c b/src/vm.c\nindex 9cb5084..ae6eab2 100644\n--- a/src/vm.c\n+++ b/src/vm.c\n@@ -692,6 +692,9 @@ mrb_f_send(mrb_state *mrb, mrb_value self)\n     mrb_argnum_error(mrb, 0, 1, -1);\n   }\n   else if (n == 15) {\n+    if (!mrb_array_p(regs[0]) || RARRAY_LEN(regs[0]) == 0) {\n+      mrb_raise(mrb, E_ARGUMENT_ERROR, \"send: empty array passed\");\n+    }\n     name = mrb_obj_to_sym(mrb, RARRAY_PTR(regs[0])[0]);\n   }\n   else {\n"
+  },
+  "gpac.cve-2021-40566": {
+    "instance_id": "gpac.cve-2021-40566",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "libredwg.cve-2020-6614": {
+    "instance_id": "libredwg.cve-2020-6614",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/decode.c b/src/decode.c\nindex 205056a..35a831a 100644\n--- a/src/decode.c\n+++ b/src/decode.c\n@@ -2050,7 +2050,7 @@ read_R2004_section_info (Bit_Chain *restrict dat, Dwg_Data *restrict dwg,\n       uint64_t sum_decomp = 0;\n       uint64_t prev_address = 0;\n \n-      if (ptr + 64 >= decomp_end)\n+      if (ptr + (32 + 64) > decomp_end)\n         {\n           free (decomp);\n           dwg->header.section_infohdr.num_desc = i;\n"
+  },
+  "gpac.cve-2023-3291": {
+    "instance_id": "gpac.cve-2023-3291",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/filters/reframe_mp3.c b/src/filters/reframe_mp3.c\nindex e81dd17..66f0c00 100644\n--- a/src/filters/reframe_mp3.c\n+++ b/src/filters/reframe_mp3.c\n@@ -265,7 +265,7 @@ void id3dmx_flush(GF_Filter *filter, u8 *id3_buf, u32 id3_buf_size, GF_FilterPid\n \t\t\tbreak;\n \t\t}\n \n-\t\tif (buf_alloc<=fsize) {\n+\t\tif (buf_alloc < fsize+3) {\n \t\t\t_buf = gf_realloc(_buf, fsize+3);\n \t\t\tbuf_alloc = fsize+3;\n \t\t}\n"
+  },
+  "wabt.cve-2022-43282": {
+    "instance_id": "wabt.cve-2022-43282",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/interp/binary-reader-interp.cc b/src/interp/binary-reader-interp.cc\nindex 47a2d25..3edaf42 100644\n--- a/src/interp/binary-reader-interp.cc\n+++ b/src/interp/binary-reader-interp.cc\n@@ -1139,8 +1139,12 @@ Result BinaryReaderInterp::OnReturnCallExpr(Index func_index) {\n \n Result BinaryReaderInterp::OnReturnCallIndirectExpr(Index sig_index,\n                                                     Index table_index) {\n+  if (sig_index >= module_.func_types.size()) {\n+      PrintError(\"Invalid sig_index: %u, module_.func_types.size() = %zu\", sig_index, module_.func_types.size());\n+      return Result::Error;\n+  }\n   FuncType& func_type = module_.func_types[sig_index];\n-\n+  \n   Index drop_count, keep_count, catch_drop_count;\n   // +1 to include the index of the function.\n   CHECK_RESULT(\n"
+  },
+  "imagemagick.cve-2018-5248": {
+    "instance_id": "imagemagick.cve-2018-5248",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "njs.cve-2022-28049": {
+    "instance_id": "njs.cve-2022-28049",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/njs_vmcode.c b/src/njs_vmcode.c\nindex ef0beb5..8e98311 100644\n--- a/src/njs_vmcode.c\n+++ b/src/njs_vmcode.c\n@@ -1053,11 +1053,13 @@ njs_vmcode_array(njs_vm_t *vm, u_char *pc)\n \n     if (njs_fast_path(array != NULL)) {\n \n-        if (code->ctor) {\n+                if (code->ctor) {\n             /* Array of the form [,,,], [1,,]. */\n             value = array->start;\n             length = array->length;\n-\n+            if (njs_slow_path(value == NULL)) {\n+                return NJS_ERROR;\n+            }\n             do {\n                 njs_set_invalid(value);\n                 value++;\n"
+  },
+  "gpac.cve-2023-0760": {
+    "instance_id": "gpac.cve-2023-0760",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/isomedia/box_funcs.c b/src/isomedia/box_funcs.c\nindex 98ff6bb..fe02b74 100644\n--- a/src/isomedia/box_funcs.c\n+++ b/src/isomedia/box_funcs.c\n@@ -1992,16 +1992,19 @@ static GF_Err gf_isom_box_size_listing(GF_Box *a)\n GF_EXPORT\n GF_Err gf_isom_box_size(GF_Box *a)\n {\n-\tGF_Err e;\n-\tif (!a) return GF_BAD_PARAM;\n-\tif (a->registry->disabled) {\n-\t\ta->size = 0;\n-\t\treturn GF_OK;\n-\t}\n-\te = gf_isom_box_size_listing(a);\n-\tif (e) return e;\n-\t//box size set to 0 (not even a header), abort traversal\n-\tif (!a->size) return GF_OK;\n+    GF_Err e;\n+    if (!a) return GF_BAD_PARAM;\n+    if (a->registry->disabled) {\n+        a->size = 0;\n+        return GF_OK;\n+    }\n+    e = gf_isom_box_size_listing(a);\n+    if (e) return e;\n+    if (a->type == GF_ISOM_BOX_TYPE_SGPD && a->size != 48) {\n+        a->size = 48;\n+    }\n+    //box size set to 0 (not even a header), abort traversal\n+    if (!a->size) return GF_OK;\n \n \tif (a->child_boxes) {\n \t\te = gf_isom_box_array_size(a, a->child_boxes);\n"
+  },
+  "imagemagick.cve-2019-13309": {
+    "instance_id": "imagemagick.cve-2019-13309",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "faad2.cve-2018-20198": {
+    "instance_id": "faad2.cve-2018-20198",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "gpac.cve-2023-0866": {
+    "instance_id": "gpac.cve-2023-0866",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/filters/reframe_adts.c b/src/filters/reframe_adts.c\nindex 80c98e5..3420999 100644\n--- a/src/filters/reframe_adts.c\n+++ b/src/filters/reframe_adts.c\n@@ -793,6 +793,10 @@ GF_Err adts_dmx_process(GF_Filter *filter)\n \t\t\tctx->nb_frames = 0;\n \t\t\tgoto drop_byte;\n \t\t}\n+\t\tif (ctx->hdr.frame_size > remain - sync_pos) {\n+\t\t\t// Not enough data in the buffer for a complete frame, wait for next packet\n+\t\t\tbreak;\n+\t\t}\n \n \t\tadts_dmx_check_pid(filter, ctx);\n \n"
+  },
+  "njs.cve-2022-29369": {
+    "instance_id": "njs.cve-2022-29369",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "libredwg.cve-2021-28237": {
+    "instance_id": "libredwg.cve-2021-28237",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/decode.c b/src/decode.c\nindex 281df66..c253bc3 100644\n--- a/src/decode.c\n+++ b/src/decode.c\n@@ -325,7 +325,7 @@ decode_preR13_section (Dwg_Section_Type_r11 id, Bit_Chain *restrict dat,\n       return DWG_ERR_INVALIDDWG;\n     }\n   if (dwg->num_objects % REFS_PER_REALLOC == 0)\n-    dwg->object = (Dwg_Object*)realloc (dwg->object, old_size + size + REFS_PER_REALLOC);\n+    dwg->object = (Dwg_Object*)realloc (dwg->object, (dwg->num_objects + REFS_PER_REALLOC) * sizeof(Dwg_Object));\n \n     // TODO: move to a spec dwg_r11.spec, and dwg_decode_r11_NAME\n #define PREP_TABLE(token)                                                     \\\n"
+  },
+  "njs.cve-2022-31307": {
+    "instance_id": "njs.cve-2022-31307",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/njs_string.c b/src/njs_string.c\nindex d1ae09e..d33e1fe 100644\n--- a/src/njs_string.c\n+++ b/src/njs_string.c\n@@ -2532,11 +2532,24 @@ njs_string_offset(const u_char *start, const u_char *end, size_t index)\n             njs_string_offset_map_init(start, end - start);\n         }\n \n-        start += map[index / NJS_STRING_MAP_STRIDE - 1];\n+        size_t map_entries = ((end - start) / NJS_STRING_MAP_STRIDE) + 1;\n+        size_t map_index = index / NJS_STRING_MAP_STRIDE - 1;\n+        if (map_index >= map_entries) {\n+            return end;\n+        }\n+        start += map[map_index];\n     }\n \n     for (skip = index % NJS_STRING_MAP_STRIDE; skip != 0; skip--) {\n-        start = njs_utf8_next(start, end);\n+        /*\n+         * Ensure that we do not exceed the string bounds in the multi-byte sequence\n+         * case. If next UTF-8 character cannot be determined, break out.\n+         */\n+        const u_char *next = njs_utf8_next(start, end);\n+        if (next == start || next > end) {\n+            break;\n+        }\n+        start = next;\n     }\n \n     return start;\n"
+  },
+  "libredwg.cve-2020-21816": {
+    "instance_id": "libredwg.cve-2020-21816",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "mruby.cve-2022-0623": {
+    "instance_id": "mruby.cve-2022-0623",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/src/hash.c b/src/hash.c\nindex fc6b6fa..82b949d 100644\n--- a/src/hash.c\n+++ b/src/hash.c\n@@ -1151,7 +1151,11 @@ static mrb_value mrb_hash_default(mrb_state *mrb, mrb_value hash);\n static void\n hash_modify(mrb_state *mrb, mrb_value hash)\n {\n-  mrb_check_frozen(mrb, mrb_hash_ptr(hash));\n+  void *ptr = mrb_hash_ptr(hash);\n+  if (!ptr || ((uintptr_t)ptr) < 0x1000) {\n+    mrb_raise(mrb, E_RUNTIME_ERROR, \"invalid hash pointer in hash_modify\");\n+  }\n+  mrb_check_frozen(mrb, ptr);\n }\n \n static mrb_value\n"
+  },
+  "libarchive.cve-2019-11463": {
+    "instance_id": "libarchive.cve-2019-11463",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": "diff --git a/libarchive/archive_read_support_format_zip.c b/libarchive/archive_read_support_format_zip.c\nindex 677c437..b793de2 100644\n--- a/libarchive/archive_read_support_format_zip.c\n+++ b/libarchive/archive_read_support_format_zip.c\n@@ -1505,12 +1505,16 @@ zipx_lzma_alone_init(struct archive_read *a, struct zip *zip)\n \tif((p = __archive_read_ahead(a, 9, NULL)) == NULL) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Truncated lzma data\");\n+\t\tif (zip->zipx_lzma_valid)\n+\t\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n \tif(p[2] != 0x05 || p[3] != 0x00) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,\n \t\t    \"Invalid lzma data\");\n+\t\tif (zip->zipx_lzma_valid)\n+\t\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn (ARCHIVE_FATAL);\n \t}\n \n@@ -1547,6 +1551,8 @@ zipx_lzma_alone_init(struct archive_read *a, struct zip *zip)\n \tif (r != LZMA_OK) {\n \t\tarchive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,\n \t\t    \"lzma stream initialization error\");\n+\t\tif (zip->zipx_lzma_valid)\n+\t\t\tlzma_end(&zip->zipx_lzma_stream);\n \t\treturn ARCHIVE_FATAL;\n \t}\n \n"
+  },
+  "gpac.cve-2023-46930": {
+    "instance_id": "gpac.cve-2023-46930",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  },
+  "njs.cve-2022-29779": {
+    "instance_id": "njs.cve-2022-29779",
+    "model_name_or_path": "VulnResolver-o3-mini",
+    "model_patch": null
+  }
+}
