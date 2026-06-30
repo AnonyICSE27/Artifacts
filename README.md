@@ -2,7 +2,7 @@
 
 1. Clone repository
     ```shell
-    git clone https://github.com/AnonyASE26/Artifacts
+    git clone https://github.com/AnonyICSE27/Artifacts
     ```
 
 2. Prepare conda environment
