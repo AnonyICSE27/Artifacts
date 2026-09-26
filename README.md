@@ -75,6 +75,8 @@ The evaluation results will be saved in the directory `/path/to/pred_dir/preds_v
 
 ### I. Real-World Issues Resolved by Our Tool
 
+#### Paper-Reported
+
 | Project | Vulnerability Type | Issue ID | PR ID | PR Status |
 | :--- | :--- | :--- | :--- | :--- |
 | liblouis/liblouis | Memory leak | [#1902](https://github.com/liblouis/liblouis/issues/1902) | [#1920](https://github.com/liblouis/liblouis/pull/1920) | **Merged** |
@@ -82,9 +84,62 @@ The evaluation results will be saved in the directory `/path/to/pred_dir/preds_v
 | liblouis/liblouis | Stack buffer overflow | [#1859](https://github.com/liblouis/liblouis/issues/1859) | [#1922](https://github.com/liblouis/liblouis/pull/1922) | **Merged** |
 | liblouis/liblouis | Heap buffer overflow | [#1924](https://github.com/liblouis/liblouis/issues/1924) | [#1925](https://github.com/liblouis/liblouis/pull/1925) | **Merged** |
 | WebAssembly/wabt | Heap buffer Overflow | [#2557](https://github.com/WebAssembly/wabt/issues/2557) | [#2689](https://github.com/WebAssembly/wabt/pull/2689) | *Under Review* |
-| assimp/assimp | Heap buffer Overflow | [#6461](https://github.com/assimp/assimp/issues/6461) | [#6475](https://github.com/assimp/assimp/pull/6475) | `Approved` |
+| assimp/assimp | Heap buffer Overflow | [#6461](https://github.com/assimp/assimp/issues/6461) | [#6475](https://github.com/assimp/assimp/pull/6475) | **Merged** |
 | uclouvain/openjpeg | Heap buffer Overflow | [#1620](https://github.com/uclouvain/openjpeg/issues/1620) | [#1621](https://github.com/uclouvain/openjpeg/pull/1621) | **Merged** |
 | stephane/libmodbus | Stack buffer overflow | [#837](https://github.com/stephane/libmodbus/issues/837) | [#839](https://github.com/stephane/libmodbus/pull/839) | `Approved` |
+
+#### Newly Mined
+
+We submitted 46 pull requests for newly mined real-world issues, 3 of which have been merged so far.
+
+| Project | Vulnerability Type | Issue ID | PR ID | PR Status |
+| :--- | :--- | :--- | :--- | :--- |
+| prideout/par | Memory leak | [#61](https://github.com/prideout/par/issues/61) | [#66](https://github.com/prideout/par/pull/66) | **Merged** |
+| brechtsanders/xlsxio | Integer underflow | [#150](https://github.com/brechtsanders/xlsxio/issues/150) | [#152](https://github.com/brechtsanders/xlsxio/pull/152) | **Merged** |
+| trilinos/Trilinos | Heap buffer overflow | [#15712](https://github.com/trilinos/Trilinos/issues/15712) | [#15723](https://github.com/trilinos/Trilinos/pull/15723) | **Merged** |
+| ampproject/amphtml | Global out-of-bounds read | [#40420](https://github.com/ampproject/amphtml/issues/40420) | [#40554](https://github.com/ampproject/amphtml/pull/40554) | *Under Review* |
+| aria2/aria2 | SEGV | [#2382](https://github.com/aria2/aria2/issues/2382) | [#2401](https://github.com/aria2/aria2/pull/2401) | *Under Review* |
+| assimp/assimp | Heap buffer overflow | [#6624](https://github.com/assimp/assimp/issues/6624) | [#6885](https://github.com/assimp/assimp/pull/6885) | *Under Review* |
+| assimp/assimp | Heap buffer overflow | [#6629](https://github.com/assimp/assimp/issues/6629) | [#6886](https://github.com/assimp/assimp/pull/6886) | *Under Review* |
+| boostorg/beast | Out-of-bounds write | [#3109](https://github.com/boostorg/beast/issues/3109) | [#3112](https://github.com/boostorg/beast/pull/3112) | *Under Review* |
+| boostorg/mqtt5 | Use-after-free | [#55](https://github.com/boostorg/mqtt5/issues/55) | [#61](https://github.com/boostorg/mqtt5/pull/61) | *Under Review* |
+| Cisco-Talos/clamav | Memory leak | [#1787](https://github.com/Cisco-Talos/clamav/issues/1787) | [#1837](https://github.com/Cisco-Talos/clamav/pull/1837) | *Under Review* |
+| Cisco-Talos/clamav | Null pointer dereference | [#1811](https://github.com/Cisco-Talos/clamav/issues/1811) | [#1840](https://github.com/Cisco-Talos/clamav/pull/1840) | *Under Review* |
+| cisco/openh264 | Heap buffer overflow | [#3926](https://github.com/cisco/openh264/issues/3926) | [#4031](https://github.com/cisco/openh264/pull/4031) | *Under Review* |
+| cloudflare/lol-html | Use-after-free | [#336](https://github.com/cloudflare/lol-html/issues/336) | [#339](https://github.com/cloudflare/lol-html/pull/339) | *Under Review* |
+| DaveGamble/cJSON | Use-after-free | [#1022](https://github.com/DaveGamble/cJSON/issues/1022) | [#1092](https://github.com/DaveGamble/cJSON/pull/1092) | *Under Review* |
+| Exiv2/exiv2 | Invalid memory access | [#3530](https://github.com/Exiv2/exiv2/issues/3530) | [#9513](https://github.com/Exiv2/exiv2/pull/9513) | *Under Review* |
+| HDFGroup/hdf5 | Stack overflow | [#6403](https://github.com/HDFGroup/hdf5/issues/6403) | [#6685](https://github.com/HDFGroup/hdf5/pull/6685) | *Under Review* |
+| hercules-team/augeas | Stack overflow | [#869](https://github.com/hercules-team/augeas/issues/869) | [#901](https://github.com/hercules-team/augeas/pull/901) | *Under Review* |
+| hlslibs/ac_types | Integer overflow | [#35](https://github.com/hlslibs/ac_types/issues/35) | [#38](https://github.com/hlslibs/ac_types/pull/38) | *Under Review* |
+| jerryscript-project/jerryscript | Heap buffer overflow | [#5272](https://github.com/jerryscript-project/jerryscript/issues/5272) | [#5312](https://github.com/jerryscript-project/jerryscript/pull/5312) | *Under Review* |
+| jerryscript-project/jerryscript | Null pointer dereference | [#5292](https://github.com/jerryscript-project/jerryscript/issues/5292) | [#5313](https://github.com/jerryscript-project/jerryscript/pull/5313) | *Under Review* |
+| jerryscript-project/jerryscript | Global buffer overflow | [#5293](https://github.com/jerryscript-project/jerryscript/issues/5293) | [#5314](https://github.com/jerryscript-project/jerryscript/pull/5314) | *Under Review* |
+| jkuhlmann/cgltf | Heap buffer overflow | [#282](https://github.com/jkuhlmann/cgltf/issues/282) | [#310](https://github.com/jkuhlmann/cgltf/pull/310) | *Under Review* |
+| jmcnamara/libxlsxwriter | SEGV | [#525](https://github.com/jmcnamara/libxlsxwriter/issues/525) | [#527](https://github.com/jmcnamara/libxlsxwriter/pull/527) | *Under Review* |
+| khronosgroup/glslang | Null pointer dereference | [#4093](https://github.com/khronosgroup/glslang/issues/4093) | [#4447](https://github.com/khronosgroup/glslang/pull/4447) | *Under Review* |
+| khronosgroup/glslang | SEGV | [#4288](https://github.com/khronosgroup/glslang/issues/4288) | [#4443](https://github.com/khronosgroup/glslang/pull/4443) | *Under Review* |
+| KranX/Vangers | Out-of-bounds read | [#663](https://github.com/KranX/Vangers/issues/663) | [#681](https://github.com/KranX/Vangers/pull/681) | *Under Review* |
+| leanstore/leanstore | Memory leak | [#37](https://github.com/leanstore/leanstore/issues/37) | [#40](https://github.com/leanstore/leanstore/pull/40) | *Under Review* |
+| liblouis/liblouis | Out-of-bounds read | [#2000](https://github.com/liblouis/liblouis/issues/2000) | [#2107](https://github.com/liblouis/liblouis/pull/2107) | *Under Review* |
+| liblouis/liblouis | Heap buffer overflow | [#2096](https://github.com/liblouis/liblouis/issues/2096) | [#2104](https://github.com/liblouis/liblouis/pull/2104) | *Under Review* |
+| liblouis/liblouis | Heap buffer overflow | [#2097](https://github.com/liblouis/liblouis/issues/2097) | [#2105](https://github.com/liblouis/liblouis/pull/2105) | *Under Review* |
+| lifthrasiir/j40 | Heap buffer overflow | [#19](https://github.com/lifthrasiir/j40/issues/19) | [#20](https://github.com/lifthrasiir/j40/pull/20) | *Under Review* |
+| ogdf/ogdf | Double free | [#300](https://github.com/ogdf/ogdf/issues/300) | [#301](https://github.com/ogdf/ogdf/pull/301) | *Under Review* |
+| OGRECave/ogre | Out-of-bounds write | [#3737](https://github.com/OGRECave/ogre/issues/3737) | [#3740](https://github.com/OGRECave/ogre/pull/3740) | *Under Review* |
+| postgrespro/jsquery | Out-of-bounds read | [#58](https://github.com/postgrespro/jsquery/issues/58) | [#62](https://github.com/postgrespro/jsquery/pull/62) | *Under Review* |
+| stp/stp | Use-after-free | [#1140](https://github.com/stp/stp/issues/1140) | [#1141](https://github.com/stp/stp/pull/1141) | *Under Review* |
+| vincenthz/libjson | SEGV | [#33](https://github.com/vincenthz/libjson/issues/33) | [#34](https://github.com/vincenthz/libjson/pull/34) | *Under Review* |
+| vstakhov/libucl | Memory leak | [#340](https://github.com/vstakhov/libucl/issues/340) | [#403](https://github.com/vstakhov/libucl/pull/403) | *Under Review* |
+| vstakhov/libucl | Memory leak | [#345](https://github.com/vstakhov/libucl/issues/345) | [#405](https://github.com/vstakhov/libucl/pull/405) | *Under Review* |
+| vstakhov/libucl | SEGV | [#384](https://github.com/vstakhov/libucl/issues/384) | [#404](https://github.com/vstakhov/libucl/pull/404) | *Under Review* |
+| wren-lang/wren | Heap buffer overflow | [#1217](https://github.com/wren-lang/wren/issues/1217) | [#1246](https://github.com/wren-lang/wren/pull/1246) | *Under Review* |
+| wren-lang/wren | Heap buffer overflow | [#1218](https://github.com/wren-lang/wren/issues/1218) | [#1244](https://github.com/wren-lang/wren/pull/1244) | *Under Review* |
+| wren-lang/wren | Global buffer overflow | [#1219](https://github.com/wren-lang/wren/issues/1219) | [#1242](https://github.com/wren-lang/wren/pull/1242) | *Under Review* |
+| wren-lang/wren | Null pointer dereference | [#1220](https://github.com/wren-lang/wren/issues/1220) | [#1245](https://github.com/wren-lang/wren/pull/1245) | *Under Review* |
+| wren-lang/wren | Stack buffer overflow | [#1221](https://github.com/wren-lang/wren/issues/1221) | [#1243](https://github.com/wren-lang/wren/pull/1243) | *Under Review* |
+| xiph/flac | Heap buffer overflow | [#855](https://github.com/xiph/flac/issues/855) | [#932](https://github.com/xiph/flac/pull/932) | *Under Review* |
+| yasm/yasm | Heap buffer overflow | [#297](https://github.com/yasm/yasm/issues/297) | [#321](https://github.com/yasm/yasm/pull/321) | *Under Review* |
 
 
 ### II. Prompt for CPCAgent
