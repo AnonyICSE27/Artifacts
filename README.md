@@ -90,17 +90,17 @@ The evaluation results will be saved in the directory `/path/to/pred_dir/preds_v
 
 #### Newly Mined
 
-We submitted 46 pull requests for newly mined real-world issues, 3 of which have been merged so far.
+We submitted 46 pull requests for newly mined real-world issues, 4 of which have been merged so far.
 
 | Project | Vulnerability Type | Issue ID | PR ID | PR Status |
 | :--- | :--- | :--- | :--- | :--- |
 | prideout/par | Memory leak | [#61](https://github.com/prideout/par/issues/61) | [#66](https://github.com/prideout/par/pull/66) | **Merged** |
 | brechtsanders/xlsxio | Integer underflow | [#150](https://github.com/brechtsanders/xlsxio/issues/150) | [#152](https://github.com/brechtsanders/xlsxio/pull/152) | **Merged** |
 | trilinos/Trilinos | Heap buffer overflow | [#15712](https://github.com/trilinos/Trilinos/issues/15712) | [#15723](https://github.com/trilinos/Trilinos/pull/15723) | **Merged** |
+| assimp/assimp | Heap buffer overflow | [#6629](https://github.com/assimp/assimp/issues/6629) | [#6886](https://github.com/assimp/assimp/pull/6886) | **Merged** |
+| assimp/assimp | Heap buffer overflow | [#6624](https://github.com/assimp/assimp/issues/6624) | [#6885](https://github.com/assimp/assimp/pull/6885) | `Approved` |
 | ampproject/amphtml | Global out-of-bounds read | [#40420](https://github.com/ampproject/amphtml/issues/40420) | [#40554](https://github.com/ampproject/amphtml/pull/40554) | *Under Review* |
 | aria2/aria2 | SEGV | [#2382](https://github.com/aria2/aria2/issues/2382) | [#2401](https://github.com/aria2/aria2/pull/2401) | *Under Review* |
-| assimp/assimp | Heap buffer overflow | [#6624](https://github.com/assimp/assimp/issues/6624) | [#6885](https://github.com/assimp/assimp/pull/6885) | *Under Review* |
-| assimp/assimp | Heap buffer overflow | [#6629](https://github.com/assimp/assimp/issues/6629) | [#6886](https://github.com/assimp/assimp/pull/6886) | *Under Review* |
 | boostorg/beast | Out-of-bounds write | [#3109](https://github.com/boostorg/beast/issues/3109) | [#3112](https://github.com/boostorg/beast/pull/3112) | *Under Review* |
 | boostorg/mqtt5 | Use-after-free | [#55](https://github.com/boostorg/mqtt5/issues/55) | [#61](https://github.com/boostorg/mqtt5/pull/61) | *Under Review* |
 | Cisco-Talos/clamav | Memory leak | [#1787](https://github.com/Cisco-Talos/clamav/issues/1787) | [#1837](https://github.com/Cisco-Talos/clamav/pull/1837) | *Under Review* |
