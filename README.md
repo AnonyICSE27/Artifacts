@@ -90,7 +90,7 @@ The evaluation results will be saved in the directory `/path/to/pred_dir/preds_v
 
 #### Newly Mined
 
-We submitted 46 pull requests for newly mined real-world issues, 5 of which have been merged so far.
+We submitted 46 pull requests for newly mined real-world issues, 7 of which have been merged so far.
 
 | Project | Vulnerability Type | Issue ID | PR ID | PR Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -99,6 +99,8 @@ We submitted 46 pull requests for newly mined real-world issues, 5 of which have
 | trilinos/Trilinos | Heap buffer overflow | [#15712](https://github.com/trilinos/Trilinos/issues/15712) | [#15723](https://github.com/trilinos/Trilinos/pull/15723) | **Merged** |
 | assimp/assimp | Heap buffer overflow | [#6629](https://github.com/assimp/assimp/issues/6629) | [#6886](https://github.com/assimp/assimp/pull/6886) | **Merged** |
 | vstakhov/libucl | Memory leak | [#340](https://github.com/vstakhov/libucl/issues/340) | [#403](https://github.com/vstakhov/libucl/pull/403) | **Merged** |
+| vstakhov/libucl | Memory leak | [#345](https://github.com/vstakhov/libucl/issues/345) | [#405](https://github.com/vstakhov/libucl/pull/405) | **Merged** |
+| vstakhov/libucl | SEGV | [#384](https://github.com/vstakhov/libucl/issues/384) | [#404](https://github.com/vstakhov/libucl/pull/404) | **Merged** |
 | assimp/assimp | Heap buffer overflow | [#6624](https://github.com/assimp/assimp/issues/6624) | [#6885](https://github.com/assimp/assimp/pull/6885) | `Approved` |
 | ampproject/amphtml | Global out-of-bounds read | [#40420](https://github.com/ampproject/amphtml/issues/40420) | [#40554](https://github.com/ampproject/amphtml/pull/40554) | *Under Review* |
 | aria2/aria2 | SEGV | [#2382](https://github.com/aria2/aria2/issues/2382) | [#2401](https://github.com/aria2/aria2/pull/2401) | *Under Review* |
@@ -131,8 +133,6 @@ We submitted 46 pull requests for newly mined real-world issues, 5 of which have
 | postgrespro/jsquery | Out-of-bounds read | [#58](https://github.com/postgrespro/jsquery/issues/58) | [#62](https://github.com/postgrespro/jsquery/pull/62) | *Under Review* |
 | stp/stp | Use-after-free | [#1140](https://github.com/stp/stp/issues/1140) | [#1141](https://github.com/stp/stp/pull/1141) | *Under Review* |
 | vincenthz/libjson | SEGV | [#33](https://github.com/vincenthz/libjson/issues/33) | [#34](https://github.com/vincenthz/libjson/pull/34) | *Under Review* |
-| vstakhov/libucl | Memory leak | [#345](https://github.com/vstakhov/libucl/issues/345) | [#405](https://github.com/vstakhov/libucl/pull/405) | *Under Review* |
-| vstakhov/libucl | SEGV | [#384](https://github.com/vstakhov/libucl/issues/384) | [#404](https://github.com/vstakhov/libucl/pull/404) | *Under Review* |
 | wren-lang/wren | Heap buffer overflow | [#1217](https://github.com/wren-lang/wren/issues/1217) | [#1246](https://github.com/wren-lang/wren/pull/1246) | *Under Review* |
 | wren-lang/wren | Heap buffer overflow | [#1218](https://github.com/wren-lang/wren/issues/1218) | [#1244](https://github.com/wren-lang/wren/pull/1244) | *Under Review* |
 | wren-lang/wren | Global buffer overflow | [#1219](https://github.com/wren-lang/wren/issues/1219) | [#1242](https://github.com/wren-lang/wren/pull/1242) | *Under Review* |
