@@ -90,7 +90,7 @@ The evaluation results will be saved in the directory `/path/to/pred_dir/preds_v
 
 #### Newly Mined
 
-We submitted 46 pull requests for newly mined real-world issues, 8 of which have been merged so far.
+We submitted 46 pull requests for newly mined real-world issues, 9 of which have been merged so far.
 
 | Project | Vulnerability Type | Issue ID | PR ID | PR Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -102,6 +102,7 @@ We submitted 46 pull requests for newly mined real-world issues, 8 of which have
 | vstakhov/libucl | Memory leak | [#345](https://github.com/vstakhov/libucl/issues/345) | [#405](https://github.com/vstakhov/libucl/pull/405) | **Merged** |
 | vstakhov/libucl | SEGV | [#384](https://github.com/vstakhov/libucl/issues/384) | [#404](https://github.com/vstakhov/libucl/pull/404) | **Merged** |
 | khronosgroup/glslang | Null pointer dereference | [#4093](https://github.com/khronosgroup/glslang/issues/4093) | [#4447](https://github.com/khronosgroup/glslang/pull/4447) | **Merged** |
+| HDFGroup/hdf5 | Stack overflow | [#6403](https://github.com/HDFGroup/hdf5/issues/6403) | [#6685](https://github.com/HDFGroup/hdf5/pull/6685) | **Merged** |
 | assimp/assimp | Heap buffer overflow | [#6624](https://github.com/assimp/assimp/issues/6624) | [#6885](https://github.com/assimp/assimp/pull/6885) | `Approved` |
 | ampproject/amphtml | Global out-of-bounds read | [#40420](https://github.com/ampproject/amphtml/issues/40420) | [#40554](https://github.com/ampproject/amphtml/pull/40554) | *Under Review* |
 | aria2/aria2 | SEGV | [#2382](https://github.com/aria2/aria2/issues/2382) | [#2401](https://github.com/aria2/aria2/pull/2401) | *Under Review* |
@@ -113,7 +114,6 @@ We submitted 46 pull requests for newly mined real-world issues, 8 of which have
 | cloudflare/lol-html | Use-after-free | [#336](https://github.com/cloudflare/lol-html/issues/336) | [#339](https://github.com/cloudflare/lol-html/pull/339) | *Under Review* |
 | DaveGamble/cJSON | Use-after-free | [#1022](https://github.com/DaveGamble/cJSON/issues/1022) | [#1092](https://github.com/DaveGamble/cJSON/pull/1092) | *Under Review* |
 | Exiv2/exiv2 | Invalid memory access | [#3530](https://github.com/Exiv2/exiv2/issues/3530) | [#9513](https://github.com/Exiv2/exiv2/pull/9513) | *Under Review* |
-| HDFGroup/hdf5 | Stack overflow | [#6403](https://github.com/HDFGroup/hdf5/issues/6403) | [#6685](https://github.com/HDFGroup/hdf5/pull/6685) | *Under Review* |
 | hercules-team/augeas | Stack overflow | [#869](https://github.com/hercules-team/augeas/issues/869) | [#901](https://github.com/hercules-team/augeas/pull/901) | *Under Review* |
 | hlslibs/ac_types | Integer overflow | [#35](https://github.com/hlslibs/ac_types/issues/35) | [#38](https://github.com/hlslibs/ac_types/pull/38) | *Under Review* |
 | jerryscript-project/jerryscript | Heap buffer overflow | [#5272](https://github.com/jerryscript-project/jerryscript/issues/5272) | [#5312](https://github.com/jerryscript-project/jerryscript/pull/5312) | *Under Review* |
