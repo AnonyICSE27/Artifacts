@@ -90,7 +90,7 @@ The evaluation results will be saved in the directory `/path/to/pred_dir/preds_v
 
 #### Newly Mined
 
-We submitted 46 pull requests for newly mined real-world issues, 9 of which have been merged so far.
+We submitted 46 pull requests for newly mined real-world issues, 10 of which have been merged so far.
 
 | Project | Vulnerability Type | Issue ID | PR ID | PR Status |
 | :--- | :--- | :--- | :--- | :--- |
@@ -103,6 +103,7 @@ We submitted 46 pull requests for newly mined real-world issues, 9 of which have
 | vstakhov/libucl | SEGV | [#384](https://github.com/vstakhov/libucl/issues/384) | [#404](https://github.com/vstakhov/libucl/pull/404) | **Merged** |
 | khronosgroup/glslang | Null pointer dereference | [#4093](https://github.com/khronosgroup/glslang/issues/4093) | [#4447](https://github.com/khronosgroup/glslang/pull/4447) | **Merged** |
 | HDFGroup/hdf5 | Stack overflow | [#6403](https://github.com/HDFGroup/hdf5/issues/6403) | [#6685](https://github.com/HDFGroup/hdf5/pull/6685) | **Merged** |
+| khronosgroup/glslang | SEGV | [#4288](https://github.com/khronosgroup/glslang/issues/4288) | [#4443](https://github.com/khronosgroup/glslang/pull/4443) | **Merged** |
 | assimp/assimp | Heap buffer overflow | [#6624](https://github.com/assimp/assimp/issues/6624) | [#6885](https://github.com/assimp/assimp/pull/6885) | `Approved` |
 | ampproject/amphtml | Global out-of-bounds read | [#40420](https://github.com/ampproject/amphtml/issues/40420) | [#40554](https://github.com/ampproject/amphtml/pull/40554) | *Under Review* |
 | aria2/aria2 | SEGV | [#2382](https://github.com/aria2/aria2/issues/2382) | [#2401](https://github.com/aria2/aria2/pull/2401) | *Under Review* |
@@ -121,7 +122,6 @@ We submitted 46 pull requests for newly mined real-world issues, 9 of which have
 | jerryscript-project/jerryscript | Global buffer overflow | [#5293](https://github.com/jerryscript-project/jerryscript/issues/5293) | [#5314](https://github.com/jerryscript-project/jerryscript/pull/5314) | *Under Review* |
 | jkuhlmann/cgltf | Heap buffer overflow | [#282](https://github.com/jkuhlmann/cgltf/issues/282) | [#310](https://github.com/jkuhlmann/cgltf/pull/310) | *Under Review* |
 | jmcnamara/libxlsxwriter | SEGV | [#525](https://github.com/jmcnamara/libxlsxwriter/issues/525) | [#527](https://github.com/jmcnamara/libxlsxwriter/pull/527) | *Under Review* |
-| khronosgroup/glslang | SEGV | [#4288](https://github.com/khronosgroup/glslang/issues/4288) | [#4443](https://github.com/khronosgroup/glslang/pull/4443) | *Under Review* |
 | KranX/Vangers | Out-of-bounds read | [#663](https://github.com/KranX/Vangers/issues/663) | [#681](https://github.com/KranX/Vangers/pull/681) | *Under Review* |
 | leanstore/leanstore | Memory leak | [#37](https://github.com/leanstore/leanstore/issues/37) | [#40](https://github.com/leanstore/leanstore/pull/40) | *Under Review* |
 | liblouis/liblouis | Out-of-bounds read | [#2000](https://github.com/liblouis/liblouis/issues/2000) | [#2107](https://github.com/liblouis/liblouis/pull/2107) | *Under Review* |
